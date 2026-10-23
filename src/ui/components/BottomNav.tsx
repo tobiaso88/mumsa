@@ -10,7 +10,7 @@ function items(): Item[] {
     { label: 'Dag', route: { name: 'day', date: today }, active: (r) => r.name === 'day' },
     { label: 'Lägg till', route: addRouteNow(now), active: (r) => r.name === 'add' },
     { label: 'Vecka', route: { name: 'week', date: today }, active: (r) => r.name === 'week' },
-    { label: 'Profil', route: { name: 'profile' }, active: (r) => r.name === 'profile' },
+    { label: 'Profil', route: { name: 'profile' }, active: (r) => r.name === 'profile' || r.name === 'settings' },
   ]
 }
 

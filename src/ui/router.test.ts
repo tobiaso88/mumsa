@@ -23,6 +23,7 @@ describe('parseHash', () => {
     ['#/vecka/2026-10-19', { name: 'week', date: '2026-10-19' }],
     ['#/vecka', { name: 'week', date: today }],
     ['#/profil', { name: 'profile' }],
+    ['#/installningar', { name: 'settings' }],
     ['#/okand', { name: 'day', date: today }],
   ])('tolkar %s', (hash, route) => {
     expect(parseHash(hash, now)).toEqual(route)
@@ -39,6 +40,7 @@ describe('toHash', () => {
     { name: 'food', action: 'new', date: '2026-10-20', meal: 'snack', ref: undefined },
     { name: 'week', date: '2026-10-19' },
     { name: 'profile' },
+    { name: 'settings' },
   ])('går att tolka tillbaka: %o', (route) => {
     expect(parseHash(toHash(route), now)).toEqual(route)
   })

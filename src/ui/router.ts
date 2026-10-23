@@ -16,6 +16,7 @@ export type Route =
   | ({ name: 'food'; action: FoodFormAction; ref?: string } & AddContext)
   | { name: 'week'; date: IsoDate }
   | { name: 'profile' }
+  | { name: 'settings' }
 
 const MEAL_SLUGS: Record<Meal, string> = {
   breakfast: 'frukost',
@@ -70,6 +71,8 @@ export function parseHash(hash: string, now: Date): Route {
       return { name: 'week', date }
     case 'profil':
       return { name: 'profile' }
+    case 'installningar':
+      return { name: 'settings' }
     default:
       return { name: 'day', date }
   }
@@ -97,6 +100,8 @@ export function toHash(route: Route): string {
       return `#/vecka/${route.date}`
     case 'profile':
       return '#/profil'
+    case 'settings':
+      return '#/installningar'
   }
 }
 
