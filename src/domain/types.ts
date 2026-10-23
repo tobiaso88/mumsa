@@ -9,7 +9,8 @@ export type Nutrients = {
   fat: number
 }
 
-export type FoodSource = 'off' | 'custom'
+/** off: Open Food Facts, slv: Livsmedelsverket (buntad), custom: eget. */
+export type FoodSource = 'off' | 'slv' | 'custom'
 
 export type Food = {
   id: string

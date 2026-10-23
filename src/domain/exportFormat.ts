@@ -43,7 +43,7 @@ function isFood(v: unknown): v is Food {
     isStr(v.name) &&
     isOptStr(v.brand) &&
     isOptStr(v.barcode) &&
-    (v.source === 'off' || v.source === 'custom') &&
+    (v.source === 'off' || v.source === 'slv' || v.source === 'custom') &&
     isNutrients(v.per100g) &&
     (v.servingGrams === undefined || (isNum(v.servingGrams) && v.servingGrams > 0)) &&
     isOptStr(v.servingLabel) &&

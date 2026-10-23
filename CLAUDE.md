@@ -13,7 +13,7 @@ De stora kostappar som finns är låsta bakom abonnemang, kräver konto och saml
 ## Funktioner i MVP
 
 1. Profil och mål: kalorimål och fördelning av protein, kolhydrater och fett (manuellt eller beräknat från vikt, längd, ålder och aktivitetsnivå).
-2. Sök livsmedel via Open Food Facts och logga mängd i gram eller portioner, uppdelat på frukost, lunch, middag och mellanmål.
+2. Sök livsmedel i Livsmedelsverkets livsmedelsdatabas (buntad med appen) och bland egna och tidigare skannade livsmedel, och logga mängd i gram eller portioner, uppdelat på frukost, lunch, middag och mellanmål.
 3. Streckkodsskanning med mobilens kamera.
 4. Egna livsmedel för det som saknas eller är fel i databasen.
 5. Dagsvy med intag mot mål och veckovy med enkel graf.
@@ -26,7 +26,8 @@ Utanför scope: konton, synk mellan enheter, kostplaner, recept, AI-funktioner, 
 - **TypeScript + React + Vite**: väletablerat, snabb utvecklingsmiljö och bygger till statiska filer som kan ligga på GitHub Pages.
 - **vite-plugin-pwa**: installerbar app och offlinestöd via service worker.
 - **IndexedDB via Dexie**: all användardata lagras lokalt i webbläsaren. Ingen backend att drifta.
-- **Open Food Facts API**: öppen och gratis livsmedelsdatabas med bra täckning av svenska produkter.
+- **Open Food Facts API**: öppen och gratis livsmedelsdatabas med bra täckning av svenska produkter. Används bara för streckkodsuppslag, eftersom deras fritextsökning inte går att anropa från webbläsaren (CORS).
+- **Livsmedelsverkets livsmedelsdatabas** (CC BY 4.0): cirka 2 500 basvaror buntade som JSON i `src/data/livsmedelsverket.json` för fritextsökning offline. Uppdateras med `npm run data:livsmedel`. Livsmedelsverket ska anges som källa i appen och i README.
 - **BarcodeDetector-API:t** med **@zxing/browser** som reserv för webbläsare som saknar det (till exempel Safari).
 - **Vitest** och **Testing Library** för tester, **Playwright** för några end-to-end-flöden.
 - **GitHub Actions** bygger, testar och deployar till GitHub Pages vid push till `main`.
