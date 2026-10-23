@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+
+const OFFLINE_NOTICE_MS = 5000
 
 /** Visar en rad när en ny version av appen finns, eller när appen är redo att användas offline. */
 export function UpdatePrompt() {
@@ -7,6 +10,12 @@ export function UpdatePrompt() {
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = useRegisterSW()
+
+  useEffect(() => {
+    if (!offlineReady) return
+    const timer = setTimeout(() => setOfflineReady(false), OFFLINE_NOTICE_MS)
+    return () => clearTimeout(timer)
+  }, [offlineReady, setOfflineReady])
 
   if (needRefresh) {
     return (

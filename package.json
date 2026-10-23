@@ -12,7 +12,8 @@
     "e2e": "playwright test",
     "lint": "eslint . && tsc -b",
     "data:livsmedel": "node scripts/build-livsmedel.ts",
-    "icons": "node scripts/build-icons.ts"
+    "icons": "node scripts/build-icons.ts",
+    "screenshots": "SCREENSHOTS=1 playwright test --grep @skärmdump"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",

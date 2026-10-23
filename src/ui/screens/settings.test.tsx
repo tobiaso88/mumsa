@@ -93,6 +93,22 @@ it.each([
   expect(screen.queryByRole('button', { name: 'Importera' })).not.toBeInTheDocument()
 })
 
+it('går att nå utan mål och behåller kvittot när importen skapar ett mål', async () => {
+  const exported = await exportAll(db)
+  await db.settings.clear()
+  window.location.hash = ''
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('link', { name: /Importera en säkerhetskopia/ }))
+  await user.upload(await screen.findByLabelText('Importera från fil'), jsonFile(exported))
+  await user.click(await screen.findByRole('button', { name: 'Importera' }))
+
+  expect(await screen.findByText(/Klart!/)).toBeInTheDocument()
+  expect(await screen.findByRole('navigation', { name: 'Huvudmeny' })).toBeInTheDocument()
+  expect(screen.getByText(/Klart!/)).toBeInTheDocument()
+})
+
 it('anger Livsmedelsverket och Open Food Facts som källor', async () => {
   render(<App db={db} />)
   expect(await screen.findByText(/Källa: Livsmedelsverkets livsmedelsdatabas \(CC BY 4.0\)/)).toBeInTheDocument()

@@ -1,0 +1,684 @@
+{
+  "app": "mumsa",
+  "version": 1,
+  "exportedAt": "2026-10-23T20:00:00.000Z",
+  "foods": [
+    {
+      "id": "custom:demo-bulle",
+      "name": "Kanelbulle hembakad",
+      "source": "custom",
+      "per100g": {
+        "kcal": 340,
+        "protein": 6.5,
+        "carbs": 48,
+        "fat": 13
+      },
+      "servingGrams": 45,
+      "servingLabel": "1 bulle",
+      "updatedAt": "2026-10-18T10:00:00.000Z"
+    },
+    {
+      "id": "off:7300400481588",
+      "name": "Knäckebröd råg",
+      "brand": "Exempelbageriet",
+      "barcode": "7300400481588",
+      "source": "off",
+      "per100g": {
+        "kcal": 350,
+        "protein": 10,
+        "carbs": 62,
+        "fat": 2
+      },
+      "servingGrams": 12,
+      "servingLabel": "1 skiva",
+      "updatedAt": "2026-10-18T10:00:00.000Z"
+    }
+  ],
+  "entries": [
+    {
+      "id": "demo-2026-10-19-0",
+      "date": "2026-10-19",
+      "meal": "breakfast",
+      "foodId": "slv:702",
+      "foodName": "Havregryn fullkorn",
+      "per100g": {
+        "kcal": 375,
+        "protein": 9.5,
+        "carbs": 64.1,
+        "fat": 7
+      },
+      "grams": 70,
+      "createdAt": "2026-10-19T07:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-1",
+      "date": "2026-10-19",
+      "meal": "breakfast",
+      "foodId": "slv:123",
+      "foodName": "Mjölk fett 3% berikad",
+      "per100g": {
+        "kcal": 60,
+        "protein": 3.6,
+        "carbs": 4.6,
+        "fat": 3
+      },
+      "grams": 200,
+      "createdAt": "2026-10-19T08:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-2",
+      "date": "2026-10-19",
+      "meal": "lunch",
+      "foodId": "slv:1170",
+      "foodName": "Kyckling bröstfilé färsk stekt u. skinn",
+      "per100g": {
+        "kcal": 116,
+        "protein": 23,
+        "carbs": 0,
+        "fat": 2.5
+      },
+      "grams": 150,
+      "createdAt": "2026-10-19T09:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-3",
+      "date": "2026-10-19",
+      "meal": "lunch",
+      "foodId": "slv:804",
+      "foodName": "Ris råris kokt m. salt",
+      "per100g": {
+        "kcal": 107,
+        "protein": 2.5,
+        "carbs": 21.3,
+        "fat": 0.9
+      },
+      "grams": 200,
+      "createdAt": "2026-10-19T10:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-4",
+      "date": "2026-10-19",
+      "meal": "lunch",
+      "foodId": "slv:325",
+      "foodName": "Broccoli",
+      "per100g": {
+        "kcal": 36,
+        "protein": 2.9,
+        "carbs": 3.5,
+        "fat": 0.6
+      },
+      "grams": 100,
+      "createdAt": "2026-10-19T11:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-5",
+      "date": "2026-10-19",
+      "meal": "dinner",
+      "foodId": "slv:846",
+      "foodName": "Pasta kokt u. salt",
+      "per100g": {
+        "kcal": 128,
+        "protein": 4.2,
+        "carbs": 25.8,
+        "fat": 0.5
+      },
+      "grams": 250,
+      "createdAt": "2026-10-19T12:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-6",
+      "date": "2026-10-19",
+      "meal": "dinner",
+      "foodId": "slv:1269",
+      "foodName": "Lax kallrökt",
+      "per100g": {
+        "kcal": 173,
+        "protein": 20,
+        "carbs": 1.3,
+        "fat": 9.8
+      },
+      "grams": 120,
+      "createdAt": "2026-10-19T13:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-19-7",
+      "date": "2026-10-19",
+      "meal": "snack",
+      "foodId": "slv:553",
+      "foodName": "Banan",
+      "per100g": {
+        "kcal": 95,
+        "protein": 1.1,
+        "carbs": 21.3,
+        "fat": 0.1
+      },
+      "grams": 120,
+      "createdAt": "2026-10-19T14:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-0",
+      "date": "2026-10-20",
+      "meal": "breakfast",
+      "foodId": "off:7300400481588",
+      "foodName": "Knäckebröd råg, Exempelbageriet",
+      "per100g": {
+        "kcal": 350,
+        "protein": 10,
+        "carbs": 62,
+        "fat": 2
+      },
+      "grams": 36,
+      "createdAt": "2026-10-20T07:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-1",
+      "date": "2026-10-20",
+      "meal": "breakfast",
+      "foodId": "slv:78",
+      "foodName": "Ost hårdost fett 23%",
+      "per100g": {
+        "kcal": 325,
+        "protein": 29.2,
+        "carbs": 0.8,
+        "fat": 23
+      },
+      "grams": 20,
+      "createdAt": "2026-10-20T08:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-2",
+      "date": "2026-10-20",
+      "meal": "breakfast",
+      "foodId": "slv:2205",
+      "foodName": "Ägg kokt",
+      "per100g": {
+        "kcal": 136,
+        "protein": 12.1,
+        "carbs": 0,
+        "fat": 9.8
+      },
+      "grams": 55,
+      "createdAt": "2026-10-20T09:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-3",
+      "date": "2026-10-20",
+      "meal": "lunch",
+      "foodId": "slv:846",
+      "foodName": "Pasta kokt u. salt",
+      "per100g": {
+        "kcal": 128,
+        "protein": 4.2,
+        "carbs": 25.8,
+        "fat": 0.5
+      },
+      "grams": 220,
+      "createdAt": "2026-10-20T10:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-4",
+      "date": "2026-10-20",
+      "meal": "lunch",
+      "foodId": "slv:1170",
+      "foodName": "Kyckling bröstfilé färsk stekt u. skinn",
+      "per100g": {
+        "kcal": 116,
+        "protein": 23,
+        "carbs": 0,
+        "fat": 2.5
+      },
+      "grams": 130,
+      "createdAt": "2026-10-20T11:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-5",
+      "date": "2026-10-20",
+      "meal": "dinner",
+      "foodId": "slv:4458",
+      "foodName": "Potatis kokt m. salt",
+      "per100g": {
+        "kcal": 83,
+        "protein": 1.8,
+        "carbs": 17.5,
+        "fat": 0.1
+      },
+      "grams": 250,
+      "createdAt": "2026-10-20T12:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-6",
+      "date": "2026-10-20",
+      "meal": "dinner",
+      "foodId": "slv:1255",
+      "foodName": "Lax odlad Norge fjordlax rå",
+      "per100g": {
+        "kcal": 210,
+        "protein": 20.2,
+        "carbs": 0.7,
+        "fat": 14.1
+      },
+      "grams": 150,
+      "createdAt": "2026-10-20T13:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-20-7",
+      "date": "2026-10-20",
+      "meal": "snack",
+      "foodId": "custom:demo-bulle",
+      "foodName": "Kanelbulle hembakad",
+      "per100g": {
+        "kcal": 340,
+        "protein": 6.5,
+        "carbs": 48,
+        "fat": 13
+      },
+      "grams": 90,
+      "createdAt": "2026-10-20T14:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-0",
+      "date": "2026-10-21",
+      "meal": "breakfast",
+      "foodId": "slv:124",
+      "foodName": "Yoghurt naturell fett 3% berikad",
+      "per100g": {
+        "kcal": 56,
+        "protein": 3.4,
+        "carbs": 4.5,
+        "fat": 2.7
+      },
+      "grams": 250,
+      "createdAt": "2026-10-21T07:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-1",
+      "date": "2026-10-21",
+      "meal": "breakfast",
+      "foodId": "slv:702",
+      "foodName": "Havregryn fullkorn",
+      "per100g": {
+        "kcal": 375,
+        "protein": 9.5,
+        "carbs": 64.1,
+        "fat": 7
+      },
+      "grams": 40,
+      "createdAt": "2026-10-21T08:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-2",
+      "date": "2026-10-21",
+      "meal": "lunch",
+      "foodId": "slv:804",
+      "foodName": "Ris råris kokt m. salt",
+      "per100g": {
+        "kcal": 107,
+        "protein": 2.5,
+        "carbs": 21.3,
+        "fat": 0.9
+      },
+      "grams": 220,
+      "createdAt": "2026-10-21T09:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-3",
+      "date": "2026-10-21",
+      "meal": "lunch",
+      "foodId": "slv:1172",
+      "foodName": "Kyckling bröstfilé strimlad wokad u. skinn m. rapsolja",
+      "per100g": {
+        "kcal": 164,
+        "protein": 29.4,
+        "carbs": 0,
+        "fat": 5
+      },
+      "grams": 140,
+      "createdAt": "2026-10-21T10:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-4",
+      "date": "2026-10-21",
+      "meal": "dinner",
+      "foodId": "slv:846",
+      "foodName": "Pasta kokt u. salt",
+      "per100g": {
+        "kcal": 128,
+        "protein": 4.2,
+        "carbs": 25.8,
+        "fat": 0.5
+      },
+      "grams": 300,
+      "createdAt": "2026-10-21T11:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-5",
+      "date": "2026-10-21",
+      "meal": "dinner",
+      "foodId": "slv:325",
+      "foodName": "Broccoli",
+      "per100g": {
+        "kcal": 36,
+        "protein": 2.9,
+        "carbs": 3.5,
+        "fat": 0.6
+      },
+      "grams": 120,
+      "createdAt": "2026-10-21T12:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-6",
+      "date": "2026-10-21",
+      "meal": "snack",
+      "foodId": "slv:588",
+      "foodName": "Äpple m. skal",
+      "per100g": {
+        "kcal": 48,
+        "protein": 0,
+        "carbs": 10.6,
+        "fat": 0
+      },
+      "grams": 150,
+      "createdAt": "2026-10-21T13:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-21-7",
+      "date": "2026-10-21",
+      "meal": "snack",
+      "foodId": "custom:demo-bulle",
+      "foodName": "Kanelbulle hembakad",
+      "per100g": {
+        "kcal": 340,
+        "protein": 6.5,
+        "carbs": 48,
+        "fat": 13
+      },
+      "grams": 45,
+      "createdAt": "2026-10-21T14:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-0",
+      "date": "2026-10-22",
+      "meal": "breakfast",
+      "foodId": "slv:702",
+      "foodName": "Havregryn fullkorn",
+      "per100g": {
+        "kcal": 375,
+        "protein": 9.5,
+        "carbs": 64.1,
+        "fat": 7
+      },
+      "grams": 60,
+      "createdAt": "2026-10-22T07:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-1",
+      "date": "2026-10-22",
+      "meal": "breakfast",
+      "foodId": "slv:123",
+      "foodName": "Mjölk fett 3% berikad",
+      "per100g": {
+        "kcal": 60,
+        "protein": 3.6,
+        "carbs": 4.6,
+        "fat": 3
+      },
+      "grams": 200,
+      "createdAt": "2026-10-22T08:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-2",
+      "date": "2026-10-22",
+      "meal": "breakfast",
+      "foodId": "slv:553",
+      "foodName": "Banan",
+      "per100g": {
+        "kcal": 95,
+        "protein": 1.1,
+        "carbs": 21.3,
+        "fat": 0.1
+      },
+      "grams": 120,
+      "createdAt": "2026-10-22T09:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-3",
+      "date": "2026-10-22",
+      "meal": "lunch",
+      "foodId": "slv:1170",
+      "foodName": "Kyckling bröstfilé färsk stekt u. skinn",
+      "per100g": {
+        "kcal": 116,
+        "protein": 23,
+        "carbs": 0,
+        "fat": 2.5
+      },
+      "grams": 140,
+      "createdAt": "2026-10-22T10:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-4",
+      "date": "2026-10-22",
+      "meal": "lunch",
+      "foodId": "slv:4458",
+      "foodName": "Potatis kokt m. salt",
+      "per100g": {
+        "kcal": 83,
+        "protein": 1.8,
+        "carbs": 17.5,
+        "fat": 0.1
+      },
+      "grams": 250,
+      "createdAt": "2026-10-22T11:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-5",
+      "date": "2026-10-22",
+      "meal": "lunch",
+      "foodId": "slv:325",
+      "foodName": "Broccoli",
+      "per100g": {
+        "kcal": 36,
+        "protein": 2.9,
+        "carbs": 3.5,
+        "fat": 0.6
+      },
+      "grams": 100,
+      "createdAt": "2026-10-22T12:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-6",
+      "date": "2026-10-22",
+      "meal": "dinner",
+      "foodId": "slv:1255",
+      "foodName": "Lax odlad Norge fjordlax rå",
+      "per100g": {
+        "kcal": 210,
+        "protein": 20.2,
+        "carbs": 0.7,
+        "fat": 14.1
+      },
+      "grams": 140,
+      "createdAt": "2026-10-22T13:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-7",
+      "date": "2026-10-22",
+      "meal": "dinner",
+      "foodId": "slv:804",
+      "foodName": "Ris råris kokt m. salt",
+      "per100g": {
+        "kcal": 107,
+        "protein": 2.5,
+        "carbs": 21.3,
+        "fat": 0.9
+      },
+      "grams": 180,
+      "createdAt": "2026-10-22T14:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-8",
+      "date": "2026-10-22",
+      "meal": "snack",
+      "foodId": "off:7300400481588",
+      "foodName": "Knäckebröd råg, Exempelbageriet",
+      "per100g": {
+        "kcal": 350,
+        "protein": 10,
+        "carbs": 62,
+        "fat": 2
+      },
+      "grams": 24,
+      "createdAt": "2026-10-22T15:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-22-9",
+      "date": "2026-10-22",
+      "meal": "snack",
+      "foodId": "slv:78",
+      "foodName": "Ost hårdost fett 23%",
+      "per100g": {
+        "kcal": 325,
+        "protein": 29.2,
+        "carbs": 0.8,
+        "fat": 23
+      },
+      "grams": 20,
+      "createdAt": "2026-10-22T16:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-0",
+      "date": "2026-10-23",
+      "meal": "breakfast",
+      "foodId": "slv:124",
+      "foodName": "Yoghurt naturell fett 3% berikad",
+      "per100g": {
+        "kcal": 56,
+        "protein": 3.4,
+        "carbs": 4.5,
+        "fat": 2.7
+      },
+      "grams": 200,
+      "createdAt": "2026-10-23T07:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-1",
+      "date": "2026-10-23",
+      "meal": "breakfast",
+      "foodId": "slv:702",
+      "foodName": "Havregryn fullkorn",
+      "per100g": {
+        "kcal": 375,
+        "protein": 9.5,
+        "carbs": 64.1,
+        "fat": 7
+      },
+      "grams": 40,
+      "createdAt": "2026-10-23T08:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-2",
+      "date": "2026-10-23",
+      "meal": "lunch",
+      "foodId": "slv:846",
+      "foodName": "Pasta kokt u. salt",
+      "per100g": {
+        "kcal": 128,
+        "protein": 4.2,
+        "carbs": 25.8,
+        "fat": 0.5
+      },
+      "grams": 250,
+      "createdAt": "2026-10-23T09:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-3",
+      "date": "2026-10-23",
+      "meal": "lunch",
+      "foodId": "slv:1269",
+      "foodName": "Lax kallrökt",
+      "per100g": {
+        "kcal": 173,
+        "protein": 20,
+        "carbs": 1.3,
+        "fat": 9.8
+      },
+      "grams": 100,
+      "createdAt": "2026-10-23T10:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-4",
+      "date": "2026-10-23",
+      "meal": "dinner",
+      "foodId": "slv:242",
+      "foodName": "Potatis kokt stekt m. salt",
+      "per100g": {
+        "kcal": 145,
+        "protein": 2.3,
+        "carbs": 21.8,
+        "fat": 4.7
+      },
+      "grams": 300,
+      "createdAt": "2026-10-23T11:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-5",
+      "date": "2026-10-23",
+      "meal": "dinner",
+      "foodId": "slv:2205",
+      "foodName": "Ägg kokt",
+      "per100g": {
+        "kcal": 136,
+        "protein": 12.1,
+        "carbs": 0,
+        "fat": 9.8
+      },
+      "grams": 110,
+      "createdAt": "2026-10-23T12:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-6",
+      "date": "2026-10-23",
+      "meal": "snack",
+      "foodId": "custom:demo-bulle",
+      "foodName": "Kanelbulle hembakad",
+      "per100g": {
+        "kcal": 340,
+        "protein": 6.5,
+        "carbs": 48,
+        "fat": 13
+      },
+      "grams": 135,
+      "createdAt": "2026-10-23T13:00:00.000Z"
+    },
+    {
+      "id": "demo-2026-10-23-7",
+      "date": "2026-10-23",
+      "meal": "snack",
+      "foodId": "slv:588",
+      "foodName": "Äpple m. skal",
+      "per100g": {
+        "kcal": 48,
+        "protein": 0,
+        "carbs": 10.6,
+        "fat": 0
+      },
+      "grams": 150,
+      "createdAt": "2026-10-23T14:00:00.000Z"
+    }
+  ],
+  "goals": {
+    "kcal": 1800,
+    "split": {
+      "proteinPct": 25,
+      "carbsPct": 45,
+      "fatPct": 30
+    }
+  },
+  "profile": {
+    "weightKg": 74,
+    "heightCm": 178,
+    "ageYears": 34,
+    "sex": "male",
+    "activity": "light"
+  }
+}

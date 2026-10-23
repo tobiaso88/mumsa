@@ -17,18 +17,24 @@ function Shell() {
   const route = useRoute()
 
   if (goals === undefined) return null
-  if (goals === null) return <OnboardingScreen />
+  // Inställningarna går att nå utan mål så att en ny enhet kan importera en säkerhetskopia
+  if (goals === null && route.name !== 'settings') return <OnboardingScreen />
 
+  // Inställningarna ligger först så att de inte monteras om när en import skapar ett mål
   return (
     <>
-      {route.name === 'day' && <DayScreen date={route.date} goals={goals} />}
-      {route.name === 'add' && <AddFoodScreen key={toHash(route)} date={route.date} meal={route.meal} foodId={route.foodId} />}
-      {route.name === 'scan' && <ScanScreen key={toHash(route)} date={route.date} meal={route.meal} />}
-      {route.name === 'food' && <FoodFormScreen key={toHash(route)} {...route} />}
-      {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
-      {route.name === 'profile' && <ProfileScreen goals={goals} />}
       {route.name === 'settings' && <SettingsScreen />}
-      <BottomNav route={route} />
+      {goals && (
+        <>
+          {route.name === 'day' && <DayScreen date={route.date} goals={goals} />}
+          {route.name === 'add' && <AddFoodScreen key={toHash(route)} date={route.date} meal={route.meal} foodId={route.foodId} />}
+          {route.name === 'scan' && <ScanScreen key={toHash(route)} date={route.date} meal={route.meal} />}
+          {route.name === 'food' && <FoodFormScreen key={toHash(route)} {...route} />}
+          {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
+          {route.name === 'profile' && <ProfileScreen goals={goals} />}
+          <BottomNav route={route} />
+        </>
+      )}
     </>
   )
 }

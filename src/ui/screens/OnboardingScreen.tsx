@@ -1,4 +1,5 @@
 import { GoalsForm } from '../components/GoalsForm'
+import { toHash } from '../router'
 
 export function OnboardingScreen() {
   return (
@@ -10,6 +11,9 @@ export function OnboardingScreen() {
         </p>
       </header>
       <GoalsForm goals={null} profile={null} submitLabel="Kom igång" />
+      <a className="button-secondary" href={toHash({ name: 'settings' })}>
+        Flytta från en annan enhet? Importera en säkerhetskopia
+      </a>
     </main>
   )
 }

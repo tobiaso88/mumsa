@@ -8,7 +8,7 @@ export function SettingsScreen() {
     <main className="screen stack">
       <header>
         <a className="hint" href={toHash({ name: 'profile' })}>
-          ‹ Profil
+          ‹ Tillbaka
         </a>
         <h1>Inställningar och data</h1>
       </header>

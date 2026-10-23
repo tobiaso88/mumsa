@@ -582,8 +582,10 @@ input[type='file']::file-selector-button {
   position: fixed;
   left: var(--gutter);
   right: var(--gutter);
-  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 0.75rem);
+  top: calc(env(safe-area-inset-top) + 0.5rem);
   z-index: 20;
+  /* Klick går igenom notisen, utom på dess egna knappar */
+  pointer-events: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -602,6 +604,7 @@ input[type='file']::file-selector-button {
 }
 
 .toast button {
+  pointer-events: auto;
   border: 0;
   background: transparent;
   color: inherit;
