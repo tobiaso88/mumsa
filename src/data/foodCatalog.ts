@@ -1,8 +1,9 @@
 import { searchFoods } from '../domain/search'
 import type { Food } from '../domain/types'
 import type { MumsaDb } from './db'
-import { getFood, getFoods } from './foodsRepo'
+import { cacheOffFoods, findByBarcode, getFood, getFoods } from './foodsRepo'
 import { loadSlvFoods } from './livsmedelsverket'
+import { getByBarcode } from './openFoodFacts'
 
 /**
  * Söker bland alla livsmedel som finns utan nätverk: egna, sparade från
@@ -28,4 +29,17 @@ export async function findFoods(db: MumsaDb, ids: readonly string[]): Promise<Fo
   ])
   const byId = new Map([...stored, ...slv].map((f) => [f.id, f]))
   return ids.map((id) => byId.get(id)).filter((f): f is Food => f !== undefined)
+}
+
+/**
+ * Slår upp en streckkod: först bland sparade livsmedel, sedan hos Open Food
+ * Facts. Träffar från Open Food Facts sparas så att de finns offline nästa gång.
+ * Kastar OffError om Open Food Facts inte går att nå.
+ */
+export async function lookupBarcode(db: MumsaDb, barcode: string, signal?: AbortSignal): Promise<Food | null> {
+  const local = await findByBarcode(db, barcode)
+  if (local) return local
+  const remote = await getByBarcode(barcode, signal)
+  if (remote) await cacheOffFoods(db, [remote])
+  return remote
 }

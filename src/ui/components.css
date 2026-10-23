@@ -66,7 +66,8 @@ fieldset.card > legend {
   margin-top: 0;
 }
 
-.field-row + .field {
+.field-row + .field,
+.field-row + .field-row {
   margin-top: 0.75rem;
 }
 
@@ -458,4 +459,42 @@ h2 {
   margin: 0;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.button-row .button-secondary {
+  margin-top: 0;
+}
+
+.scanner video[hidden] {
+  display: none;
+}
+
+.scanner video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: #000;
+}
+
+.manual-barcode {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.manual-barcode .button-primary {
+  width: auto;
+  padding-inline: 1.25rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
 }

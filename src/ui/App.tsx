@@ -6,8 +6,10 @@ import { toHash, useRoute } from './router'
 import { DayScreen } from './screens/DayScreen'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { AddFoodScreen } from './screens/AddFoodScreen'
+import { FoodFormScreen } from './screens/FoodFormScreen'
 import { PlaceholderScreen } from './screens/PlaceholderScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
+import { ScanScreen } from './screens/ScanScreen'
 
 function Shell() {
   const goals = useGoals()
@@ -19,7 +21,9 @@ function Shell() {
   return (
     <>
       {route.name === 'day' && <DayScreen date={route.date} goals={goals} />}
-      {route.name === 'add' && <AddFoodScreen key={toHash(route)} date={route.date} meal={route.meal} />}
+      {route.name === 'add' && <AddFoodScreen key={toHash(route)} date={route.date} meal={route.meal} foodId={route.foodId} />}
+      {route.name === 'scan' && <ScanScreen key={toHash(route)} date={route.date} meal={route.meal} />}
+      {route.name === 'food' && <FoodFormScreen key={toHash(route)} {...route} />}
       {route.name === 'week' && <PlaceholderScreen title="Veckan" />}
       {route.name === 'profile' && <ProfileScreen goals={goals} />}
       <BottomNav route={route} />

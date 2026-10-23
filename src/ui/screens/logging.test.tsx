@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { MumsaDb } from '../../data/db'
 import { addEntry, getEntriesForDate } from '../../data/entriesRepo'
@@ -30,7 +30,11 @@ beforeEach(async () => {
   await saveGoals(db, { kcal: 2000, split: { proteinPct: 25, carbsPct: 45, fatPct: 30 } })
   window.location.hash = ''
 })
-afterEach(() => db.delete())
+// Avmontera innan databasen tas bort så att inga frågor körs mot en stängd databas
+afterEach(async () => {
+  cleanup()
+  await db.delete()
+})
 
 it('visar dagens intag mot målet och per måltid', async () => {
   await addEntry(db, { date: today, meal: 'breakfast', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 80, per100g: oats })

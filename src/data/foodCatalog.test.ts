@@ -1,6 +1,7 @@
 import { makeFood } from '../domain/testData'
 import type { MumsaDb } from './db'
-import { findFood, findFoods, searchAllFoods } from './foodCatalog'
+import { findFood, findFoods, lookupBarcode, searchAllFoods } from './foodCatalog'
+import productFixture from './fixtures/off-product.json'
 import { cacheOffFoods, createCustomFood } from './foodsRepo'
 import { createTestDb } from './testDb'
 
@@ -20,7 +21,10 @@ let db: MumsaDb
 beforeEach(() => {
   db = createTestDb()
 })
-afterEach(() => db.delete())
+afterEach(async () => {
+  vi.unstubAllGlobals()
+  await db.delete()
+})
 
 const per100g = { kcal: 100, protein: 1, carbs: 2, fat: 3 }
 
@@ -50,4 +54,30 @@ it('slår upp blandade id i given ordning', async () => {
   const own = await createCustomFood(db, { name: 'Eget', per100g })
   const ids = (await findFoods(db, ['slv:2', own.id, 'saknas', 'slv:1'])).map((f) => f.id)
   expect(ids).toEqual(['slv:2', own.id, 'slv:1'])
+})
+
+describe('lookupBarcode', () => {
+  it('hittar sparade livsmedel utan nätverk', async () => {
+    const fetch = vi.fn()
+    vi.stubGlobal('fetch', fetch)
+    const own = await createCustomFood(db, { name: 'Eget bröd', barcode: '7310130321184', per100g })
+    expect(await lookupBarcode(db, '7310130321184')).toEqual(own)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('hämtar från Open Food Facts och sparar träffen', async () => {
+    const fetch = vi.fn(() => Promise.resolve(Response.json(productFixture)))
+    vi.stubGlobal('fetch', fetch)
+    const food = await lookupBarcode(db, '7310130321184')
+    expect(food?.name).toBe('AXA Fiber havregryn')
+    expect(await findFood(db, 'off:7310130321184')).toEqual(food)
+
+    expect(await lookupBarcode(db, '7310130321184')).toEqual(food)
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('ger null för okänd produkt', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(Response.json({ status: 0 }, { status: 404 }))))
+    expect(await lookupBarcode(db, '7310000000001')).toBeNull()
+  })
 })

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { MumsaDb } from '../data/db'
 import { getGoals, getProfile, saveGoals } from '../data/settingsRepo'
@@ -10,7 +10,11 @@ beforeEach(() => {
   db = createTestDb()
   window.location.hash = ''
 })
-afterEach(() => db.delete())
+// Avmontera innan databasen tas bort så att inga frågor körs mot en stängd databas
+afterEach(async () => {
+  cleanup()
+  await db.delete()
+})
 
 const goals = { kcal: 2000, split: { proteinPct: 25, carbsPct: 45, fatPct: 30 } }
 
