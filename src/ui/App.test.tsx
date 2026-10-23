@@ -23,7 +23,7 @@ it('visar introduktionen när inget mål är satt och dagsvyn efter att målet s
   await user.type(screen.getByLabelText('Kalorimål per dag'), '1900')
   await user.click(screen.getByRole('button', { name: 'Kom igång' }))
 
-  expect(await screen.findByText('Mål: 1 900 kcal')).toBeInTheDocument()
+  expect(await screen.findByText('0 av 1 900 kcal')).toBeInTheDocument()
   expect(screen.getByRole('navigation', { name: 'Huvudmeny' })).toBeInTheDocument()
   expect(await getGoals(db)).toEqual({ kcal: 1900, split: goals.split })
 })
@@ -46,7 +46,7 @@ it('räknar ut mål från profilen och sparar profilen', async () => {
   expect(screen.getByText(/ingen rekommendation eller medicinsk bedömning/)).toBeInTheDocument()
   await user.click(start)
 
-  expect(await screen.findByText('Mål: 2 556 kcal')).toBeInTheDocument()
+  expect(await screen.findByText('0 av 2 556 kcal')).toBeInTheDocument()
   expect(await getProfile(db)).toEqual({ weightKg: 70, heightCm: 175, ageYears: 30, sex: 'male', activity: 'moderate' })
 })
 

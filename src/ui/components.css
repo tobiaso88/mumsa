@@ -218,3 +218,244 @@ select {
   color: var(--accent);
   font-weight: 700;
 }
+
+h2 {
+  font-size: 1.0625rem;
+  margin: 0;
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.day-title {
+  flex: 1;
+  text-align: center;
+}
+
+.day-title .hint {
+  display: block;
+  margin-top: 0.125rem;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.75rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--border);
+}
+
+.day-summary > * + * {
+  margin-top: 0.75rem;
+}
+
+.kcal-headline {
+  text-align: center;
+}
+
+.kcal-headline p {
+  margin: 0;
+}
+
+.kcal-big {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.kcal-caption {
+  font-weight: 600;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.meal-kcal {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-list,
+.food-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.entry-list li + li,
+.food-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.entry-name {
+  overflow-wrap: anywhere;
+}
+
+.entry-brand,
+.entry-meta {
+  color: var(--text-muted);
+}
+
+.entry-meta {
+  font-size: 0.8125rem;
+}
+
+.button-secondary,
+.button-danger {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button-danger {
+  color: var(--error);
+}
+
+.search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.search-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.food-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 var(--gutter);
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: var(--gutter);
+  padding-bottom: calc(var(--gutter) + env(safe-area-inset-bottom));
+}
+
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: var(--gutter);
+}
+
+.sheet-header h2 {
+  padding-top: 0.6rem;
+  overflow-wrap: anywhere;
+}
+
+.nutrient-preview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin: var(--gutter) 0 0;
+  text-align: center;
+}
+
+.nutrient-preview div {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.25rem;
+}
+
+.nutrient-preview dt {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.nutrient-preview dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

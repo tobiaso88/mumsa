@@ -1,13 +1,14 @@
 import { toIsoDate } from '../../domain/dates'
-import { toHash, type Route } from '../router'
+import { addRouteNow, toHash, type Route } from '../router'
 
 type Item = { label: string; route: Route; active: (r: Route) => boolean }
 
 function items(): Item[] {
-  const today = toIsoDate(new Date())
+  const now = new Date()
+  const today = toIsoDate(now)
   return [
     { label: 'Dag', route: { name: 'day', date: today }, active: (r) => r.name === 'day' },
-    { label: 'Sök', route: { name: 'search' }, active: (r) => r.name === 'search' },
+    { label: 'Lägg till', route: addRouteNow(now), active: (r) => r.name === 'add' },
     { label: 'Vecka', route: { name: 'week', date: today }, active: (r) => r.name === 'week' },
     { label: 'Profil', route: { name: 'profile' }, active: (r) => r.name === 'profile' },
   ]

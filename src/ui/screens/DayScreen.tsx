@@ -1,12 +1,33 @@
-import type { Goals, IsoDate } from '../../domain/types'
-import { formatDayTitle, formatNumber } from '../format'
+import { useState } from 'react'
+import { summarizeDay } from '../../domain/summary'
+import { MEALS, type Goals, type IsoDate, type LogEntry } from '../../domain/types'
+import { DayHeader } from '../components/DayHeader'
+import { DaySummary } from '../components/DaySummary'
+import { EditEntrySheet } from '../components/EditEntrySheet'
+import { MealSection } from '../components/MealSection'
+import { useDayEntries } from '../hooks/useEntries'
 
-// Byggs ut med intag och måltider i fas 4
 export function DayScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
+  const entries = useDayEntries(date)
+  const [editing, setEditing] = useState<LogEntry | null>(null)
+  if (!entries) return null
+  const summary = summarizeDay(entries)
+
   return (
     <main className="screen stack">
-      <h1>{formatDayTitle(date)}</h1>
-      <p className="card">Mål: {formatNumber(goals.kcal)} kcal</p>
+      <DayHeader date={date} />
+      <DaySummary total={summary.total} goals={goals} />
+      {MEALS.map((meal) => (
+        <MealSection
+          key={meal}
+          date={date}
+          meal={meal}
+          entries={entries.filter((e) => e.meal === meal)}
+          total={summary.byMeal[meal]}
+          onSelect={setEditing}
+        />
+      ))}
+      {editing && <EditEntrySheet entry={editing} onClose={() => setEditing(null)} />}
     </main>
   )
 }
