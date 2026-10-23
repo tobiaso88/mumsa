@@ -1,4 +1,4 @@
-import { addDays, isIsoDate, parseIsoDate, startOfWeek, toIsoDate, weekDates } from './dates'
+import { addDays, isIsoDate, isoWeekNumber, parseIsoDate, startOfWeek, toIsoDate, weekDates } from './dates'
 
 describe('toIsoDate', () => {
   it('formaterar lokalt datum med nollutfyllnad', () => {
@@ -55,5 +55,19 @@ describe('weekDates', () => {
       '2026-10-31',
       '2026-11-01',
     ])
+  })
+})
+
+describe('isoWeekNumber', () => {
+  it.each([
+    ['2026-10-23', 43],
+    ['2026-01-01', 1], // torsdag
+    ['2025-12-29', 1], // måndag i vecka 1 2026
+    ['2027-01-01', 53], // fredag i vecka 53 2026
+    ['2027-01-04', 1],
+    ['2024-12-30', 1],
+    ['2021-01-03', 53], // söndag i vecka 53 2020
+  ])('%s ligger i vecka %i', (date, week) => {
+    expect(isoWeekNumber(date)).toBe(week)
   })
 })

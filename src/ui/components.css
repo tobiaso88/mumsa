@@ -498,3 +498,47 @@ h2 {
   font-size: 0.875rem;
   color: var(--text-muted);
 }
+
+.week-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.week-chart .bar {
+  fill: var(--accent);
+}
+
+.week-chart .bar-over {
+  fill: var(--carbs);
+}
+
+.week-chart .axis {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.week-chart .axis-today {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+.week-chart .goal-line {
+  stroke: var(--text-muted);
+  stroke-dasharray: 4 4;
+}
+
+.week-chart .baseline {
+  stroke: var(--border);
+}
+
+.week-day {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+}
+
+.week-day .entry-name::first-letter {
+  text-transform: uppercase;
+}

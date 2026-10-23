@@ -1,4 +1,4 @@
-import { formatDayTitle, formatNumber, parseNumber, toInputText } from './format'
+import { formatDayTitle, formatNumber, formatShortDate, formatWeekdayShort, parseNumber, toInputText } from './format'
 
 describe('parseNumber', () => {
   it.each([
@@ -31,5 +31,12 @@ describe('toInputText', () => {
     expect(toInputText(72.5)).toBe('72,5')
     expect(parseNumber(toInputText(72.5))).toBe(72.5)
     expect(toInputText(undefined)).toBe('')
+  })
+})
+
+describe('formatShortDate och formatWeekdayShort', () => {
+  it('ger korta svenska format utan punkt', () => {
+    expect(formatShortDate('2026-10-19')).toBe('19 okt')
+    expect(formatWeekdayShort('2026-10-19')).toBe('mån')
   })
 })

@@ -43,3 +43,12 @@ export function startOfWeek(value: IsoDate): IsoDate {
 export function weekDates(weekStart: IsoDate): IsoDate[] {
   return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 }
+
+/** Veckonummer enligt ISO 8601, som används i Sverige. */
+export function isoWeekNumber(value: IsoDate): number {
+  // Veckan tillhör det år dess torsdag ligger i
+  const thursday = parseIsoDate(addDays(startOfWeek(value), 3))
+  const firstThursday = parseIsoDate(addDays(startOfWeek(`${thursday.getFullYear()}-01-04`), 3))
+  const days = Math.round((thursday.getTime() - firstThursday.getTime()) / 86_400_000)
+  return 1 + Math.round(days / 7)
+}
