@@ -1,6 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
 import type { CustomFoodInput } from '../../data/foodsRepo'
-import { MAX_KCAL_PER_100G, type NutrientIssue } from '../../domain/foodValidation'
+import { MAX_KCAL_PER_100G, MAX_TEXT_LENGTH, type NutrientIssue } from '../../domain/foodValidation'
 import { formatNumber } from '../format'
 import { useFoodForm, type FoodFormInitial } from '../hooks/useFoodForm'
 import { NumberField } from './NumberField'
@@ -34,8 +34,8 @@ export function FoodForm({ initial, submitLabel, onSubmit, extraActions, busy, e
   return (
     <form className="stack" onSubmit={handleSubmit}>
       <div className="card">
-        <TextField label="Namn" value={fields.name} onChange={(v) => set('name', v)} />
-        <TextField label="Varumärke (valfritt)" value={fields.brand} onChange={(v) => set('brand', v)} />
+        <TextField label="Namn" value={fields.name} onChange={(v) => set('name', v)} maxLength={MAX_TEXT_LENGTH} />
+        <TextField label="Varumärke (valfritt)" value={fields.brand} onChange={(v) => set('brand', v)} maxLength={MAX_TEXT_LENGTH} />
         <TextField label="Streckkod (valfritt)" value={fields.barcode} onChange={(v) => set('barcode', v)} inputMode="numeric" />
         {!barcodeValid && <p className="error">Streckkoden ska vara 6–14 siffror.</p>}
       </div>
@@ -64,7 +64,7 @@ export function FoodForm({ initial, submitLabel, onSubmit, extraActions, busy, e
         <legend>Portion (valfritt)</legend>
         <div className="field-row">
           <NumberField label="Portionsstorlek" unit="g" value={fields.servingGrams} onChange={(v) => set('servingGrams', v)} invalid={!servingValid} />
-          <TextField label="Beskrivning" value={fields.servingLabel} onChange={(v) => set('servingLabel', v)} />
+          <TextField label="Beskrivning" value={fields.servingLabel} onChange={(v) => set('servingLabel', v)} maxLength={MAX_TEXT_LENGTH} />
         </div>
         <p className="hint">Till exempel 30 g och ”1 skiva”.</p>
       </fieldset>

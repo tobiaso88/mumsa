@@ -1,3 +1,4 @@
+import { MAX_TEXT_LENGTH } from '../domain/foodValidation'
 import productFixture from './fixtures/off-product.json'
 import { getByBarcode, mapOffProduct, OffError } from './openFoodFacts'
 
@@ -54,6 +55,31 @@ describe('mapOffProduct', () => {
     ['protein', { nutriments: { 'energy-kcal_100g': 100, carbohydrates_100g: 1, fat_100g: 1 } }],
   ])('ger null när %s saknas', (_, override) => {
     expect(mapOffProduct({ ...productFixture.product, product_name_sv: undefined, ...override }, now)).toBeNull()
+  })
+
+  it.each([
+    ['för hög energi', { 'energy-kcal_100g': 5000, proteins_100g: 1, carbohydrates_100g: 1, fat_100g: 1 }],
+    ['makron över 100 g', { 'energy-kcal_100g': 400, proteins_100g: 80, carbohydrates_100g: 80, fat_100g: 1 }],
+  ])('ger null vid %s', (_, nutriments) => {
+    expect(mapOffProduct({ ...productFixture.product, nutriments }, now)).toBeNull()
+  })
+
+  it('ger null när streckkoden inte är siffror', () => {
+    expect(mapOffProduct({ ...productFixture.product, code: '../1234567' }, now)).toBeNull()
+  })
+
+  it('kortar långa texter', () => {
+    const long = 'a'.repeat(MAX_TEXT_LENGTH + 50)
+    const food = mapOffProduct({ ...productFixture.product, product_name_sv: long, brands: long, serving_size: long }, now)
+    expect(food?.name).toHaveLength(MAX_TEXT_LENGTH)
+    expect(food?.brand).toHaveLength(MAX_TEXT_LENGTH)
+    expect(food?.servingLabel).toHaveLength(MAX_TEXT_LENGTH)
+  })
+
+  it('ignorerar orimligt stora portioner', () => {
+    const food = mapOffProduct({ ...productFixture.product, serving_quantity: 1e9 }, now)
+    expect(food?.servingGrams).toBeUndefined()
+    expect(food?.servingLabel).toBeUndefined()
   })
 
   it('ignorerar portioner i andra enheter än gram och milliliter', () => {

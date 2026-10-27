@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { CustomFoodInput } from '../../data/foodsRepo'
 import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
-import { kcalLooksOff, nutrientIssues } from '../../domain/foodValidation'
+import { kcalLooksOff, MAX_TEXT_LENGTH, nutrientIssues } from '../../domain/foodValidation'
+import { isValidAmount } from '../../domain/nutrition'
 import type { Food, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 
@@ -19,17 +20,20 @@ export type FoodFormFields = {
 
 export type FoodFormInitial = Partial<Pick<Food, 'name' | 'brand' | 'barcode' | 'per100g' | 'servingGrams' | 'servingLabel'>>
 
+/** Kortar text som sparades innan längdgränsen fanns, så att formuläret går att spara. */
+const initialText = (text: string | undefined) => (text ?? '').slice(0, MAX_TEXT_LENGTH)
+
 function initialFields(food: FoodFormInitial): FoodFormFields {
   return {
-    name: food.name ?? '',
-    brand: food.brand ?? '',
+    name: initialText(food.name),
+    brand: initialText(food.brand),
     barcode: food.barcode ?? '',
     kcal: toInputText(food.per100g?.kcal),
     protein: toInputText(food.per100g?.protein),
     carbs: toInputText(food.per100g?.carbs),
     fat: toInputText(food.per100g?.fat),
     servingGrams: toInputText(food.servingGrams),
-    servingLabel: food.servingLabel ?? '',
+    servingLabel: initialText(food.servingLabel),
   }
 }
 
@@ -50,7 +54,7 @@ export function useFoodForm(initial: FoodFormInitial) {
   // Visa inga fel innan användaren har börjat fylla i näringen
   const touched = [fields.kcal, fields.protein, fields.carbs, fields.fat].some((f) => f.trim() !== '')
   const serving = fields.servingGrams.trim() === '' ? undefined : parseNumber(fields.servingGrams)
-  const servingValid = serving === undefined || (Number.isFinite(serving) && serving > 0)
+  const servingValid = serving === undefined || isValidAmount(serving)
   const barcode = normalizeBarcode(fields.barcode)
   const barcodeValid = barcode === '' || isValidBarcode(barcode)
   const nameValid = fields.name.trim() !== ''

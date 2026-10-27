@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { isValidBarcode } from '../domain/barcode'
 import { isIsoDate, toIsoDate } from '../domain/dates'
 import { defaultMealForHour } from '../domain/meals'
 import type { IsoDate, Meal } from '../domain/types'
@@ -48,8 +49,14 @@ function parseAddContext(date: string | undefined, meal: string | undefined): Ad
   return date && isIsoDate(date) && parsedMeal ? { date, meal: parsedMeal } : undefined
 }
 
+/** Ger undefined för en del som saknas eller har trasig %-kodning, så att en felaktig adress inte kraschar appen. */
 function decode(part: string | undefined): string | undefined {
-  return part ? decodeURIComponent(part) : undefined
+  if (!part) return undefined
+  try {
+    return decodeURIComponent(part)
+  } catch {
+    return undefined
+  }
 }
 
 export function parseHash(hash: string, now: Date): Route {
@@ -67,7 +74,7 @@ export function parseHash(hash: string, now: Date): Route {
       const action = fromSlug(FOOD_ACTION_SLUGS, first) ?? 'new'
       const context = parseAddContext(second, third) ?? addContextNow(now)
       const ref = decode(fourth)
-      if (action === 'new') return { name: 'food', action, ...context, barcode: ref }
+      if (action === 'new') return { name: 'food', action, ...context, barcode: ref && isValidBarcode(ref) ? ref : undefined }
       return ref ? { name: 'food', action, ...context, foodId: ref } : { name: 'add', ...context }
     }
     case 'vecka':

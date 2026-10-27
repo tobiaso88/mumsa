@@ -1,6 +1,9 @@
+import { isValidBarcode } from './barcode'
 import { isIsoDate } from './dates'
 import { idMatchesSource } from './foodIds'
-import { isValidProfile, isValidSplit } from './goals'
+import { MAX_TEXT_LENGTH, nutrientIssues } from './foodValidation'
+import { isValidGoalKcal, isValidProfile, isValidSplit } from './goals'
+import { isValidAmount } from './nutrition'
 import {
   ACTIVITY_LEVELS,
   FOOD_SOURCES,
@@ -47,41 +50,53 @@ const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
 const isNonNegNum = (v: unknown): v is number => isNum(v) && v >= 0
 const isStr = (v: unknown): v is string => typeof v === 'string'
-const isOptStr = (v: unknown) => v === undefined || isStr(v)
+const isText = (v: unknown): v is string => isStr(v) && v.length <= MAX_TEXT_LENGTH
+const isOptText = (v: unknown) => v === undefined || isText(v)
+/** Id och namn får inte vara tomma. */
+const isNonEmptyText = (v: unknown): v is string => isText(v) && v.trim() !== ''
+const isTimestamp = (v: unknown): v is string => isStr(v) && !Number.isNaN(Date.parse(v))
 const isOneOf = <T>(list: readonly T[], v: unknown): v is T => (list as readonly unknown[]).includes(v)
 
+/** Samma gränser som när ett livsmedel sparas i formuläret. */
 function isNutrients(v: unknown): v is Nutrients {
-  return isObj(v) && isNonNegNum(v.kcal) && isNonNegNum(v.protein) && isNonNegNum(v.carbs) && isNonNegNum(v.fat)
+  return (
+    isObj(v) &&
+    isNonNegNum(v.kcal) &&
+    isNonNegNum(v.protein) &&
+    isNonNegNum(v.carbs) &&
+    isNonNegNum(v.fat) &&
+    nutrientIssues(v as Nutrients).length === 0
+  )
 }
 
 function isFood(v: unknown): v is Food {
   return (
     isObj(v) &&
-    isStr(v.id) &&
-    isStr(v.name) &&
-    isOptStr(v.brand) &&
-    isOptStr(v.barcode) &&
+    isNonEmptyText(v.id) &&
+    isNonEmptyText(v.name) &&
+    isOptText(v.brand) &&
+    (v.barcode === undefined || (isStr(v.barcode) && isValidBarcode(v.barcode))) &&
     isOneOf(FOOD_SOURCES, v.source) &&
     idMatchesSource(v.id, v.source) &&
     isNutrients(v.per100g) &&
-    (v.servingGrams === undefined || (isNum(v.servingGrams) && v.servingGrams > 0)) &&
-    isOptStr(v.servingLabel) &&
-    isStr(v.updatedAt)
+    (v.servingGrams === undefined || (isNum(v.servingGrams) && isValidAmount(v.servingGrams))) &&
+    isOptText(v.servingLabel) &&
+    isTimestamp(v.updatedAt)
   )
 }
 
 function isEntry(v: unknown): v is LogEntry {
   return (
     isObj(v) &&
-    isStr(v.id) &&
+    isNonEmptyText(v.id) &&
     isIsoDate(v.date) &&
     isOneOf(MEALS, v.meal) &&
-    isStr(v.foodId) &&
-    isStr(v.foodName) &&
+    isNonEmptyText(v.foodId) &&
+    isNonEmptyText(v.foodName) &&
     isNum(v.grams) &&
-    v.grams > 0 &&
+    isValidAmount(v.grams) &&
     isNutrients(v.per100g) &&
-    isStr(v.createdAt)
+    isTimestamp(v.createdAt)
   )
 }
 
@@ -89,7 +104,7 @@ function isGoals(v: unknown): v is Goals {
   return (
     isObj(v) &&
     isNum(v.kcal) &&
-    v.kcal > 0 &&
+    isValidGoalKcal(v.kcal) &&
     isObj(v.split) &&
     isNum(v.split.proteinPct) &&
     isNum(v.split.carbsPct) &&

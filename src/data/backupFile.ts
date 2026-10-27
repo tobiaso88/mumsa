@@ -18,13 +18,17 @@ export function downloadExport(data: ExportData, now = new Date()): void {
   URL.revokeObjectURL(url)
 }
 
-export type JsonFileResult = { ok: true; json: unknown } | { ok: false }
+/** Flera års loggning ryms på några megabyte. Större filer läses inte, så att fliken inte fryser. */
+export const MAX_IMPORT_BYTES = 50 * 1024 * 1024
 
-/** Läser en vald fil som JSON. ok är falskt om filen inte går att läsa eller inte är giltig JSON. */
-export async function readJsonFile(file: File): Promise<JsonFileResult> {
+export type JsonFileResult = { ok: true; json: unknown } | { ok: false; reason: 'tooLarge' | 'invalid' }
+
+/** Läser en vald fil som JSON. ok är falskt om filen är för stor, inte går att läsa eller inte är giltig JSON. */
+export async function readJsonFile(file: File, maxBytes = MAX_IMPORT_BYTES): Promise<JsonFileResult> {
+  if (file.size > maxBytes) return { ok: false, reason: 'tooLarge' }
   try {
     return { ok: true, json: JSON.parse(await file.text()) as unknown }
   } catch {
-    return { ok: false }
+    return { ok: false, reason: 'invalid' }
   }
 }

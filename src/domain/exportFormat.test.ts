@@ -1,4 +1,5 @@
 import { createExport, migrateExport, validateImport, type Migration } from './exportFormat'
+import { MAX_TEXT_LENGTH } from './foodValidation'
 import { makeEntry, makeFood } from './testData'
 
 const valid = createExport(
@@ -55,6 +56,18 @@ describe('validateImport', () => {
     ['noll gram', { ...valid, entries: [makeEntry({ grams: 0 })] }, 'Loggpost nummer 1'],
     ['fel makrosumma', { ...valid, goals: { kcal: 2000, split: { proteinPct: 50, carbsPct: 50, fatPct: 50 } } }, 'Målen'],
     ['orimlig profil', { ...valid, profile: { ...valid.profile, ageYears: 5 } }, 'Profilen'],
+    ['för hög energi', { ...valid, foods: [makeFood({ per100g: { kcal: 1e300, protein: 0, carbs: 0, fat: 0 } })] }, 'Livsmedel nummer 1'],
+    ['makron över 100 g', { ...valid, foods: [makeFood({ per100g: { kcal: 400, protein: 60, carbs: 60, fat: 0 } })] }, 'Livsmedel nummer 1'],
+    ['för långt namn', { ...valid, foods: [makeFood({ name: 'a'.repeat(MAX_TEXT_LENGTH + 1) })] }, 'Livsmedel nummer 1'],
+    ['tomt namn', { ...valid, foods: [makeFood({ name: '  ' })] }, 'Livsmedel nummer 1'],
+    ['ogiltig streckkod', { ...valid, foods: [makeFood({ barcode: '12ab' })] }, 'Livsmedel nummer 1'],
+    ['för stor portion', { ...valid, foods: [makeFood({ servingGrams: 1e9 })] }, 'Livsmedel nummer 1'],
+    ['ogiltig tidpunkt för livsmedel', { ...valid, foods: [makeFood({ updatedAt: 'igår' })] }, 'Livsmedel nummer 1'],
+    ['för många gram', { ...valid, entries: [makeEntry({ grams: 1e9 })] }, 'Loggpost nummer 1'],
+    ['orimlig näring i loggpost', { ...valid, entries: [makeEntry({ per100g: { kcal: 5000, protein: 0, carbs: 0, fat: 0 } })] }, 'Loggpost nummer 1'],
+    ['tomt id för loggpost', { ...valid, entries: [makeEntry({ id: '' })] }, 'Loggpost nummer 1'],
+    ['ogiltig tidpunkt för loggpost', { ...valid, entries: [makeEntry({ createdAt: 'nyss' })] }, 'Loggpost nummer 1'],
+    ['orimligt kalorimål', { ...valid, goals: { ...valid.goals, kcal: 1e9 } }, 'Målen'],
   ])('avvisar %s', (_, input, message) => {
     const result = validateImport(input)
     expect(result.ok).toBe(false)

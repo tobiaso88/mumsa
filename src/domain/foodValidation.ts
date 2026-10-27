@@ -7,6 +7,8 @@ export type NutrientIssue = 'negative' | 'macrosOver100' | 'kcalTooHigh'
 export const MAX_MACROS_PER_100G = 105
 /** Rent fett ger cirka 900 kcal per 100 g. Gränsen har lite marginal för avrundning. */
 export const MAX_KCAL_PER_100G = 950
+/** Längsta namn, varumärke eller portionsbeskrivning. Gäller både formulär, import och Open Food Facts. */
+export const MAX_TEXT_LENGTH = 200
 
 /** Hårda fel som gör värdena omöjliga per 100 g. */
 export function nutrientIssues(n: Nutrients): NutrientIssue[] {

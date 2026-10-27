@@ -13,7 +13,10 @@ export type ImportState =
 /** Läser och validerar en vald fil, så att innehållet kan granskas innan det läses in. */
 async function readImportFile(file: File): Promise<ImportState> {
   const read = await readJsonFile(file)
-  if (!read.ok) return { kind: 'invalid', error: 'Filen är inte giltig JSON.' }
+  if (!read.ok) {
+    const error = read.reason === 'tooLarge' ? 'Filen är för stor för att vara en export från Mumsa.' : 'Filen är inte giltig JSON.'
+    return { kind: 'invalid', error }
+  }
   const result = validateImport(read.json)
   if (!result.ok) return { kind: 'invalid', error: result.error }
   return { kind: 'ready', data: result.data, skippedFoods: result.skippedFoods }
