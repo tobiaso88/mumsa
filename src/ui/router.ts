@@ -2,18 +2,21 @@ import { useSyncExternalStore } from 'react'
 import { isIsoDate, toIsoDate } from '../domain/dates'
 import { defaultMealForHour } from '../domain/meals'
 import type { IsoDate, Meal } from '../domain/types'
+import { useToday } from './todayContext'
 
 /** Var användaren befinner sig i lägg till-flödet, så att man kan återvända dit. */
 export type AddContext = { date: IsoDate; meal: Meal }
 
 export type FoodFormAction = 'new' | 'copy' | 'edit'
 
+/** Ett nytt livsmedel kan få en streckkod i förväg. Att kopiera eller ändra kräver ett befintligt livsmedel. */
+export type FoodFormTarget = { action: 'new'; barcode?: string } | { action: 'copy' | 'edit'; foodId: string }
+
 export type Route =
   | { name: 'day'; date: IsoDate }
   | ({ name: 'add'; foodId?: string } & AddContext)
   | ({ name: 'scan' } & AddContext)
-  /** ref är streckkod för new och livsmedels-id för copy och edit. */
-  | ({ name: 'food'; action: FoodFormAction; ref?: string } & AddContext)
+  | ({ name: 'food' } & FoodFormTarget & AddContext)
   | { name: 'week'; date: IsoDate }
   | { name: 'profile' }
   | { name: 'settings' }
@@ -64,8 +67,8 @@ export function parseHash(hash: string, now: Date): Route {
       const action = fromSlug(FOOD_ACTION_SLUGS, first) ?? 'new'
       const context = parseAddContext(second, third) ?? addContextNow(now)
       const ref = decode(fourth)
-      if (action !== 'new' && !ref) return { name: 'add', ...context }
-      return { name: 'food', action, ...context, ref }
+      if (action === 'new') return { name: 'food', action, ...context, barcode: ref }
+      return ref ? { name: 'food', action, ...context, foodId: ref } : { name: 'add', ...context }
     }
     case 'vecka':
       return { name: 'week', date }
@@ -94,8 +97,10 @@ export function toHash(route: Route): string {
       return `#/lagg-till/${contextPath(route)}${optional(route.foodId)}`
     case 'scan':
       return `#/skanna/${contextPath(route)}`
-    case 'food':
-      return `#/livsmedel/${FOOD_ACTION_SLUGS[route.action]}/${contextPath(route)}${optional(route.ref)}`
+    case 'food': {
+      const ref = route.action === 'new' ? route.barcode : route.foodId
+      return `#/livsmedel/${FOOD_ACTION_SLUGS[route.action]}/${contextPath(route)}${optional(ref)}`
+    }
     case 'week':
       return `#/vecka/${route.date}`
     case 'profile':
@@ -117,6 +122,8 @@ function getHash() {
 /** Aktuell vy, läst från adressens hash så att bakåtknappen fungerar. */
 export function useRoute(): Route {
   const hash = useSyncExternalStore(subscribe, getHash)
+  // Prenumererar på dagens datum så att vyer utan datum i adressen byter dag vid midnatt
+  useToday()
   return parseHash(hash, new Date())
 }
 

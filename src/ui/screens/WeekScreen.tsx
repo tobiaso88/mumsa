@@ -1,4 +1,4 @@
-import { addDays, isoWeekNumber, startOfWeek, toIsoDate } from '../../domain/dates'
+import { addDays, isoWeekNumber, startOfWeek } from '../../domain/dates'
 import { summarizeWeek } from '../../domain/summary'
 import type { Goals, IsoDate } from '../../domain/types'
 import { Loading } from '../components/Loading'
@@ -8,12 +8,13 @@ import { WeekChart } from '../components/WeekChart'
 import { formatDayTitle, formatNumber, formatShortDate } from '../format'
 import { useWeekEntries } from '../hooks/useEntries'
 import { toHash } from '../router'
+import { useToday } from '../todayContext'
 
 export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
   const weekStart = startOfWeek(date)
   const weekEnd = addDays(weekStart, 6)
   const entries = useWeekEntries(weekStart)
-  const today = toIsoDate(new Date())
+  const today = useToday()
   if (!entries) return <Loading />
   const week = summarizeWeek(entries, weekStart)
 

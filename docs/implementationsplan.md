@@ -4,7 +4,7 @@ Planen följer [kodanalys.md](kodanalys.md) och är uppdelad i sex faser. Varje 
 
 Inga nya beroenden behövs. Databasschemat ändras inte, så ingen Dexie-migrering krävs.
 
-Status: fas 0–2 och 4 är committade. Fas 3 är uppskjuten efter mätning. Fas 5 återstår.
+Status: fas 0–2, 4 och 5 är committade. Fas 3 är uppskjuten efter mätning.
 
 ## Fas 0: Grunden i `domain/` (punkt 2, 3 och delvis 4)
 
@@ -116,6 +116,13 @@ Uppmätt i dev-appen på en dator utan strypt processor, med koden från commit 
 | `src/ui/hooks/useToday.ts` + test (ny) | Ger dagens datum och uppdateras vid midnatt och när appen visas igen. Används i `BottomNav`, `DayHeader`, `WeekScreen` och `useRoute`. |
 | `src/ui/components.css` | Delas upp i några filer under `src/ui/styles/`, se beslut 4. |
 
+**Utfall:** genomförd med några avvikelser.
+
+- Uppdelningen av `components.css` är struken, se beslut 4.
+- Komponenten för sökresultat heter `FoodSearchResults` och ligger i en egen fil.
+- Dagens datum hålls i en `TodayProvider` med `useToday` i `todayContext.ts`, i stället för i en fristående hook. Då byter alla vyer dag samtidigt.
+- `ScanScreen` slår nu upp streckkoder via `useBarcodeLookup`. Den missades i fas 1.
+
 ## Varför den här ordningen
 
 - **Fas 0 kommer först** eftersom de andra faserna bygger på funktionerna där. Den ändrar inget beteende, så risken är låg.
@@ -128,5 +135,5 @@ Uppmätt i dev-appen på en dator utan strypt processor, med koden från commit 
 1. **Livsmedel med `source: 'slv'` i en importfil.** Avgjort i fas 2: de hoppas över och antalet visas före och efter importen.
 2. **Var indexet för Livsmedelsverket ska ligga.** Inte aktuellt så länge fas 3 är uppskjuten. Om fasen tas upp igen gäller fortfarande att CLAUDE.md förbjuder state i moduler.
 3. **Hur fel visas.** Avgjort i fas 1: `ErrorBoundary` för fel vid läsning och meddelanden i formuläret för fel vid skrivning.
-4. **Uppdelningen av `components.css`.** Öppet. Den ger minst nytta av allt i planen och kan strykas.
+4. **Uppdelningen av `components.css`.** Struken i fas 5, eftersom den ger minst nytta av allt i planen. Den kan göras senare om filen blir svår att hitta i.
 5. **Felmeddelandet om makron.** Avgjort i fas 0: makrotexten säger "100 g" och bara energitexten byggs från konstanten.

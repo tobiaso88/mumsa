@@ -1,8 +1,7 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
-import { lookupBarcode } from '../../data/foodCatalog'
 import { OffError } from '../../data/openFoodFacts'
 import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
-import { useDb } from '../dbContext'
+import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import { navigate, toHash, type AddContext } from '../router'
 
@@ -18,7 +17,7 @@ function errorText(error: unknown): string {
 }
 
 export function ScanScreen({ date, meal }: AddContext) {
-  const db = useDb()
+  const lookupBarcode = useBarcodeLookup()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [phase, setPhase] = useState<Phase>({ kind: 'scanning' })
   const [manual, setManual] = useState('')
@@ -33,7 +32,7 @@ export function ScanScreen({ date, meal }: AddContext) {
     busy.current = true
     setPhase({ kind: 'looking', code })
     try {
-      const food = await lookupBarcode(db, code)
+      const food = await lookupBarcode(code)
       if (food) navigate({ name: 'add', date, meal, foodId: food.id })
       else setPhase({ kind: 'notFound', code })
     } catch (error) {
@@ -61,7 +60,7 @@ export function ScanScreen({ date, meal }: AddContext) {
       {phase.kind === 'notFound' && (
         <div className="card">
           <p>Produkten {phase.code} finns inte i Open Food Facts, eller saknar näringsvärden.</p>
-          <a className="button-secondary" href={toHash({ name: 'food', action: 'new', date, meal, ref: phase.code })}>
+          <a className="button-secondary" href={toHash({ name: 'food', action: 'new', date, meal, barcode: phase.code })}>
             Skapa eget livsmedel
           </a>
         </div>

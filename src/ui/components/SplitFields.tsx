@@ -12,9 +12,27 @@ type Props = {
   kcal: number
 }
 
+/** Fel om andelarna inte blir 100 %, annars ungefärliga gram per dag när kalorimålet är känt. */
+function SplitSummary({ split, valid, kcal }: Pick<Props, 'split' | 'valid' | 'kcal'>) {
+  if (!valid) {
+    const sum = split.proteinPct + split.carbsPct + split.fatPct
+    return (
+      <p className="error" role="alert">
+        Andelarna ska bli 100 % tillsammans, nu blir de {Number.isFinite(sum) ? formatNumber(sum, 1) : '–'} %.
+      </p>
+    )
+  }
+  if (!Number.isFinite(kcal)) return null
+  const grams = macroGrams(kcal, split)
+  return (
+    <p className="hint">
+      Ungefär {formatNumber(grams.protein)} g protein, {formatNumber(grams.carbs)} g kolhydrater och{' '}
+      {formatNumber(grams.fat)} g fett per dag.
+    </p>
+  )
+}
+
 export function SplitFields({ state, set, split, valid, kcal }: Props) {
-  const sum = split.proteinPct + split.carbsPct + split.fatPct
-  const grams = valid && Number.isFinite(kcal) ? macroGrams(kcal, split) : null
   return (
     <fieldset className="card">
       <legend>Fördelning av energi</legend>
@@ -23,18 +41,7 @@ export function SplitFields({ state, set, split, valid, kcal }: Props) {
         <NumberField label="Kolhydrater" unit="%" value={state.carbs} onChange={(v) => set('carbs', v)} invalid={!valid} />
         <NumberField label="Fett" unit="%" value={state.fat} onChange={(v) => set('fat', v)} invalid={!valid} />
       </div>
-      {valid ? (
-        grams && (
-          <p className="hint">
-            Ungefär {formatNumber(grams.protein)} g protein, {formatNumber(grams.carbs)} g kolhydrater och{' '}
-            {formatNumber(grams.fat)} g fett per dag.
-          </p>
-        )
-      ) : (
-        <p className="error" role="alert">
-          Andelarna ska bli 100 % tillsammans, nu blir de {Number.isFinite(sum) ? formatNumber(sum, 1) : '–'} %.
-        </p>
-      )}
+      <SplitSummary split={split} valid={valid} kcal={kcal} />
     </fieldset>
   )
 }

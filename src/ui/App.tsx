@@ -13,6 +13,7 @@ import { ProfileScreen } from './screens/ProfileScreen'
 import { ScanScreen } from './screens/ScanScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { WeekScreen } from './screens/WeekScreen'
+import { TodayProvider } from './TodayProvider'
 
 function Shell() {
   const goals = useGoals()
@@ -44,9 +45,11 @@ function Shell() {
 export function App({ db }: { db?: MumsaDb }) {
   return (
     <DbProvider db={db}>
-      <ErrorBoundary>
-        <Shell />
-      </ErrorBoundary>
+      <TodayProvider>
+        <ErrorBoundary>
+          <Shell />
+        </ErrorBoundary>
+      </TodayProvider>
     </DbProvider>
   )
 }

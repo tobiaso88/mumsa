@@ -5,9 +5,9 @@ import { useAction } from '../hooks/useAction'
 import { useFood } from '../hooks/useFood'
 import { useFoodActions } from '../hooks/useFoodActions'
 import type { FoodFormInitial } from '../hooks/useFoodForm'
-import { navigate, toHash, type AddContext, type FoodFormAction } from '../router'
+import { navigate, toHash, type AddContext, type FoodFormAction, type FoodFormTarget } from '../router'
 
-type Props = AddContext & { action: FoodFormAction; ref?: string }
+type Props = AddContext & FoodFormTarget
 
 const TITLES: Record<FoodFormAction, string> = {
   new: 'Nytt livsmedel',
@@ -15,14 +15,17 @@ const TITLES: Record<FoodFormAction, string> = {
   edit: 'Ändra livsmedel',
 }
 
-export function FoodFormScreen({ date, meal, action, ref }: Props) {
-  const source = useFood(action === 'new' ? undefined : ref)
+export function FoodFormScreen(props: Props) {
+  const { date, meal, action } = props
+  // Livsmedlet som kopieras eller ändras. Ett nytt livsmedel utgår inte från något.
+  const foodId = props.action === 'new' ? undefined : props.foodId
+  const source = useFood(foodId)
   const foods = useFoodActions()
 
-  const backTo = (foodId?: string) => navigate({ name: 'add', date, meal, foodId })
+  const backTo = (id?: string) => navigate({ name: 'add', date, meal, foodId: id })
 
   const saving = useAction(async (input: CustomFoodInput) => {
-    const food = action === 'edit' && ref ? await foods.update(ref, input) : await foods.create(input)
+    const food = action === 'edit' && foodId ? await foods.update(foodId, input) : await foods.create(input)
     backTo(food.id)
   }, 'Livsmedlet kunde inte sparas. Försök igen.')
 
@@ -32,13 +35,13 @@ export function FoodFormScreen({ date, meal, action, ref }: Props) {
   }, 'Livsmedlet kunde inte tas bort. Försök igen.')
 
   function handleDelete() {
-    if (!ref || !window.confirm('Ta bort livsmedlet? Det du redan har loggat påverkas inte.')) return
-    void deleting.run(ref)
+    if (!foodId || !window.confirm('Ta bort livsmedlet? Det du redan har loggat påverkas inte.')) return
+    void deleting.run(foodId)
   }
 
   if (source === undefined) return <Loading />
   const notFound = action !== 'new' && (source === null || (action === 'edit' && source.source !== 'custom'))
-  const initial: FoodFormInitial = action === 'new' ? { barcode: ref } : (source ?? {})
+  const initial: FoodFormInitial = props.action === 'new' ? { barcode: props.barcode } : (source ?? {})
   const busy = saving.pending || deleting.pending
 
   return (

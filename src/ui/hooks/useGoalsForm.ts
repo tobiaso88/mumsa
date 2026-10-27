@@ -23,9 +23,9 @@ function initialState(goals: Goals | null, profile: Profile | null): GoalsFormSt
   return {
     mode: goals && !profile ? 'manual' : 'calculated',
     kcal: toInputText(goals?.kcal),
-    protein: String(split.proteinPct),
-    carbs: String(split.carbsPct),
-    fat: String(split.fatPct),
+    protein: toInputText(split.proteinPct),
+    carbs: toInputText(split.carbsPct),
+    fat: toInputText(split.fatPct),
     weight: toInputText(profile?.weightKg),
     height: toInputText(profile?.heightCm),
     age: toInputText(profile?.ageYears),

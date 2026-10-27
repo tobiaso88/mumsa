@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
-import { FoodList } from '../components/FoodList'
+import { FoodSearchResults } from '../components/FoodSearchResults'
 import { Sheet } from '../components/Sheet'
 import { formatDayTitle } from '../format'
 import { useAction } from '../hooks/useAction'
@@ -21,7 +21,6 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
   const results = useFoodSearch(query)
   const recent = useRecentFoods()
   const entries = useEntryActions()
-  const searching = query.trim().length > 0
 
   // Öppna mängdpanelen direkt när vi kommer från skanning eller formuläret
   const selected = choice === undefined ? (preselected ?? null) : choice
@@ -53,22 +52,7 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
           Eget livsmedel
         </a>
       </div>
-      {searching ? (
-        results &&
-        (results.length > 0 ? (
-          <FoodList label="Sökträffar" foods={results} onSelect={setChoice} />
-        ) : (
-          <p className="hint">Inga träffar på ”{query.trim()}”. Skanna produkten eller skapa ett eget livsmedel.</p>
-        ))
-      ) : (
-        recent &&
-        recent.length > 0 && (
-          <section className="stack">
-            <h2>Senast loggade</h2>
-            <FoodList label="Senast loggade" foods={recent} onSelect={setChoice} />
-          </section>
-        )
-      )}
+      <FoodSearchResults query={query} results={results} recent={recent} onSelect={setChoice} />
       {selected && (
         <Sheet title={entryName(selected)} onClose={() => setChoice(null)}>
           <AmountForm
@@ -82,7 +66,7 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
             extraActions={
               <a
                 className="button-secondary"
-                href={toHash({ name: 'food', action: selected.source === 'custom' ? 'edit' : 'copy', date, meal, ref: selected.id })}
+                href={toHash({ name: 'food', action: selected.source === 'custom' ? 'edit' : 'copy', date, meal, foodId: selected.id })}
               >
                 {selected.source === 'custom' ? 'Ändra livsmedlet' : 'Rätta näringsvärden'}
               </a>

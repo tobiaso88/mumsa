@@ -1,11 +1,12 @@
-import { addDays, toIsoDate } from '../../domain/dates'
+import { addDays } from '../../domain/dates'
 import type { IsoDate } from '../../domain/types'
 import { formatDayTitle } from '../format'
 import { toHash } from '../router'
+import { useToday } from '../todayContext'
 import { PeriodHeader } from './PeriodHeader'
 
 export function DayHeader({ date }: { date: IsoDate }) {
-  const today = toIsoDate(new Date())
+  const today = useToday()
   const isToday = date === today
   return (
     <PeriodHeader
