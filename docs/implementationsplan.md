@@ -4,7 +4,7 @@ Planen följer [kodanalys.md](kodanalys.md) och är uppdelad i sex faser. Varje 
 
 Inga nya beroenden behövs. Databasschemat ändras inte, så ingen Dexie-migrering krävs.
 
-Status: fas 0–2 är committade. Fas 3–5 återstår.
+Status: fas 0–2 och 4 är committade. Fas 3 är uppskjuten efter mätning. Fas 5 återstår.
 
 ## Fas 0: Grunden i `domain/` (punkt 2, 3 och delvis 4)
 
@@ -59,7 +59,31 @@ Sedan byts de kopierade reglerna ut mot de nya funktionerna i:
 | `src/ui/hooks/useImport.ts` | Sparar bara `data` i statet. De långa raderna delas upp. |
 | `src/ui/screens/settings.test.tsx` | Uppdateras efter de nya signaturerna. |
 
-## Fas 3: Prestanda i sökningen (punkt 5)
+## Fas 3: Prestanda i sökningen (punkt 5) – uppskjuten
+
+**Status:** uppskjuten 2026-10-27 efter mätning. Ingen kod är ändrad.
+
+### Mätning
+
+Uppmätt i dev-appen på en dator utan strypt processor, med koden från commit `85db95c`. Tiderna är snitt per anrop.
+
+| Fall | Tid |
+|---|---|
+| `searchAllFoods`, inga sparade livsmedel | 1,3 ms |
+| Varav att mappa om Livsmedelsverkets cirka 2 500 rader (`loadSlvFoods`) | 0,25 ms |
+| Varav `searchFoods` över Livsmedelsverkets livsmedel | 0,8 ms |
+| `searchAllFoods`, 500 sparade livsmedel | 5,1 ms |
+| `searchAllFoods`, 2 000 sparade livsmedel | 12,0 ms |
+| `findFood` för ett livsmedel från Livsmedelsverket | 0,1 ms |
+
+### Slutsats
+
+- Indexet nedan skulle bara spara under 1 ms per sökning. Sökningen väntar redan 150 ms medan användaren skriver, så skillnaden märks inte.
+- Tiden växer med antalet sparade livsmedel, alltså egna och skannade. De läses från IndexedDB och normaliseras vid varje sökning, och det tar planen nedan inte hand om. Eftersom `searchFoods` bara tar 0,8 ms för 2 500 livsmedel går det mesta av tiden med många sparade livsmedel troligen åt till att läsa dem från databasen.
+- En vanlig användare har troligen tiotals till några hundra sparade livsmedel, vilket ger några millisekunder per sökning.
+- Kodanalysen överskattade alltså problemet. Fasen görs om först om sökningen märkbart känns långsam, och då i första hand för de sparade livsmedlen. Mät igen på en riktig mobil innan dess.
+
+### Ursprunglig plan, inte genomförd
 
 | Fil | Ändring |
 |---|---|
@@ -99,10 +123,10 @@ Sedan byts de kopierade reglerna ut mot de nya funktionerna i:
 - **Fas 2 bör vara klar** innan export- eller databasformatet ändras första gången.
 - **Fas 3–5** beror inte på varandra och kan skjutas upp eller göras i en annan ordning.
 
-## Öppna beslut
+## Beslut
 
-1. **Livsmedel med `source: 'slv'` i en importfil.** Förslaget är att de hoppas över och att antalet visas efter importen. Alternativet är att hela filen avvisas.
-2. **Var indexet för Livsmedelsverket ska ligga.** Att cacha det i modulen vore enklast, men CLAUDE.md förbjuder state i moduler. Därför föreslås context.
-3. **Hur fel visas.** Förslaget är `ErrorBoundary` för fel vid läsning och meddelanden direkt i formuläret för fel vid skrivning.
-4. **Uppdelningen av `components.css`.** Den ger minst nytta av allt i planen. Den kan strykas.
-5. **Felmeddelandet om makron.** Ska det fortfarande säga "100 g", som stämmer fysiskt, eller visa den interna gränsen på 105 g? Förslaget är att "100 g" behålls och att bara energitexten byggs från konstanten.
+1. **Livsmedel med `source: 'slv'` i en importfil.** Avgjort i fas 2: de hoppas över och antalet visas före och efter importen.
+2. **Var indexet för Livsmedelsverket ska ligga.** Inte aktuellt så länge fas 3 är uppskjuten. Om fasen tas upp igen gäller fortfarande att CLAUDE.md förbjuder state i moduler.
+3. **Hur fel visas.** Avgjort i fas 1: `ErrorBoundary` för fel vid läsning och meddelanden i formuläret för fel vid skrivning.
+4. **Uppdelningen av `components.css`.** Öppet. Den ger minst nytta av allt i planen och kan strykas.
+5. **Felmeddelandet om makron.** Avgjort i fas 0: makrotexten säger "100 g" och bara energitexten byggs från konstanten.
