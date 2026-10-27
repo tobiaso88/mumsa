@@ -6,7 +6,13 @@ import { useGoalsForm, type GoalMode } from '../hooks/useGoalsForm'
 import { useSaveGoals } from '../hooks/useSaveGoals'
 import { NumberField } from './NumberField'
 import { ProfileFields } from './ProfileFields'
+import { SegmentedControl } from './SegmentedControl'
 import { SplitFields } from './SplitFields'
+
+const MODE_OPTIONS: readonly { value: GoalMode; label: string }[] = [
+  { value: 'calculated', label: 'Räkna ut åt mig' },
+  { value: 'manual', label: 'Ange själv' },
+]
 
 type Props = {
   goals: Goals | null
@@ -39,16 +45,7 @@ export function GoalsForm({ goals, profile, submitLabel, onSaved }: Props) {
 
   return (
     <form className="stack" onSubmit={handleSubmit} onChange={() => setSaved(false)}>
-      <div className="segmented" role="radiogroup" aria-label="Hur vill du sätta målet?">
-        <label>
-          <input type="radio" name="mode" checked={state.mode === 'calculated'} onChange={() => setMode('calculated')} />
-          Räkna ut åt mig
-        </label>
-        <label>
-          <input type="radio" name="mode" checked={state.mode === 'manual'} onChange={() => setMode('manual')} />
-          Ange själv
-        </label>
-      </div>
+      <SegmentedControl label="Hur vill du sätta målet?" options={MODE_OPTIONS} value={state.mode} onChange={setMode} />
 
       {state.mode === 'calculated' ? (
         <>

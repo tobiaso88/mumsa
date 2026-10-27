@@ -1,27 +1,16 @@
-import { useId, type FormEvent, type ReactNode } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import type { CustomFoodInput } from '../../data/foodsRepo'
 import { MAX_KCAL_PER_100G, type NutrientIssue } from '../../domain/foodValidation'
 import { formatNumber } from '../format'
 import { useFoodForm, type FoodFormInitial } from '../hooks/useFoodForm'
 import { NumberField } from './NumberField'
+import { TextField } from './TextField'
 
 // Makrotexten säger 100 g eftersom det stämmer fysiskt. Marginalen i domain/ är bara för avrundning.
 const ISSUE_TEXT: Record<NutrientIssue, string> = {
   negative: 'Fyll i energi, protein, kolhydrater och fett. Skriv 0 om det inte finns något.',
   macrosOver100: 'Protein, kolhydrater och fett kan inte bli mer än 100 g per 100 g.',
   kcalTooHigh: `Energin kan inte vara högre än ${formatNumber(MAX_KCAL_PER_100G)} kcal per 100 g.`,
-}
-
-function TextField({ label, value, onChange, inputMode }: { label: string; value: string; onChange: (v: string) => void; inputMode?: 'numeric' }) {
-  const id = useId()
-  return (
-    <div className="field">
-      <label htmlFor={id}>{label}</label>
-      <div className="field-input">
-        <input id={id} type="text" inputMode={inputMode} autoComplete="off" value={value} onChange={(e) => onChange(e.target.value)} />
-      </div>
-    </div>
-  )
 }
 
 type Props = {

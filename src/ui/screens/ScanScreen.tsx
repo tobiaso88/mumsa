@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent } from 'react'
 import { lookupBarcode } from '../../data/foodCatalog'
 import { OffError } from '../../data/openFoodFacts'
 import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
@@ -22,6 +22,7 @@ export function ScanScreen({ date, meal }: AddContext) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [phase, setPhase] = useState<Phase>({ kind: 'scanning' })
   const [manual, setManual] = useState('')
+  const manualId = useId()
   const busy = useRef(false)
   const cameraError = useBarcodeScanner(videoRef, phase.kind === 'scanning', (code) => void lookup(code))
 
@@ -79,12 +80,12 @@ export function ScanScreen({ date, meal }: AddContext) {
         </button>
       )}
       <form className="card" onSubmit={handleManual}>
-        <label className="label" htmlFor="manual-barcode">
+        <label className="label" htmlFor={manualId}>
           Eller skriv in streckkoden
         </label>
         <div className="manual-barcode">
           <input
-            id="manual-barcode"
+            id={manualId}
             className="search-input"
             inputMode="numeric"
             autoComplete="off"

@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
+import type { ImportMode } from '../../data/backup'
 import { formatNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useExport } from '../hooks/useExport'
 import { useImport } from '../hooks/useImport'
+import { SegmentedControl } from './SegmentedControl'
+
+const MODE_OPTIONS: readonly { value: ImportMode; label: string }[] = [
+  { value: 'merge', label: 'Slå ihop' },
+  { value: 'replace', label: 'Ersätt allt' },
+]
 
 /** Livsmedelsverkets livsmedel i en importfil läses aldrig in, eftersom appen redan har dem. */
 function SkippedFoods({ count, done = false }: { count: number; done?: boolean }) {
@@ -19,6 +26,7 @@ export function BackupSection() {
   const { state, mode, setMode, chooseFile, runImport } = useImport()
   const exportData = useExport()
   const [exported, setExported] = useState(false)
+  const fileId = useId()
 
   const exporting = useAction(async () => {
     await exportData()
@@ -44,8 +52,8 @@ export function BackupSection() {
       {exporting.error && <p className="error" role="alert">{exporting.error}</p>}
 
       <div className="field">
-        <label htmlFor="import-file">Importera från fil</label>
-        <input id="import-file" type="file" accept=".json,application/json" onChange={(e) => void chooseFile(e.target.files?.[0])} />
+        <label htmlFor={fileId}>Importera från fil</label>
+        <input id={fileId} type="file" accept=".json,application/json" onChange={(e) => void chooseFile(e.target.files?.[0])} />
       </div>
       {state.kind === 'invalid' && <p className="error" role="alert">{state.error}</p>}
       {state.kind === 'ready' && (
@@ -54,16 +62,7 @@ export function BackupSection() {
             Filen innehåller {formatNumber(state.data.foods.length)} livsmedel och {formatNumber(state.data.entries.length)} loggposter.
           </p>
           <SkippedFoods count={state.skippedFoods} />
-          <div className="segmented" role="radiogroup" aria-label="Hur ska filen läsas in?">
-            <label>
-              <input type="radio" name="import-mode" checked={mode === 'merge'} onChange={() => setMode('merge')} />
-              Slå ihop
-            </label>
-            <label>
-              <input type="radio" name="import-mode" checked={mode === 'replace'} onChange={() => setMode('replace')} />
-              Ersätt allt
-            </label>
-          </div>
+          <SegmentedControl label="Hur ska filen läsas in?" options={MODE_OPTIONS} value={mode} onChange={setMode} />
           <button type="button" className="button-primary" onClick={handleImport} disabled={importing.pending}>
             Importera
           </button>

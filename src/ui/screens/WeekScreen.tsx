@@ -1,9 +1,9 @@
 import { addDays, isoWeekNumber, startOfWeek, toIsoDate } from '../../domain/dates'
-import { macroGrams } from '../../domain/goals'
 import { summarizeWeek } from '../../domain/summary'
 import type { Goals, IsoDate } from '../../domain/types'
 import { Loading } from '../components/Loading'
-import { ProgressBar } from '../components/ProgressBar'
+import { MacroProgress } from '../components/MacroProgress'
+import { PeriodHeader } from '../components/PeriodHeader'
 import { WeekChart } from '../components/WeekChart'
 import { formatDayTitle, formatNumber, formatShortDate } from '../format'
 import { useWeekEntries } from '../hooks/useEntries'
@@ -16,24 +16,19 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
   const today = toIsoDate(new Date())
   if (!entries) return <Loading />
   const week = summarizeWeek(entries, weekStart)
-  const macros = macroGrams(goals.kcal, goals.split)
 
   return (
     <main className="screen stack">
-      <header className="day-header">
-        <a className="icon-button" href={toHash({ name: 'week', date: addDays(weekStart, -7) })} aria-label="Föregående vecka">
-          ‹
-        </a>
-        <div className="day-title">
-          <h1>Vecka {isoWeekNumber(weekStart)}</h1>
+      <PeriodHeader
+        title={`Vecka ${isoWeekNumber(weekStart)}`}
+        subtitle={
           <p className="hint">
             {formatShortDate(weekStart)} – {formatShortDate(weekEnd)}
           </p>
-        </div>
-        <a className="icon-button" href={toHash({ name: 'week', date: addDays(weekStart, 7) })} aria-label="Nästa vecka">
-          ›
-        </a>
-      </header>
+        }
+        previous={{ href: toHash({ name: 'week', date: addDays(weekStart, -7) }), label: 'Föregående vecka' }}
+        next={{ href: toHash({ name: 'week', date: addDays(weekStart, 7) }), label: 'Nästa vecka' }}
+      />
 
       <section className="card" aria-label="Energi per dag">
         <WeekChart days={week.days} goalKcal={goals.kcal} today={today} />
@@ -46,10 +41,7 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
         ) : (
           <>
             <p className="hint">Räknat på {week.loggedDays} av 7 dagar.</p>
-            <ProgressBar label="Energi" value={week.average.kcal} goal={goals.kcal} unit="kcal" color="var(--accent)" />
-            <ProgressBar label="Protein" value={week.average.protein} goal={macros.protein} unit="g" color="var(--protein)" />
-            <ProgressBar label="Kolhydrater" value={week.average.carbs} goal={macros.carbs} unit="g" color="var(--carbs)" />
-            <ProgressBar label="Fett" value={week.average.fat} goal={macros.fat} unit="g" color="var(--fat)" />
+            <MacroProgress intake={week.average} goals={goals} />
           </>
         )}
       </section>

@@ -235,18 +235,18 @@ h2 {
   margin: 0;
 }
 
-.day-header {
+.period-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.day-title {
+.period-title {
   flex: 1;
   text-align: center;
 }
 
-.day-title .hint {
+.period-title .hint {
   display: block;
   margin-top: 0.125rem;
 }

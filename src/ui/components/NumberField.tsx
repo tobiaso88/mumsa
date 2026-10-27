@@ -1,30 +1,6 @@
-import { useId } from 'react'
+import { TextField, type TextFieldProps } from './TextField'
 
-type Props = {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  unit?: string
-  invalid?: boolean
-}
-
-export function NumberField({ label, value, onChange, unit, invalid }: Props) {
-  const id = useId()
-  return (
-    <div className="field">
-      <label htmlFor={id}>{label}</label>
-      <div className="field-input">
-        <input
-          id={id}
-          type="text"
-          inputMode="decimal"
-          autoComplete="off"
-          value={value}
-          aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        {unit && <span className="field-unit">{unit}</span>}
-      </div>
-    </div>
-  )
+/** Textfält för tal. Värdet är text så att både decimalkomma och decimalpunkt fungerar. */
+export function NumberField(props: Omit<TextFieldProps, 'inputMode'>) {
+  return <TextField {...props} inputMode="decimal" />
 }

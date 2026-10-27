@@ -1,7 +1,11 @@
 import { useId } from 'react'
-import { ACTIVITY_LEVELS, SEXES, type ActivityLevel } from '../../domain/types'
+import { ACTIVITY_LEVELS, SEXES, type ActivityLevel, type Sex } from '../../domain/types'
 import type { GoalsFormState } from '../hooks/useGoalsForm'
 import { NumberField } from './NumberField'
+import { SegmentedControl } from './SegmentedControl'
+
+const SEX_LABELS: Record<Sex, string> = { female: 'Kvinna', male: 'Man' }
+const SEX_OPTIONS = SEXES.map((sex) => ({ value: sex, label: SEX_LABELS[sex] }))
 
 const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
   sedentary: 'Stillasittande, lite eller ingen träning',
@@ -26,16 +30,16 @@ export function ProfileFields({ state, set }: Props) {
         <NumberField label="Längd" unit="cm" value={state.height} onChange={(v) => set('height', v)} />
         <NumberField label="Ålder" unit="år" value={state.age} onChange={(v) => set('age', v)} />
       </div>
-      <div className="field" role="radiogroup" aria-label="Kön (används i formeln)">
-        <span className="label">Kön (används i formeln)</span>
-        <div className="segmented">
-          {SEXES.map((sex) => (
-            <label key={sex}>
-              <input type="radio" name="sex" checked={state.sex === sex} onChange={() => set('sex', sex)} />
-              {sex === 'female' ? 'Kvinna' : 'Man'}
-            </label>
-          ))}
-        </div>
+      <div className="field">
+        <span className="label" aria-hidden="true">
+          Kön (används i formeln)
+        </span>
+        <SegmentedControl
+          label="Kön (används i formeln)"
+          options={SEX_OPTIONS}
+          value={state.sex}
+          onChange={(sex) => set('sex', sex)}
+        />
       </div>
       <div className="field">
         <label htmlFor={activityId}>Aktivitetsnivå</label>

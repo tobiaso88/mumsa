@@ -4,6 +4,12 @@ import { formatNumber } from '../format'
 import { useAmountForm, type AmountFood } from '../hooks/useAmountForm'
 import { MEAL_LABELS } from '../labels'
 import { NumberField } from './NumberField'
+import { SegmentedControl } from './SegmentedControl'
+
+const UNIT_OPTIONS = [
+  { value: 'g', label: 'Gram' },
+  { value: 'portion', label: 'Portioner' },
+] as const
 
 function previewRows(n: Nutrients | null) {
   return [
@@ -38,18 +44,7 @@ export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSub
   const portionText = food.servingLabel ? `portioner à ${food.servingLabel}` : 'portioner'
   return (
     <form className="stack" onSubmit={handleSubmit}>
-      {form.canUsePortions && (
-        <div className="segmented" role="radiogroup" aria-label="Enhet">
-          <label>
-            <input type="radio" name="unit" checked={form.unit === 'g'} onChange={() => form.setUnit('g')} />
-            Gram
-          </label>
-          <label>
-            <input type="radio" name="unit" checked={form.unit === 'portion'} onChange={() => form.setUnit('portion')} />
-            Portioner
-          </label>
-        </div>
-      )}
+      {form.canUsePortions && <SegmentedControl label="Enhet" options={UNIT_OPTIONS} value={form.unit} onChange={form.setUnit} />}
       <NumberField
         label="Mängd"
         unit={form.unit === 'g' ? 'g' : portionText}
