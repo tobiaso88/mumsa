@@ -11,12 +11,12 @@ export type BarcodeLookupResult =
   /** Open Food Facts gick inte att nå eller svarade med fel. */
   | { kind: 'unreachable' }
 
-/** Slår upp en streckkod lokalt och sedan hos Open Food Facts. */
+/** Slår upp en streckkod lokalt och sedan hos Open Food Facts. Ett avbrutet uppslag ger unreachable. */
 export function useBarcodeLookup() {
   const db = useDb()
-  return async (barcode: string): Promise<BarcodeLookupResult> => {
+  return async (barcode: string, signal?: AbortSignal): Promise<BarcodeLookupResult> => {
     try {
-      const food = await lookupBarcode(db, barcode)
+      const food = await lookupBarcode(db, barcode, signal)
       return food ? { kind: 'found', food } : { kind: 'notFound' }
     } catch (error) {
       if (error instanceof OffError && error.kind === 'offline') return { kind: 'offline' }

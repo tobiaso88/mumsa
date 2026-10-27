@@ -159,6 +159,31 @@ describe('skanning', () => {
     expect(await screen.findByRole('dialog', { name: 'AXA Fiber havregryn, AXA' })).toBeInTheDocument()
   })
 
+  it('avbryter uppslaget och stannar kvar när användaren går tillbaka', async () => {
+    let respond = () => {}
+    let signal: AbortSignal | undefined
+    // Svaret kommer först när testet säger till, även om anropet har avbrutits
+    const fetch = vi.fn((_url: string, init?: RequestInit) => {
+      signal = init?.signal ?? undefined
+      return new Promise<Response>((resolve) => (respond = () => resolve(Response.json(productFixture))))
+    })
+    vi.stubGlobal('fetch', fetch)
+    const user = userEvent.setup()
+    render(<App db={db} />)
+    await user.type(await screen.findByLabelText('Eller skriv in streckkoden'), '7310130321184')
+    await user.click(screen.getByRole('button', { name: 'Sök' }))
+    await screen.findByText(/Söker efter/)
+
+    await user.click(screen.getByRole('link', { name: 'Tillbaka' }))
+    await screen.findByRole('heading', { name: 'Lägg till i lunch' })
+    expect(signal?.aborted).toBe(true)
+
+    respond()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(window.location.hash).toBe(`#/lagg-till/${date}/lunch`)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
   it('säger till när enheten är offline', async () => {
     const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
     const user = userEvent.setup()

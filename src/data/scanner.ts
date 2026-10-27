@@ -29,10 +29,21 @@ async function nativeDetector(): Promise<BarcodeDetectorLike | null> {
   return formats.length > 0 ? new Detector({ formats }) : null
 }
 
+function stopCamera(stream: MediaStream, video: HTMLVideoElement): void {
+  stream.getTracks().forEach((t) => t.stop())
+  video.srcObject = null
+}
+
 async function scanNative(video: HTMLVideoElement, detector: BarcodeDetectorLike, onCode: (code: string) => void): Promise<StopScan> {
   const stream = await navigator.mediaDevices.getUserMedia(CAMERA)
-  video.srcObject = stream
-  await video.play()
+  try {
+    video.srcObject = stream
+    await video.play()
+  } catch (error) {
+    // Till exempel om video-elementet tas bort medan kameran startar. Annars lyser kameran kvar.
+    stopCamera(stream, video)
+    throw error
+  }
   let stopped = false
   const timer = setInterval(async () => {
     if (stopped || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return
@@ -42,8 +53,7 @@ async function scanNative(video: HTMLVideoElement, detector: BarcodeDetectorLike
   return () => {
     stopped = true
     clearInterval(timer)
-    stream.getTracks().forEach((t) => t.stop())
-    video.srcObject = null
+    stopCamera(stream, video)
   }
 }
 
