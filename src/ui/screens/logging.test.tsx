@@ -120,6 +120,27 @@ it('ändrar och tar bort en loggpost', async () => {
   expect(await getEntriesForDate(db, today)).toEqual([])
 })
 
+it('visar ett fel och låter panelen vara öppen om posten inte går att spara', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.spyOn(db.entries, 'add').mockRejectedValueOnce(new Error('QuotaExceededError'))
+  window.location.hash = `#/lagg-till/${today}/lunch/slv%3A702`
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Havregryn fullkorn' })
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+
+  expect(await within(dialog).findByRole('alert')).toHaveTextContent('Livsmedlet kunde inte loggas. Försök igen.')
+  expect(within(dialog).getByRole('button', { name: 'Lägg till' })).toBeEnabled()
+  expect(await getEntriesForDate(db, today)).toEqual([])
+
+  // Andra försöket lyckas
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  expect(await screen.findByRole('heading', { name: 'Idag' })).toBeInTheDocument()
+  expect(await getEntriesForDate(db, today)).toHaveLength(1)
+  consoleError.mockRestore()
+})
+
 it('stänger panelen med Escape utan att spara', async () => {
   await addEntry(db, { date: today, meal: 'lunch', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 80, per100g: oats })
   const user = userEvent.setup()

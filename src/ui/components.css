@@ -160,6 +160,16 @@ select {
   margin-top: 0;
 }
 
+.loading {
+  animation: appear 0.2s ease 0.3s both;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
 .estimate {
   margin: 0;
   font-size: 1.125rem;

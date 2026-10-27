@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { saveGoals, saveProfile } from '../../data/settingsRepo'
 import type { Goals, Profile } from '../../domain/types'
-import { useDb } from '../dbContext'
 import { formatNumber } from '../format'
+import { useAction } from '../hooks/useAction'
 import { useGoalsForm, type GoalMode } from '../hooks/useGoalsForm'
+import { useSaveGoals } from '../hooks/useSaveGoals'
 import { NumberField } from './NumberField'
 import { ProfileFields } from './ProfileFields'
 import { SplitFields } from './SplitFields'
@@ -16,18 +16,20 @@ type Props = {
 }
 
 export function GoalsForm({ goals, profile, submitLabel, onSaved }: Props) {
-  const db = useDb()
   const form = useGoalsForm(goals, profile)
   const { state, set } = form
   const [saved, setSaved] = useState(false)
+  const save = useSaveGoals()
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!form.result) return
-    await saveGoals(db, form.result.goals)
-    if (form.result.profile) await saveProfile(db, form.result.profile)
+  const saving = useAction(async (result: { goals: Goals; profile: Profile | null }) => {
+    await save(result.goals, result.profile)
     setSaved(true)
     onSaved?.()
+  }, 'Målet kunde inte sparas. Försök igen.')
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (form.result) void saving.run(form.result)
   }
 
   const setMode = (mode: GoalMode) => {
@@ -73,7 +75,12 @@ export function GoalsForm({ goals, profile, submitLabel, onSaved }: Props) {
 
       <SplitFields state={state} set={set} split={form.split} valid={form.splitValid} kcal={form.kcal} />
 
-      <button type="submit" className="button-primary" disabled={!form.result}>
+      {saving.error && (
+        <p className="error" role="alert">
+          {saving.error}
+        </p>
+      )}
+      <button type="submit" className="button-primary" disabled={!form.result || saving.pending}>
         {submitLabel}
       </button>
       {saved && (

@@ -2,6 +2,7 @@ import { addDays, isoWeekNumber, startOfWeek, toIsoDate } from '../../domain/dat
 import { macroGrams } from '../../domain/goals'
 import { summarizeWeek } from '../../domain/summary'
 import type { Goals, IsoDate } from '../../domain/types'
+import { Loading } from '../components/Loading'
 import { ProgressBar } from '../components/ProgressBar'
 import { WeekChart } from '../components/WeekChart'
 import { formatDayTitle, formatNumber, formatShortDate } from '../format'
@@ -13,7 +14,7 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
   const weekEnd = addDays(weekStart, 6)
   const entries = useWeekEntries(weekStart)
   const today = toIsoDate(new Date())
-  if (!entries) return null
+  if (!entries) return <Loading />
   const week = summarizeWeek(entries, weekStart)
   const macros = macroGrams(goals.kcal, goals.split)
 

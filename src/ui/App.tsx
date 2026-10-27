@@ -1,5 +1,7 @@
 import type { MumsaDb } from '../data/db'
 import { BottomNav } from './components/BottomNav'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { Loading } from './components/Loading'
 import { DbProvider } from './DbProvider'
 import { useGoals } from './hooks/useSettings'
 import { toHash, useRoute } from './router'
@@ -16,7 +18,7 @@ function Shell() {
   const goals = useGoals()
   const route = useRoute()
 
-  if (goals === undefined) return null
+  if (goals === undefined) return <Loading />
   // Inställningarna går att nå utan mål så att en ny enhet kan importera en säkerhetskopia
   if (goals === null && route.name !== 'settings') return <OnboardingScreen />
 
@@ -42,7 +44,9 @@ function Shell() {
 export function App({ db }: { db?: MumsaDb }) {
   return (
     <DbProvider db={db}>
-      <Shell />
+      <ErrorBoundary>
+        <Shell />
+      </ErrorBoundary>
     </DbProvider>
   )
 }

@@ -4,13 +4,14 @@ import { MEALS, type Goals, type IsoDate, type LogEntry } from '../../domain/typ
 import { DayHeader } from '../components/DayHeader'
 import { DaySummary } from '../components/DaySummary'
 import { EditEntrySheet } from '../components/EditEntrySheet'
+import { Loading } from '../components/Loading'
 import { MealSection } from '../components/MealSection'
 import { useDayEntries } from '../hooks/useEntries'
 
 export function DayScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
   const entries = useDayEntries(date)
   const [editing, setEditing] = useState<LogEntry | null>(null)
-  if (!entries) return null
+  if (!entries) return <Loading />
   const summary = summarizeDay(entries)
 
   return (

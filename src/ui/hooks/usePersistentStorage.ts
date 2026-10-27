@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { isStoragePersisted, requestPersistentStorage } from '../../data/storage'
+import { useAsync } from './useAsync'
 
 /** null betyder att webbläsaren inte stöder beständig lagring. */
 export function usePersistentStorage() {
-  const [persisted, setPersisted] = useState<boolean | null | undefined>(undefined)
-
-  useEffect(() => {
-    let cancelled = false
-    isStoragePersisted().then((value) => {
-      if (!cancelled) setPersisted(value)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  // Ett fel här ska inte stoppa resten av appen, så det tolkas som att stöd saknas
+  const initial = useAsync(() => isStoragePersisted().catch(() => null), [])
+  const [requested, setRequested] = useState<boolean>()
 
   async function request() {
-    setPersisted(await requestPersistentStorage())
+    setRequested(await requestPersistentStorage())
   }
 
-  return { persisted, request }
+  return { persisted: requested ?? initial, request }
 }

@@ -21,9 +21,12 @@ type Props = {
   submitLabel: string
   onSubmit: (value: { grams: number; meal: Meal }) => void
   extraActions?: ReactNode
+  /** Sant medan formuläret sparas. Stänger av knappen så att inget sparas två gånger. */
+  busy?: boolean
+  error?: string | null
 }
 
-export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSubmit, extraActions }: Props) {
+export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSubmit, extraActions, busy, error }: Props) {
   const form = useAmountForm(food, initialGrams, initialMeal)
   const mealId = useId()
 
@@ -73,7 +76,12 @@ export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSub
         ))}
       </dl>
       {form.unit === 'portion' && form.grams !== null && <p className="hint">Motsvarar {formatNumber(form.grams)} g.</p>}
-      <button type="submit" className="button-primary" disabled={form.grams === null}>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <button type="submit" className="button-primary" disabled={form.grams === null || busy}>
         {submitLabel}
       </button>
       {extraActions}

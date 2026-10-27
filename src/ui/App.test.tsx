@@ -67,6 +67,34 @@ it('kräver att makrofördelningen blir 100 %', async () => {
   expect(screen.getByRole('button', { name: 'Kom igång' })).toBeDisabled()
 })
 
+it('visar ett felmeddelande i stället för en tom skärm när datan inte går att läsa', async () => {
+  // React och ErrorBoundary loggar felet, vilket är väntat här
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.spyOn(db.settings, 'get').mockRejectedValue(new Error('UnknownError'))
+  render(<App db={db} />)
+
+  expect(await screen.findByRole('heading', { name: 'Något gick fel' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Ladda om' })).toBeInTheDocument()
+  consoleError.mockRestore()
+})
+
+it('visar ett fel och behåller formuläret om målet inte går att spara', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.spyOn(db.settings, 'put').mockRejectedValueOnce(new Error('QuotaExceededError'))
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByLabelText('Ange själv'))
+  await user.type(screen.getByLabelText('Kalorimål per dag'), '1900')
+  await user.click(screen.getByRole('button', { name: 'Kom igång' }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Målet kunde inte sparas. Försök igen.')
+  expect(screen.getByRole('heading', { name: 'Välkommen till Mumsa' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Kom igång' })).toBeEnabled()
+  expect(await getGoals(db)).toBeNull()
+  consoleError.mockRestore()
+})
+
 it('låter användaren ändra målet på profilsidan', async () => {
   await saveGoals(db, goals)
   window.location.hash = '#/profil'

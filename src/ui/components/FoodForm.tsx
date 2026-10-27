@@ -29,9 +29,12 @@ type Props = {
   submitLabel: string
   onSubmit: (input: CustomFoodInput) => void
   extraActions?: ReactNode
+  /** Sant medan formuläret sparas. Stänger av knappen så att inget sparas två gånger. */
+  busy?: boolean
+  error?: string | null
 }
 
-export function FoodForm({ initial, submitLabel, onSubmit, extraActions }: Props) {
+export function FoodForm({ initial, submitLabel, onSubmit, extraActions, busy, error }: Props) {
   const { fields, set, issues, servingValid, barcodeValid, kcalWarning, input } = useFoodForm(initial)
 
   function handleSubmit(e: FormEvent) {
@@ -76,7 +79,12 @@ export function FoodForm({ initial, submitLabel, onSubmit, extraActions }: Props
         </div>
         <p className="hint">Till exempel 30 g och ”1 skiva”.</p>
       </fieldset>
-      <button type="submit" className="button-primary" disabled={!input}>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <button type="submit" className="button-primary" disabled={!input || busy}>
         {submitLabel}
       </button>
       {extraActions}

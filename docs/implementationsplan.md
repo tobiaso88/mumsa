@@ -4,7 +4,7 @@ Planen följer [kodanalys.md](kodanalys.md) och är uppdelad i sex faser. Varje 
 
 Inga nya beroenden behövs. Databasschemat ändras inte, så ingen Dexie-migrering krävs.
 
-Status: fas 0 är implementerad men inte committad. Fas 1–5 återstår.
+Status: fas 0 och 1 är committade. Fas 2–5 återstår.
 
 ## Fas 0: Grunden i `domain/` (punkt 2, 3 och delvis 4)
 

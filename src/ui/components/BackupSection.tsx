@@ -1,34 +1,36 @@
 import { useState } from 'react'
-import { exportAll } from '../../data/backup'
-import { downloadExport } from '../../data/backupFile'
-import { useDb } from '../dbContext'
 import { formatNumber } from '../format'
+import { useAction } from '../hooks/useAction'
+import { useExport } from '../hooks/useExport'
 import { useImport } from '../hooks/useImport'
 
 export function BackupSection() {
-  const db = useDb()
   const { state, mode, setMode, chooseFile, runImport } = useImport()
+  const exportData = useExport()
   const [exported, setExported] = useState(false)
 
-  async function handleExport() {
-    downloadExport(await exportAll(db))
+  const exporting = useAction(async () => {
+    await exportData()
     setExported(true)
-  }
+  }, 'Datan kunde inte exporteras. Försök igen.')
+  // Importen sker i en transaktion, så ett fel lämnar databasen orörd
+  const importing = useAction(runImport, 'Filen kunde inte läsas in. Ingen data har ändrats.')
 
   function handleImport() {
     const question = 'All nuvarande data i appen ersätts med innehållet i filen. Vill du fortsätta?'
     if (mode === 'replace' && !window.confirm(question)) return
-    void runImport()
+    void importing.run()
   }
 
   return (
     <section className="card stack" aria-labelledby="backup-title">
       <h2 id="backup-title">Säkerhetskopia</h2>
       <p className="hint">Spara all data som en JSON-fil, till exempel för att flytta den till en annan enhet.</p>
-      <button type="button" className="button-secondary" onClick={handleExport}>
+      <button type="button" className="button-secondary" onClick={() => void exporting.run()} disabled={exporting.pending}>
         Exportera data
       </button>
       {exported && <p className="success" role="status">Filen är sparad.</p>}
+      {exporting.error && <p className="error" role="alert">{exporting.error}</p>}
 
       <div className="field">
         <label htmlFor="import-file">Importera från fil</label>
@@ -50,9 +52,10 @@ export function BackupSection() {
               Ersätt allt
             </label>
           </div>
-          <button type="button" className="button-primary" onClick={handleImport}>
+          <button type="button" className="button-primary" onClick={handleImport} disabled={importing.pending}>
             Importera
           </button>
+          {importing.error && <p className="error" role="alert">{importing.error}</p>}
         </>
       )}
       {state.kind === 'done' && (
