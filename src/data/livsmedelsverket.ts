@@ -11,8 +11,6 @@ export type SlvDataset = {
   rows: Row[]
 }
 
-export const SLV_ATTRIBUTION = 'Källa: Livsmedelsverkets livsmedelsdatabas (CC BY 4.0)'
-
 export function slvRowToFood([nummer, name, kcal, protein, carbs, fat]: Row, retrieved: string): Food {
   return {
     id: slvFoodId(nummer),

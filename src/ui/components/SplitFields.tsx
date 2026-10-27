@@ -1,4 +1,4 @@
-import { macroGrams } from '../../domain/goals'
+import { macroGrams, splitTotal } from '../../domain/goals'
 import type { MacroSplit } from '../../domain/types'
 import { formatNumber } from '../format'
 import type { GoalsFormState } from '../hooks/useGoalsForm'
@@ -15,7 +15,7 @@ type Props = {
 /** Fel om andelarna inte blir 100 %, annars ungefärliga gram per dag när kalorimålet är känt. */
 function SplitSummary({ split, valid, kcal }: Pick<Props, 'split' | 'valid' | 'kcal'>) {
   if (!valid) {
-    const sum = split.proteinPct + split.carbsPct + split.fatPct
+    const sum = splitTotal(split)
     return (
       <p className="error" role="alert">
         Andelarna ska bli 100 % tillsammans, nu blir de {Number.isFinite(sum) ? formatNumber(sum, 1) : '–'} %.

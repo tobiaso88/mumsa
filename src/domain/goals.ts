@@ -1,4 +1,4 @@
-import type { ActivityLevel, MacroSplit, Nutrients, Profile } from './types'
+import type { ActivityLevel, Goals, MacroSplit, Nutrients, Profile } from './types'
 
 export const KCAL_PER_GRAM = { protein: 4, carbs: 4, fat: 9 } as const
 
@@ -32,9 +32,19 @@ export function estimateDailyKcal(profile: Profile): number {
   return bmr(profile) * ACTIVITY_FACTORS[profile.activity]
 }
 
+/** Summan av andelarna i procent. Ska bli 100 för en giltig fördelning. */
+export function splitTotal(split: MacroSplit): number {
+  return split.proteinPct + split.carbsPct + split.fatPct
+}
+
 export function isValidSplit(split: MacroSplit): boolean {
   const parts = [split.proteinPct, split.carbsPct, split.fatPct]
-  return parts.every((p) => Number.isFinite(p) && p >= 0) && Math.abs(parts.reduce((a, b) => a + b, 0) - 100) < 1e-9
+  return parts.every((p) => Number.isFinite(p) && p >= 0) && Math.abs(splitTotal(split) - 100) < 1e-9
+}
+
+/** Energi kvar till målet. Negativt när intaget är över målet. */
+export function kcalLeft(goal: Pick<Goals, 'kcal'>, intake: Pick<Nutrients, 'kcal'>): number {
+  return goal.kcal - intake.kcal
 }
 
 /** Makromål i gram utifrån kalorimål och fördelning. */

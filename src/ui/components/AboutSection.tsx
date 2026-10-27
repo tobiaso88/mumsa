@@ -1,4 +1,4 @@
-import { SLV_ATTRIBUTION } from '../../data/livsmedelsverket'
+const SLV_ATTRIBUTION = 'Källa: Livsmedelsverkets livsmedelsdatabas (CC BY 4.0)'
 
 export function AboutSection() {
   return (

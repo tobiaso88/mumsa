@@ -97,6 +97,28 @@ it('räknar om portioner till gram och visar senast loggade', async () => {
   expect(await getEntriesForDate(db, today)).toMatchObject([{ meal: 'breakfast', grams: 30, foodName: 'Knäckebröd, Leksands' }])
 })
 
+it('behåller exakt mängd i gram när enheten byts fram och tillbaka', async () => {
+  const bread = makeFood({ id: 'off:1', source: 'off', name: 'Knäckebröd', servingGrams: 30 })
+  await cacheOffFoods(db, [bread])
+  window.location.hash = `#/lagg-till/${today}/frukost/${bread.id}`
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Knäckebröd' })
+  const amount = within(dialog).getByLabelText('Mängd')
+  await user.clear(amount)
+  await user.type(amount, '10')
+  await user.click(within(dialog).getByLabelText('Portioner'))
+  expect(amount).toHaveValue('0,33')
+  expect(within(dialog).getByText('Motsvarar 10 g.')).toBeInTheDocument()
+  await user.click(within(dialog).getByLabelText('Gram'))
+  expect(amount).toHaveValue('10')
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+
+  await screen.findByRole('heading', { name: 'Idag' })
+  expect(await getEntriesForDate(db, today)).toMatchObject([{ grams: 10 }])
+})
+
 it('ändrar och tar bort en loggpost', async () => {
   await addEntry(db, { date: today, meal: 'breakfast', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 80, per100g: oats })
   const user = userEvent.setup()

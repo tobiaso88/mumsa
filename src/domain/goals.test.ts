@@ -7,7 +7,9 @@ import {
   isValidGoalKcal,
   isValidProfile,
   isValidSplit,
+  kcalLeft,
   macroGrams,
+  splitTotal,
 } from './goals'
 import type { Profile } from './types'
 
@@ -38,6 +40,24 @@ describe('isValidSplit', () => {
   })
   it('avvisar negativa värden', () => {
     expect(isValidSplit({ proteinPct: -10, carbsPct: 80, fatPct: 30 })).toBe(false)
+  })
+})
+
+describe('splitTotal', () => {
+  it('summerar andelarna', () => {
+    expect(splitTotal({ proteinPct: 30, carbsPct: 40, fatPct: 20 })).toBe(90)
+  })
+  it('ger NaN om en andel saknas', () => {
+    expect(splitTotal({ proteinPct: NaN, carbsPct: 40, fatPct: 20 })).toBeNaN()
+  })
+})
+
+describe('kcalLeft', () => {
+  it('ger det som är kvar till målet', () => {
+    expect(kcalLeft({ kcal: 2000 }, { kcal: 1500 })).toBe(500)
+  })
+  it('är negativt när intaget är över målet', () => {
+    expect(kcalLeft({ kcal: 2000 }, { kcal: 2250.5 })).toBe(-250.5)
   })
 })
 

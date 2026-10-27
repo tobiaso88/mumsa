@@ -5,6 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+const DEXIE = { group: ['dexie'], message: 'Databasen nås bara via data/.' }
+
 export default defineConfig([
   globalIgnores(['dist', 'coverage', 'playwright-report', 'test-results']),
   {
@@ -29,6 +31,34 @@ export default defineConfig([
       'no-restricted-imports': [
         'error',
         { patterns: ['react', 'react-dom', 'dexie', '**/data/**', '**/ui/**'] },
+      ],
+    },
+  },
+  {
+    // ui/ pratar aldrig direkt med lagringen, all I/O går via data/
+    files: ['src/ui/**/*.{ts,tsx}'],
+    ignores: ['src/ui/**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': ['error', { patterns: [DEXIE] }],
+    },
+  },
+  {
+    // Komponenter och skärmar når data/ via hooks. Typer får importeras.
+    files: ['src/ui/**/*.{ts,tsx}'],
+    ignores: ['src/ui/hooks/**', 'src/ui/DbProvider.tsx', 'src/ui/**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            DEXIE,
+            {
+              regex: '(^|/)data/',
+              allowTypeImports: true,
+              message: 'Komponenter når data/ via en hook i ui/hooks/.',
+            },
+          ],
+        },
       ],
     },
   },

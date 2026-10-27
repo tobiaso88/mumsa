@@ -158,4 +158,15 @@ describe('skanning', () => {
     await user.click(screen.getByRole('button', { name: 'Försök igen' }))
     expect(await screen.findByRole('dialog', { name: 'AXA Fiber havregryn, AXA' })).toBeInTheDocument()
   })
+
+  it('säger till när enheten är offline', async () => {
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    const user = userEvent.setup()
+    render(<App db={db} />)
+    await user.type(await screen.findByLabelText('Eller skriv in streckkoden'), '7310130321184')
+    await user.click(screen.getByRole('button', { name: 'Sök' }))
+
+    expect(await screen.findByText(/Du är offline/)).toBeInTheDocument()
+    onLine.mockRestore()
+  })
 })

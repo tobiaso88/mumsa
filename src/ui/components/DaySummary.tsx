@@ -1,9 +1,10 @@
+import { kcalLeft } from '../../domain/goals'
 import type { Goals, Nutrients } from '../../domain/types'
 import { formatNumber } from '../format'
 import { MacroProgress } from './MacroProgress'
 
 export function DaySummary({ total, goals }: { total: Nutrients; goals: Goals }) {
-  const left = goals.kcal - total.kcal
+  const left = kcalLeft(goals, total)
   return (
     <section className="card day-summary" aria-label="Dagens intag">
       <div className="kcal-headline">

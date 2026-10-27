@@ -27,7 +27,7 @@ export function useFoodSearch(query: string): Food[] | undefined {
 
 /**
  * Senast loggade livsmedel. Id:n bevakas i databasen, uppslaget görs utanför
- * liveQuery eftersom det även läser den buntade filen från Livsmedelsverket.
+ * bevakningen eftersom det även läser den buntade filen från Livsmedelsverket.
  */
 export function useRecentFoods(): Food[] | undefined {
   const db = useDb()

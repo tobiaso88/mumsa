@@ -1,5 +1,4 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
-import { OffError } from '../../data/openFoodFacts'
 import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
@@ -11,9 +10,9 @@ type Phase =
   | { kind: 'notFound'; code: string }
   | { kind: 'failed'; code: string; message: string }
 
-function errorText(error: unknown): string {
-  if (error instanceof OffError && error.kind === 'offline') return 'Du är offline. Nya produkter kan bara hämtas med internet.'
-  return 'Open Food Facts gick inte att nå just nu. Försök igen om en stund.'
+const ERROR_TEXTS = {
+  offline: 'Du är offline. Nya produkter kan bara hämtas med internet.',
+  unreachable: 'Open Food Facts gick inte att nå just nu. Försök igen om en stund.',
 }
 
 export function ScanScreen({ date, meal }: AddContext) {
@@ -32,11 +31,10 @@ export function ScanScreen({ date, meal }: AddContext) {
     busy.current = true
     setPhase({ kind: 'looking', code })
     try {
-      const food = await lookupBarcode(code)
-      if (food) navigate({ name: 'add', date, meal, foodId: food.id })
-      else setPhase({ kind: 'notFound', code })
-    } catch (error) {
-      setPhase({ kind: 'failed', code, message: errorText(error) })
+      const result = await lookupBarcode(code)
+      if (result.kind === 'found') navigate({ name: 'add', date, meal, foodId: result.food.id })
+      else if (result.kind === 'notFound') setPhase({ kind: 'notFound', code })
+      else setPhase({ kind: 'failed', code, message: ERROR_TEXTS[result.kind] })
     } finally {
       busy.current = false
     }
