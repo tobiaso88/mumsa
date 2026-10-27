@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { lookupBarcode } from '../../data/foodCatalog'
 import { OffError } from '../../data/openFoodFacts'
+import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
 import { useDb } from '../dbContext'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import { navigate, toHash, type AddContext } from '../router'
@@ -25,9 +26,9 @@ export function ScanScreen({ date, meal }: AddContext) {
   const cameraError = useBarcodeScanner(videoRef, phase.kind === 'scanning', (code) => void lookup(code))
 
   async function lookup(raw: string) {
-    const code = raw.replace(/\s/g, '')
+    const code = normalizeBarcode(raw)
     // Kameran kan rapportera samma kod flera gånger innan vyn hunnit byta läge
-    if (!/^\d{6,14}$/.test(code) || busy.current) return
+    if (!isValidBarcode(code) || busy.current) return
     busy.current = true
     setPhase({ kind: 'looking', code })
     try {

@@ -1,3 +1,4 @@
+import { slvFoodId } from '../domain/foodIds'
 import type { Food } from '../domain/types'
 
 /** [nummer, namn, kcal, protein, kolhydrater, fett] per 100 g ätlig del. */
@@ -14,7 +15,7 @@ export const SLV_ATTRIBUTION = 'Källa: Livsmedelsverkets livsmedelsdatabas (CC 
 
 export function slvRowToFood([nummer, name, kcal, protein, carbs, fat]: Row, retrieved: string): Food {
   return {
-    id: `slv:${nummer}`,
+    id: slvFoodId(nummer),
     name,
     source: 'slv',
     per100g: { kcal, protein, carbs, fat },

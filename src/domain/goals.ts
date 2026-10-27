@@ -13,6 +13,14 @@ export const ACTIVITY_FACTORS: Readonly<Record<ActivityLevel, number>> = {
 
 export const DEFAULT_SPLIT: Readonly<MacroSplit> = { proteinPct: 25, carbsPct: 45, fatPct: 30 }
 
+/** Gränser för ett dagligt kalorimål, för att fånga skrivfel. Inga rekommendationer. */
+export const GOAL_KCAL_MIN = 500
+export const GOAL_KCAL_MAX = 10_000
+
+export function isValidGoalKcal(kcal: number): boolean {
+  return Number.isFinite(kcal) && kcal >= GOAL_KCAL_MIN && kcal <= GOAL_KCAL_MAX
+}
+
 /** Basalomsättning enligt Mifflin–St Jeor, i kcal per dygn. */
 export function bmr(profile: Omit<Profile, 'activity'>): number {
   const base = 10 * profile.weightKg + 6.25 * profile.heightCm - 5 * profile.ageYears

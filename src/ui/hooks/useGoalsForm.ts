@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DEFAULT_SPLIT, estimateDailyKcal, isValidProfile, isValidSplit } from '../../domain/goals'
+import { DEFAULT_SPLIT, estimateDailyKcal, isValidGoalKcal, isValidProfile, isValidSplit } from '../../domain/goals'
 import type { ActivityLevel, Goals, MacroSplit, Profile, Sex } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 
@@ -62,7 +62,7 @@ export function useGoalsForm(goals: Goals | null, profile: Profile | null) {
   const parsedProfile = readProfile(state)
   const estimate = parsedProfile ? estimateDailyKcal(parsedProfile) : null
   const kcal = state.mode === 'calculated' && estimate !== null ? Math.round(estimate) : parseNumber(state.kcal)
-  const kcalValid = Number.isFinite(kcal) && kcal >= 500 && kcal <= 10000
+  const kcalValid = isValidGoalKcal(kcal)
   const profileNeeded = state.mode === 'calculated'
 
   const result =

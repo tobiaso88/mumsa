@@ -10,7 +10,8 @@ export type Nutrients = {
 }
 
 /** off: Open Food Facts, slv: Livsmedelsverket (buntad), custom: eget. */
-export type FoodSource = 'off' | 'slv' | 'custom'
+export const FOOD_SOURCES = ['off', 'slv', 'custom'] as const
+export type FoodSource = (typeof FOOD_SOURCES)[number]
 
 export type Food = {
   id: string
@@ -55,7 +56,8 @@ export type Goals = {
   split: MacroSplit
 }
 
-export type Sex = 'female' | 'male'
+export const SEXES = ['female', 'male'] as const
+export type Sex = (typeof SEXES)[number]
 
 export const ACTIVITY_LEVELS = ['sedentary', 'light', 'moderate', 'active', 'very_active'] as const
 export type ActivityLevel = (typeof ACTIVITY_LEVELS)[number]

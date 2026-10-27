@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CustomFoodInput } from '../../data/foodsRepo'
+import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
 import { kcalLooksOff, nutrientIssues } from '../../domain/foodValidation'
 import type { Food, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
@@ -50,8 +51,8 @@ export function useFoodForm(initial: FoodFormInitial) {
   const touched = [fields.kcal, fields.protein, fields.carbs, fields.fat].some((f) => f.trim() !== '')
   const serving = fields.servingGrams.trim() === '' ? undefined : parseNumber(fields.servingGrams)
   const servingValid = serving === undefined || (Number.isFinite(serving) && serving > 0)
-  const barcode = fields.barcode.replace(/\s/g, '')
-  const barcodeValid = barcode === '' || /^\d{6,14}$/.test(barcode)
+  const barcode = normalizeBarcode(fields.barcode)
+  const barcodeValid = barcode === '' || isValidBarcode(barcode)
   const nameValid = fields.name.trim() !== ''
 
   const input: CustomFoodInput | null =

@@ -34,10 +34,23 @@ export function nutrientsForAmount(per100g: Nutrients, grams: number): Nutrients
   return scaleNutrients(per100g, grams / 100)
 }
 
+/** Största mängd som går att logga i en post, för att fånga skrivfel. */
+export const MAX_ENTRY_GRAMS = 10_000
+
+export function isValidAmount(grams: number | null): grams is number {
+  return grams !== null && Number.isFinite(grams) && grams > 0 && grams <= MAX_ENTRY_GRAMS
+}
+
 /** Antal portioner omräknat till gram, eller null om livsmedlet saknar portionsstorlek. */
 export function portionsToGrams(food: Pick<Food, 'servingGrams'>, portions: number): number | null {
   if (food.servingGrams === undefined || food.servingGrams <= 0) return null
   return food.servingGrams * portions
+}
+
+/** Gram omräknat till antal portioner, eller null om livsmedlet saknar portionsstorlek. */
+export function gramsToPortions(food: Pick<Food, 'servingGrams'>, grams: number): number | null {
+  if (food.servingGrams === undefined || food.servingGrams <= 0) return null
+  return grams / food.servingGrams
 }
 
 export function entryNutrients(entry: Pick<LogEntry, 'per100g' | 'grams'>): Nutrients {

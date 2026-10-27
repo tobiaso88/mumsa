@@ -1,4 +1,14 @@
-import { bmr, DEFAULT_SPLIT, estimateDailyKcal, isValidProfile, isValidSplit, macroGrams } from './goals'
+import {
+  bmr,
+  DEFAULT_SPLIT,
+  estimateDailyKcal,
+  GOAL_KCAL_MAX,
+  GOAL_KCAL_MIN,
+  isValidGoalKcal,
+  isValidProfile,
+  isValidSplit,
+  macroGrams,
+} from './goals'
 import type { Profile } from './types'
 
 const profile: Profile = { weightKg: 70, heightCm: 175, ageYears: 30, sex: 'male', activity: 'moderate' }
@@ -28,6 +38,19 @@ describe('isValidSplit', () => {
   })
   it('avvisar negativa värden', () => {
     expect(isValidSplit({ proteinPct: -10, carbsPct: 80, fatPct: 30 })).toBe(false)
+  })
+})
+
+describe('isValidGoalKcal', () => {
+  it('godkänner gränsvärdena', () => {
+    expect(isValidGoalKcal(GOAL_KCAL_MIN)).toBe(true)
+    expect(isValidGoalKcal(2000)).toBe(true)
+    expect(isValidGoalKcal(GOAL_KCAL_MAX)).toBe(true)
+  })
+  it('avvisar värden utanför gränserna och ogiltiga tal', () => {
+    expect(isValidGoalKcal(GOAL_KCAL_MIN - 1)).toBe(false)
+    expect(isValidGoalKcal(GOAL_KCAL_MAX + 1)).toBe(false)
+    expect(isValidGoalKcal(NaN)).toBe(false)
   })
 })
 

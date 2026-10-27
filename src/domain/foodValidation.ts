@@ -3,13 +3,17 @@ import type { Nutrients } from './types'
 
 export type NutrientIssue = 'negative' | 'macrosOver100' | 'kcalTooHigh'
 
+/** Liten marginal över 100 g eftersom fett i rena fetter kan redovisas strax över 100 g. */
+export const MAX_MACROS_PER_100G = 105
+/** Rent fett ger cirka 900 kcal per 100 g. Gränsen har lite marginal för avrundning. */
+export const MAX_KCAL_PER_100G = 950
+
 /** Hårda fel som gör värdena omöjliga per 100 g. */
 export function nutrientIssues(n: Nutrients): NutrientIssue[] {
   const issues: NutrientIssue[] = []
   if ([n.kcal, n.protein, n.carbs, n.fat].some((v) => !Number.isFinite(v) || v < 0)) issues.push('negative')
-  // Liten marginal eftersom fett i rena fetter kan redovisas strax över 100 g
-  if (n.protein + n.carbs + n.fat > 105) issues.push('macrosOver100')
-  if (n.kcal > 950) issues.push('kcalTooHigh')
+  if (n.protein + n.carbs + n.fat > MAX_MACROS_PER_100G) issues.push('macrosOver100')
+  if (n.kcal > MAX_KCAL_PER_100G) issues.push('kcalTooHigh')
   return issues
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { nutrientsForAmount, portionsToGrams } from '../../domain/nutrition'
+import { gramsToPortions, isValidAmount, nutrientsForAmount, portionsToGrams } from '../../domain/nutrition'
 import type { Meal, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 
@@ -18,16 +18,15 @@ export function useAmountForm(food: AmountFood, initialGrams: number, initialMea
 
   const value = parseNumber(amount)
   const grams = unit === 'portion' ? portionsToGrams(food, value) : value
-  const valid = grams !== null && Number.isFinite(grams) && grams > 0 && grams <= 10000
+  const valid = isValidAmount(grams)
   const preview = valid ? nutrientsForAmount(food.per100g, grams) : null
 
   const setUnit = (next: AmountUnit) => {
     if (next === unit) return
     // Behåll samma mängd när enheten byts
-    const serving = food.servingGrams
-    if (valid && serving) {
-      const converted = next === 'portion' ? grams / serving : grams
-      setAmount(toInputText(Math.round(converted * 100) / 100))
+    if (valid && food.servingGrams) {
+      const converted = next === 'portion' ? gramsToPortions(food, grams) : grams
+      if (converted !== null) setAmount(toInputText(Math.round(converted * 100) / 100))
     }
     setUnitState(next)
   }

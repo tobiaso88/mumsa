@@ -1,4 +1,4 @@
-import { kcalFromMacros, kcalLooksOff, nutrientIssues } from './foodValidation'
+import { kcalFromMacros, kcalLooksOff, MAX_KCAL_PER_100G, MAX_MACROS_PER_100G, nutrientIssues } from './foodValidation'
 
 const oats = { kcal: 375, protein: 9.5, carbs: 64.1, fat: 7 }
 
@@ -13,6 +13,9 @@ describe('nutrientIssues', () => {
   })
   it('hittar makron över 100 g och för hög energi', () => {
     expect(nutrientIssues({ kcal: 1200, protein: 50, carbs: 50, fat: 50 })).toEqual(['macrosOver100', 'kcalTooHigh'])
+  })
+  it('godkänner exakt gränsvärdena', () => {
+    expect(nutrientIssues({ kcal: MAX_KCAL_PER_100G, protein: 0, carbs: 0, fat: MAX_MACROS_PER_100G })).toEqual([])
   })
 })
 

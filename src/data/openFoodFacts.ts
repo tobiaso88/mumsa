@@ -1,3 +1,5 @@
+import { isValidBarcode } from '../domain/barcode'
+import { offFoodId } from '../domain/foodIds'
 import type { Food, Nutrients } from '../domain/types'
 
 const PRODUCT_URL = 'https://world.openfoodfacts.org/api/v2/product'
@@ -81,7 +83,7 @@ export function mapOffProduct(raw: OffProduct, now: Date): Food | null {
   const unit = toText(raw.serving_quantity_unit)
   const servingGrams = unit === undefined || unit === 'g' || unit === 'ml' ? toNumber(raw.serving_quantity) : undefined
   return {
-    id: `off:${barcode}`,
+    id: offFoodId(barcode),
     name,
     brand: firstBrand(raw.brands),
     barcode,
@@ -114,7 +116,7 @@ async function getJson(url: string, signal?: AbortSignal): Promise<unknown> {
 
 /** Slår upp en streckkod. Ger null om produkten saknas eller inte går att logga. */
 export async function getByBarcode(barcode: string, signal?: AbortSignal, now = new Date()): Promise<Food | null> {
-  if (!/^\d{6,14}$/.test(barcode)) return null
+  if (!isValidBarcode(barcode)) return null
   const url = `${PRODUCT_URL}/${barcode}.json?fields=${FIELDS}`
   let body: unknown
   try {

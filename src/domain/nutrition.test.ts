@@ -1,6 +1,9 @@
 import {
   addNutrients,
   entryNutrients,
+  gramsToPortions,
+  isValidAmount,
+  MAX_ENTRY_GRAMS,
   nutrientsForAmount,
   portionsToGrams,
   scaleNutrients,
@@ -52,6 +55,33 @@ describe('portionsToGrams', () => {
   it('ger null utan portionsstorlek', () => {
     expect(portionsToGrams({}, 2)).toBeNull()
     expect(portionsToGrams({ servingGrams: 0 }, 2)).toBeNull()
+  })
+})
+
+describe('gramsToPortions', () => {
+  it('räknar om gram till portioner', () => {
+    expect(gramsToPortions({ servingGrams: 30 }, 45)).toBe(1.5)
+  })
+  it('är motsatsen till portionsToGrams', () => {
+    expect(portionsToGrams({ servingGrams: 30 }, gramsToPortions({ servingGrams: 30 }, 75)!)).toBe(75)
+  })
+  it('ger null utan portionsstorlek', () => {
+    expect(gramsToPortions({}, 45)).toBeNull()
+    expect(gramsToPortions({ servingGrams: 0 }, 45)).toBeNull()
+  })
+})
+
+describe('isValidAmount', () => {
+  it('godkänner mängder upp till maxgränsen', () => {
+    expect(isValidAmount(0.5)).toBe(true)
+    expect(isValidAmount(MAX_ENTRY_GRAMS)).toBe(true)
+  })
+  it('avvisar noll, negativa, för stora och saknade mängder', () => {
+    expect(isValidAmount(0)).toBe(false)
+    expect(isValidAmount(-1)).toBe(false)
+    expect(isValidAmount(MAX_ENTRY_GRAMS + 1)).toBe(false)
+    expect(isValidAmount(NaN)).toBe(false)
+    expect(isValidAmount(null)).toBe(false)
   })
 })
 

@@ -1,3 +1,4 @@
+import { isSlvFoodId } from '../domain/foodIds'
 import { searchFoods } from '../domain/search'
 import type { Food } from '../domain/types'
 import type { MumsaDb } from './db'
@@ -16,15 +17,15 @@ export async function searchAllFoods(db: MumsaDb, query: string, limit = 30): Pr
 
 /** Slår upp ett livsmedel oavsett om det ligger i databasen eller är buntat. */
 export async function findFood(db: MumsaDb, id: string): Promise<Food | undefined> {
-  if (!id.startsWith('slv:')) return getFood(db, id)
+  if (!isSlvFoodId(id)) return getFood(db, id)
   return (await loadSlvFoods()).find((f) => f.id === id)
 }
 
 /** Som findFood för flera id, i samma ordning. Id som saknas hoppas över. */
 export async function findFoods(db: MumsaDb, ids: readonly string[]): Promise<Food[]> {
-  const slvIds = ids.filter((id) => id.startsWith('slv:'))
+  const slvIds = ids.filter(isSlvFoodId)
   const [stored, slv] = await Promise.all([
-    getFoods(db, ids.filter((id) => !id.startsWith('slv:'))),
+    getFoods(db, ids.filter((id) => !isSlvFoodId(id))),
     slvIds.length > 0 ? loadSlvFoods() : Promise.resolve([]),
   ])
   const byId = new Map([...stored, ...slv].map((f) => [f.id, f]))

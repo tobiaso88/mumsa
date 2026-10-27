@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { ACTIVITY_LEVELS, type ActivityLevel, type Sex } from '../../domain/types'
+import { ACTIVITY_LEVELS, SEXES, type ActivityLevel } from '../../domain/types'
 import type { GoalsFormState } from '../hooks/useGoalsForm'
 import { NumberField } from './NumberField'
 
@@ -29,7 +29,7 @@ export function ProfileFields({ state, set }: Props) {
       <div className="field" role="radiogroup" aria-label="Kön (används i formeln)">
         <span className="label">Kön (används i formeln)</span>
         <div className="segmented">
-          {(['female', 'male'] as Sex[]).map((sex) => (
+          {SEXES.map((sex) => (
             <label key={sex}>
               <input type="radio" name="sex" checked={state.sex === sex} onChange={() => set('sex', sex)} />
               {sex === 'female' ? 'Kvinna' : 'Man'}

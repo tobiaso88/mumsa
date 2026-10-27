@@ -1,3 +1,4 @@
+import { customFoodId } from '../domain/foodIds'
 import type { Food } from '../domain/types'
 import { newId, type MumsaDb } from './db'
 
@@ -28,7 +29,7 @@ export async function cacheOffFoods(db: MumsaDb, foods: readonly Food[]): Promis
 }
 
 export async function createCustomFood(db: MumsaDb, input: CustomFoodInput, now = new Date()): Promise<Food> {
-  const food: Food = { ...input, id: `custom:${newId()}`, source: 'custom', updatedAt: now.toISOString() }
+  const food: Food = { ...input, id: customFoodId(newId()), source: 'custom', updatedAt: now.toISOString() }
   await db.foods.add(food)
   return food
 }
