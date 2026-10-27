@@ -18,11 +18,13 @@ export function downloadExport(data: ExportData, now = new Date()): void {
   URL.revokeObjectURL(url)
 }
 
-/** Läser en vald fil som JSON. Ger null om filen inte är giltig JSON. */
-export async function readJsonFile(file: File): Promise<unknown> {
+export type JsonFileResult = { ok: true; json: unknown } | { ok: false }
+
+/** Läser en vald fil som JSON. ok är falskt om filen inte går att läsa eller inte är giltig JSON. */
+export async function readJsonFile(file: File): Promise<JsonFileResult> {
   try {
-    return JSON.parse(await file.text()) as unknown
+    return { ok: true, json: JSON.parse(await file.text()) as unknown }
   } catch {
-    return null
+    return { ok: false }
   }
 }

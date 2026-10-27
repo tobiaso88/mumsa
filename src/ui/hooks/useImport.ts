@@ -6,9 +6,18 @@ import { useDb } from '../dbContext'
 
 export type ImportState =
   | { kind: 'idle' }
-  | { kind: 'ready'; json: unknown; data: ExportData }
+  | { kind: 'ready'; data: ExportData; skippedFoods: number }
   | { kind: 'invalid'; error: string }
-  | { kind: 'done'; foods: number; entries: number }
+  | { kind: 'done'; foods: number; entries: number; skippedFoods: number }
+
+/** Läser och validerar en vald fil, så att innehållet kan granskas innan det läses in. */
+async function readImportFile(file: File): Promise<ImportState> {
+  const read = await readJsonFile(file)
+  if (!read.ok) return { kind: 'invalid', error: 'Filen är inte giltig JSON.' }
+  const result = validateImport(read.json)
+  if (!result.ok) return { kind: 'invalid', error: result.error }
+  return { kind: 'ready', data: result.data, skippedFoods: result.skippedFoods }
+}
 
 /** Välj fil, granska innehållet och läs sedan in det i vald form. */
 export function useImport() {
@@ -17,16 +26,13 @@ export function useImport() {
   const [mode, setMode] = useState<ImportMode>('merge')
 
   async function chooseFile(file: File | undefined) {
-    if (!file) return setState({ kind: 'idle' })
-    const json = await readJsonFile(file)
-    const result = validateImport(json)
-    setState(result.ok ? { kind: 'ready', json, data: result.data } : { kind: 'invalid', error: json === null ? 'Filen är inte giltig JSON.' : result.error })
+    setState(file ? await readImportFile(file) : { kind: 'idle' })
   }
 
   async function runImport() {
     if (state.kind !== 'ready') return
-    const outcome = await importAll(db, state.json, mode)
-    setState(outcome.ok ? { kind: 'done', foods: outcome.foods, entries: outcome.entries } : { kind: 'invalid', error: outcome.error })
+    const counts = await importAll(db, state.data, mode)
+    setState({ kind: 'done', ...counts, skippedFoods: state.skippedFoods })
   }
 
   return { state, mode, setMode, chooseFile, runImport }

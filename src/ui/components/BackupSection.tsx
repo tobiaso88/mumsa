@@ -4,6 +4,17 @@ import { useAction } from '../hooks/useAction'
 import { useExport } from '../hooks/useExport'
 import { useImport } from '../hooks/useImport'
 
+/** Livsmedelsverkets livsmedel i en importfil läses aldrig in, eftersom appen redan har dem. */
+function SkippedFoods({ count, done = false }: { count: number; done?: boolean }) {
+  if (count === 0) return null
+  return (
+    <p className="hint">
+      {formatNumber(count)} livsmedel från Livsmedelsverket {done ? 'hoppades' : 'hoppas'} över eftersom de redan ingår i
+      appen.
+    </p>
+  )
+}
+
 export function BackupSection() {
   const { state, mode, setMode, chooseFile, runImport } = useImport()
   const exportData = useExport()
@@ -42,6 +53,7 @@ export function BackupSection() {
           <p>
             Filen innehåller {formatNumber(state.data.foods.length)} livsmedel och {formatNumber(state.data.entries.length)} loggposter.
           </p>
+          <SkippedFoods count={state.skippedFoods} />
           <div className="segmented" role="radiogroup" aria-label="Hur ska filen läsas in?">
             <label>
               <input type="radio" name="import-mode" checked={mode === 'merge'} onChange={() => setMode('merge')} />
@@ -59,9 +71,12 @@ export function BackupSection() {
         </>
       )}
       {state.kind === 'done' && (
-        <p className="success" role="status">
-          Klart! {formatNumber(state.foods)} livsmedel och {formatNumber(state.entries)} loggposter lästes in.
-        </p>
+        <>
+          <p className="success" role="status">
+            Klart! {formatNumber(state.foods)} livsmedel och {formatNumber(state.entries)} loggposter lästes in.
+          </p>
+          <SkippedFoods count={state.skippedFoods} done />
+        </>
       )}
     </section>
   )
