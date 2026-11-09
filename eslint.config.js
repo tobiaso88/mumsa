@@ -37,7 +37,6 @@ export default defineConfig([
   {
     // ui/ pratar aldrig direkt med lagringen, all I/O går via data/
     files: ['src/ui/**/*.{ts,tsx}'],
-    ignores: ['src/ui/**/*.test.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-restricted-imports': ['error', { patterns: [DEXIE] }],
     },
@@ -45,7 +44,7 @@ export default defineConfig([
   {
     // Komponenter och skärmar når data/ via hooks. Typer får importeras.
     files: ['src/ui/**/*.{ts,tsx}'],
-    ignores: ['src/ui/hooks/**', 'src/ui/DbProvider.tsx', 'src/ui/**/*.test.{ts,tsx}'],
+    ignores: ['src/ui/hooks/**', 'src/ui/DbProvider.tsx'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',

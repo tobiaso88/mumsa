@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
-import { isValidBarcode } from '../domain/barcode'
+import { isValidBarcode } from '../domain/foods/barcode'
 import { isIsoDate, toIsoDate } from '../domain/dates'
-import { defaultMealForHour } from '../domain/meals'
+import { defaultMealForHour } from '../domain/nutrition/meals'
 import type { IsoDate, Meal } from '../domain/types'
 import { useToday } from './todayContext'
 

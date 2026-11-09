@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { MumsaDb } from '../data/db'
+import type { MumsaDb } from '../data/db/db'
 
 export const DbContext = createContext<MumsaDb | null>(null)
 

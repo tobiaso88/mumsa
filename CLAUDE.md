@@ -27,7 +27,7 @@ Utanför scope: konton, synk mellan enheter, kostplaner, recept, AI-funktioner, 
 - **vite-plugin-pwa**: installerbar app och offlinestöd via service worker.
 - **IndexedDB via Dexie**: all användardata lagras lokalt i webbläsaren. Ingen backend att drifta.
 - **Open Food Facts API**: öppen och gratis livsmedelsdatabas med bra täckning av svenska produkter. Används bara för streckkodsuppslag, eftersom deras fritextsökning inte går att anropa från webbläsaren (CORS).
-- **Livsmedelsverkets livsmedelsdatabas** (CC BY 4.0): cirka 2 500 basvaror buntade som JSON i `src/data/livsmedelsverket.json` för fritextsökning offline. Uppdateras med `npm run data:livsmedel`. Livsmedelsverket ska anges som källa i appen och i README.
+- **Livsmedelsverkets livsmedelsdatabas** (CC BY 4.0): cirka 2 500 basvaror buntade som JSON i `src/data/sources/livsmedelsverket.json` för fritextsökning offline. Uppdateras med `npm run data:livsmedel`. Livsmedelsverket ska anges som källa i appen och i README.
 - **BarcodeDetector-API:t** med **@zxing/browser** som reserv för webbläsare som saknar det (till exempel Safari).
 - **Vitest** och **Testing Library** för tester, **Playwright** för några end-to-end-flöden.
 - **GitHub Actions** bygger, testar och deployar till GitHub Pages vid push till `main`.
@@ -35,14 +35,15 @@ Utanför scope: konton, synk mellan enheter, kostplaner, recept, AI-funktioner, 
 ## Arkitekturprinciper
 
 - **Tre lager**:
-  - `src/domain/` innehåller rena funktioner och typer: näringsberäkningar, summering per dag, målberäkning. Ingen React, ingen I/O.
-  - `src/data/` är det enda lagret som pratar med omvärlden: IndexedDB, Open Food Facts och kameran. Exponerar enkla funktioner som returnerar domäntyper.
+  - `src/domain/` innehåller rena funktioner och typer: näringsberäkningar, summering per dag, målberäkning. Ingen React, ingen I/O. Filerna ligger i undermappar per område (`foods/`, `nutrition/`, `goals/`, `weight/`, `backup/`); `types.ts` och `dates.ts` delas av alla och ligger direkt i `domain/`.
+  - `src/data/` är det enda lagret som pratar med omvärlden: IndexedDB, Open Food Facts och kameran. Exponerar enkla funktioner som returnerar domäntyper. Uppdelat i `db/` (Dexie och lagring), `repos/` (läsning och skrivning per tabell), `sources/` (Livsmedelsverket, Open Food Facts och den samlade livsmedelskatalogen), `backup/` och `scanner/`.
   - `src/ui/` innehåller React-komponenter och hooks. Komponenter anropar `data/` via hooks och räknar aldrig näringsvärden själva.
 - Data från Open Food Facts mappas till egna domäntyper direkt i `data/`. Resten av appen känner inte till API:ts format.
 - Näringsvärden lagras per 100 g och räknas om vid visning. Avrundning sker bara i UI:t.
 - Inga globala variabler. Delad state hålls i React context eller i databasen, inte i moduler.
 - Funktioner och komponenter gör en sak. En komponent som växer över cirka 150 rader delas upp.
 - Allt i `domain/` har enhetstester.
+- Tester ligger i `tests/`, som speglar `src/`: testet för `src/domain/goals/goals.ts` ligger i `tests/domain/goals/goals.test.ts`. Testhjälpare finns i `tests/helpers/`, fixturer i `tests/fixtures/` och Playwright-testerna i `tests/e2e/`. Inga tester eller testhjälpare i `src/`.
 - Appen ska fungera utan nätverk för allt utom sökning och skanning av nya livsmedel, som cachas lokalt när de väl hämtats.
 - Gränssnittet är på svenska och mobilen är förstahandsplattform.
 

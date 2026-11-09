@@ -1,4 +1,4 @@
-import { entryNutrients } from '../../domain/nutrition'
+import { entryNutrients } from '../../domain/nutrition/nutrition'
 import type { IsoDate, LogEntry, Meal, Nutrients } from '../../domain/types'
 import { formatNumber } from '../format'
 import { MEAL_LABELS } from '../labels'

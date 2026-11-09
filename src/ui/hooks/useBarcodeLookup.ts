@@ -1,5 +1,5 @@
-import { lookupBarcode } from '../../data/foodCatalog'
-import { OffError } from '../../data/openFoodFacts'
+import { lookupBarcode } from '../../data/sources/foodCatalog'
+import { OffError } from '../../data/sources/openFoodFacts'
 import type { Food } from '../../domain/types'
 import { useDb } from '../dbContext'
 

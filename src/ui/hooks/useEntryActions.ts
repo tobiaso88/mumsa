@@ -1,4 +1,4 @@
-import { addEntry, deleteEntry, updateEntry, type EntryChanges, type NewEntry } from '../../data/entriesRepo'
+import { addEntry, deleteEntry, updateEntry, type EntryChanges, type NewEntry } from '../../data/repos/entriesRepo'
 import { useDb } from '../dbContext'
 
 /** Skrivningar för loggposter, bundna till appens databas. */

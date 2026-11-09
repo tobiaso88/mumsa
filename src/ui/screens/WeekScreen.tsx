@@ -1,5 +1,5 @@
 import { addDays, isoWeekNumber, startOfWeek } from '../../domain/dates'
-import { summarizeWeek } from '../../domain/summary'
+import { summarizeWeek } from '../../domain/nutrition/summary'
 import type { Goals, IsoDate } from '../../domain/types'
 import { Loading } from '../components/Loading'
 import { MacroProgress } from '../components/MacroProgress'

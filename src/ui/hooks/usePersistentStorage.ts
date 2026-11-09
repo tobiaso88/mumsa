@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { isStoragePersisted, requestPersistentStorage } from '../../data/storage'
+import { isStoragePersisted, requestPersistentStorage } from '../../data/db/storage'
 import { useAsync } from './useAsync'
 
 /** null betyder att webbläsaren inte stöder beständig lagring. */

@@ -1,5 +1,5 @@
 import type { IsoDate, WeightEntry } from '../../domain/types'
-import { weeklyChange, weightProgress } from '../../domain/weight'
+import { weeklyChange, weightProgress } from '../../domain/weight/weight'
 import { formatNumber, formatShortDate } from '../format'
 
 type Props = {

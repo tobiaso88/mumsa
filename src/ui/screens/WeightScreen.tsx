@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { addDays } from '../../domain/dates'
 import type { Goals } from '../../domain/types'
-import { weightsInRange } from '../../domain/weight'
+import { weightsInRange } from '../../domain/weight/weight'
 import { Loading } from '../components/Loading'
 import { SegmentedControl } from '../components/SegmentedControl'
 import { WeightChart } from '../components/WeightChart'

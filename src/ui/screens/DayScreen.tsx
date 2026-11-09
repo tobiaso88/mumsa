@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { summarizeDay } from '../../domain/summary'
+import { summarizeDay } from '../../domain/nutrition/summary'
 import { MEALS, type Goals, type IsoDate, type LogEntry } from '../../domain/types'
 import { DayHeader } from '../components/DayHeader'
 import { DaySummary } from '../components/DaySummary'

@@ -1,4 +1,4 @@
-import { saveGoals, saveProfile } from '../../data/settingsRepo'
+import { saveGoals, saveProfile } from '../../data/repos/settingsRepo'
 import type { Goals, Profile } from '../../domain/types'
 import { useDb } from '../dbContext'
 

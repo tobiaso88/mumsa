@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { createDb, type MumsaDb } from '../data/db'
+import { createDb, type MumsaDb } from '../data/db/db'
 import { DbContext } from './dbContext'
 
 type Props = {

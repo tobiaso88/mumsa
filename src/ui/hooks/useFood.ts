@@ -1,4 +1,4 @@
-import { findFood } from '../../data/foodCatalog'
+import { findFood } from '../../data/sources/foodCatalog'
 import type { Food } from '../../domain/types'
 import { useDb } from '../dbContext'
 import { useAsync } from './useAsync'

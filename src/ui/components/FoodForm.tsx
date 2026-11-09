@@ -1,6 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
-import type { CustomFoodInput } from '../../data/foodsRepo'
-import { MAX_KCAL_PER_100G, MAX_TEXT_LENGTH, type NutrientIssue } from '../../domain/foodValidation'
+import type { CustomFoodInput } from '../../data/repos/foodsRepo'
+import { MAX_KCAL_PER_100G, MAX_TEXT_LENGTH, type NutrientIssue } from '../../domain/foods/foodValidation'
 import { formatNumber } from '../format'
 import { useFoodForm, type FoodFormInitial } from '../hooks/useFoodForm'
 import { NumberField } from './NumberField'

@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { PACE_KG_PER_WEEK } from '../../domain/objectives'
+import { PACE_KG_PER_WEEK } from '../../domain/goals/objectives'
 import { OBJECTIVE_KINDS, PACES, type ObjectiveKind, type Pace } from '../../domain/types'
 import { formatNumber } from '../format'
 import type { GoalsFormSet, GoalsFormState } from '../hooks/useGoalsForm'

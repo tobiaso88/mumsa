@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { bmr, DEFAULT_SPLIT, estimateDailyKcal, isValidGoalKcal, isValidProfile, isValidSplit } from '../../domain/goals'
-import { adjustedDailyKcal, dailyKcalAdjustment, makeObjective, suggestedSplit, weeklyWeightChange } from '../../domain/objectives'
+import { bmr, DEFAULT_SPLIT, estimateDailyKcal, isValidGoalKcal, isValidProfile, isValidSplit } from '../../domain/goals/goals'
+import { adjustedDailyKcal, dailyKcalAdjustment, makeObjective, suggestedSplit, weeklyWeightChange } from '../../domain/goals/objectives'
 import type { ActivityLevel, Goals, MacroSplit, ObjectiveKind, Pace, Profile, Sex } from '../../domain/types'
-import { isValidWeightKg } from '../../domain/weight'
+import { isValidWeightKg } from '../../domain/weight/weight'
 import { parseNumber, toInputText } from '../format'
 
 export type GoalMode = 'manual' | 'calculated'

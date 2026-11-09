@@ -1,4 +1,4 @@
-import { getEntriesForDate, getEntriesInRange } from '../../data/entriesRepo'
+import { getEntriesForDate, getEntriesInRange } from '../../data/repos/entriesRepo'
 import { addDays } from '../../domain/dates'
 import type { IsoDate, LogEntry } from '../../domain/types'
 import { useDb } from '../dbContext'

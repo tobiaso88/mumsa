@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useState, type RefObject } from 'react'
-import { startScan } from '../../data/scanner'
+import { startScan } from '../../data/scanner/scanner'
 
 /** Startar kameran medan active är sant och anropar onCode för varje avläst streckkod. */
 export function useBarcodeScanner(videoRef: RefObject<HTMLVideoElement | null>, active: boolean, onCode: (code: string) => void) {

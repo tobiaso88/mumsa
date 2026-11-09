@@ -1,4 +1,4 @@
-import { createCustomFood, deleteCustomFood, updateCustomFood, type CustomFoodInput } from '../../data/foodsRepo'
+import { createCustomFood, deleteCustomFood, updateCustomFood, type CustomFoodInput } from '../../data/repos/foodsRepo'
 import { useDb } from '../dbContext'
 
 /** Skrivningar för egna livsmedel, bundna till appens databas. */

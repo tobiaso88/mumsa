@@ -1,5 +1,5 @@
-import { exportAll } from '../../data/backup'
-import { downloadExport } from '../../data/backupFile'
+import { exportAll } from '../../data/backup/backup'
+import { downloadExport } from '../../data/backup/backupFile'
 import { useDb } from '../dbContext'
 
 /** Exporterar all data och sparar den som en fil på enheten. */

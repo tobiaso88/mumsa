@@ -56,9 +56,9 @@ npm install
 | `npm run lint` | Kör ESLint och typkontroll |
 | `npm run screenshots` | Tar om skärmdumparna i `docs/screenshots/` |
 | `npm run icons` | Skapar appikonerna i `public/` |
-| `npm run data:livsmedel` | Hämtar Livsmedelsverkets databas till `src/data/livsmedelsverket.json` |
+| `npm run data:livsmedel` | Hämtar Livsmedelsverkets databas till `src/data/sources/livsmedelsverket.json` |
 
-Koden är uppdelad i tre lager: `src/domain/` (rena beräkningar), `src/data/` (IndexedDB, Open Food Facts, kamera och filer) och `src/ui/` (React). GitHub Actions kör lint och alla tester vid varje push och publicerar till GitHub Pages från `main`.
+Koden är uppdelad i tre lager: `src/domain/` (rena beräkningar), `src/data/` (IndexedDB, Open Food Facts, kamera och filer) och `src/ui/` (React). Inom `domain/` och `data/` ligger filerna i undermappar per område, till exempel `domain/goals/` och `data/repos/`. Alla tester ligger i `tests/`, som speglar strukturen i `src/`, och end-to-end-testerna i `tests/e2e/`. GitHub Actions kör lint och alla tester vid varje push och publicerar till GitHub Pages från `main`.
 
 ## Källor och licenser
 

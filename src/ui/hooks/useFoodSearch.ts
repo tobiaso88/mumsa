@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getRecentFoodIds } from '../../data/entriesRepo'
-import { findFoods, searchAllFoods } from '../../data/foodCatalog'
+import { getRecentFoodIds } from '../../data/repos/entriesRepo'
+import { findFoods, searchAllFoods } from '../../data/sources/foodCatalog'
 import type { Food } from '../../domain/types'
 import { useDb } from '../dbContext'
 import { useAsync } from './useAsync'

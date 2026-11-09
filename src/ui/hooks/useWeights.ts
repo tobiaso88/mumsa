@@ -1,4 +1,4 @@
-import { getWeights } from '../../data/weightsRepo'
+import { getWeights } from '../../data/repos/weightsRepo'
 import type { WeightEntry } from '../../domain/types'
 import { useDb } from '../dbContext'
 import { useLiveQuery } from './useLiveQuery'

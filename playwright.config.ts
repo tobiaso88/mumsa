@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/e2e',
   // Skärmdumparna till README tas bara med `npm run screenshots`
   grepInvert: process.env.SCREENSHOTS ? undefined : /@skärmdump/,
   forbidOnly: !!process.env.CI,

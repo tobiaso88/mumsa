@@ -1,4 +1,4 @@
-import { getGoals, getProfile } from '../../data/settingsRepo'
+import { getGoals, getProfile } from '../../data/repos/settingsRepo'
 import type { Goals, Profile } from '../../domain/types'
 import { useDb } from '../dbContext'
 import { useLiveQuery } from './useLiveQuery'

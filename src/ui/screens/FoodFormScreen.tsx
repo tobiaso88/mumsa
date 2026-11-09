@@ -1,4 +1,4 @@
-import type { CustomFoodInput } from '../../data/foodsRepo'
+import type { CustomFoodInput } from '../../data/repos/foodsRepo'
 import { FoodForm } from '../components/FoodForm'
 import { Loading } from '../components/Loading'
 import { useAction } from '../hooks/useAction'

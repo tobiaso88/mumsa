@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import type { ImportMode } from '../../data/backup'
+import type { ImportMode } from '../../data/backup/backup'
 import { formatNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useExport } from '../hooks/useExport'

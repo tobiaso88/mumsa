@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import type { CustomFoodInput } from '../../data/foodsRepo'
-import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
-import { kcalLooksOff, MAX_TEXT_LENGTH, nutrientIssues } from '../../domain/foodValidation'
-import { isValidAmount } from '../../domain/nutrition'
+import type { CustomFoodInput } from '../../data/repos/foodsRepo'
+import { isValidBarcode, normalizeBarcode } from '../../domain/foods/barcode'
+import { kcalLooksOff, MAX_TEXT_LENGTH, nutrientIssues } from '../../domain/foods/foodValidation'
+import { isValidAmount } from '../../domain/nutrition/nutrition'
 import type { Food, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 

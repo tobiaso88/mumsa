@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
-import { isValidBarcode, normalizeBarcode } from '../../domain/barcode'
+import { isValidBarcode, normalizeBarcode } from '../../domain/foods/barcode'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import { navigate, toHash, type AddContext } from '../router'

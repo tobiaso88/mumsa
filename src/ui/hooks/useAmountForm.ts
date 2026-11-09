@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { gramsToPortions, isValidAmount, nutrientsForAmount, portionsToGrams } from '../../domain/nutrition'
+import { gramsToPortions, isValidAmount, nutrientsForAmount, portionsToGrams } from '../../domain/nutrition/nutrition'
 import type { Meal, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 

@@ -1,4 +1,4 @@
-import { deleteWeight, logWeight } from '../../data/weightsRepo'
+import { deleteWeight, logWeight } from '../../data/repos/weightsRepo'
 import type { IsoDate } from '../../domain/types'
 import { useDb } from '../dbContext'
 

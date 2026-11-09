@@ -1,4 +1,4 @@
-import { macroGrams, splitTotal } from '../../domain/goals'
+import { macroGrams, splitTotal } from '../../domain/goals/goals'
 import type { MacroSplit } from '../../domain/types'
 import { formatNumber } from '../format'
 import type { GoalsFormState } from '../hooks/useGoalsForm'

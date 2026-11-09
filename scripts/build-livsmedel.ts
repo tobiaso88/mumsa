@@ -8,7 +8,7 @@
 import { writeFile } from 'node:fs/promises'
 
 const API = 'https://dataportal.livsmedelsverket.se/livsmedel/api/v1'
-const OUT = new URL('../src/data/livsmedelsverket.json', import.meta.url)
+const OUT = new URL('../src/data/sources/livsmedelsverket.json', import.meta.url)
 const CONCURRENCY = 4
 
 type ListItem = { nummer: number; namn: string }

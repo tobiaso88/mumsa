@@ -1,4 +1,4 @@
-import { macroGrams } from '../../domain/goals'
+import { macroGrams } from '../../domain/goals/goals'
 import type { Goals, Nutrients } from '../../domain/types'
 import { ProgressBar } from './ProgressBar'
 

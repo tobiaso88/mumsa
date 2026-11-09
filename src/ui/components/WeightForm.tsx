@@ -1,7 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { isIsoDate } from '../../domain/dates'
 import type { WeightEntry } from '../../domain/types'
-import { isValidWeightKg } from '../../domain/weight'
+import { isValidWeightKg } from '../../domain/weight/weight'
 import { formatNumber, parseNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useWeightActions } from '../hooks/useWeightActions'

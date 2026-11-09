@@ -1,4 +1,4 @@
-import type { MumsaDb } from '../data/db'
+import type { MumsaDb } from '../data/db/db'
 import { BottomNav } from './components/BottomNav'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { Loading } from './components/Loading'

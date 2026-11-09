@@ -1,4 +1,4 @@
-import { kcalLeft } from '../../domain/goals'
+import { kcalLeft } from '../../domain/goals/goals'
 import type { Goals, Nutrients } from '../../domain/types'
 import { formatNumber } from '../format'
 import { MacroProgress } from './MacroProgress'

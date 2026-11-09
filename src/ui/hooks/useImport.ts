@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { importAll, type ImportMode } from '../../data/backup'
-import { readJsonFile } from '../../data/backupFile'
-import { validateImport, type ExportData } from '../../domain/exportFormat'
+import { importAll, type ImportMode } from '../../data/backup/backup'
+import { readJsonFile } from '../../data/backup/backupFile'
+import { validateImport, type ExportData } from '../../domain/backup/exportFormat'
 import { useDb } from '../dbContext'
 
 export type ImportState =
