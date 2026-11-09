@@ -2,13 +2,14 @@ import { useState } from 'react'
 import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
 import { FoodSearchResults } from '../components/FoodSearchResults'
+import { Icon } from '../components/Icon'
 import { Sheet } from '../components/Sheet'
-import { formatDayTitle } from '../format'
+import { formatDayTitle, formatNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useEntryActions } from '../hooks/useEntryActions'
 import { useFood } from '../hooks/useFood'
 import { useFoodSearch, useRecentFoods } from '../hooks/useFoodSearch'
-import { entryName, MEAL_LABELS } from '../labels'
+import { entryName, MEAL_LABELS, SOURCE_LABELS } from '../labels'
 import { navigate, toHash, type AddContext } from '../router'
 
 type Props = AddContext & { foodId?: string }
@@ -36,25 +37,33 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
         <h1>Lägg till i {MEAL_LABELS[meal].toLocaleLowerCase('sv')}</h1>
         <p className="hint">{formatDayTitle(date)}</p>
       </header>
-      <input
-        className="search-input"
-        type="search"
-        placeholder="Sök livsmedel, t.ex. havregryn"
-        aria-label="Sök livsmedel"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <label className="search-field">
+        <Icon name="search" size={20} />
+        <input
+          type="search"
+          placeholder="Sök livsmedel, t.ex. havregryn"
+          aria-label="Sök livsmedel"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </label>
       <div className="button-row">
-        <a className="button-secondary" href={toHash({ name: 'scan', date, meal })}>
+        <a className="tile-button" href={toHash({ name: 'scan', date, meal })}>
+          <Icon name="scan" size={22} />
           Skanna streckkod
         </a>
-        <a className="button-secondary" href={toHash({ name: 'food', action: 'new', date, meal })}>
+        <a className="tile-button" href={toHash({ name: 'food', action: 'new', date, meal })}>
+          <Icon name="pencil" size={22} />
           Eget livsmedel
         </a>
       </div>
       <FoodSearchResults query={query} results={results} recent={recent} onSelect={setChoice} />
       {selected && (
-        <Sheet title={entryName(selected)} onClose={() => setChoice(null)}>
+        <Sheet
+          title={entryName(selected)}
+          subtitle={`${SOURCE_LABELS[selected.source]} · ${formatNumber(selected.per100g.kcal)} kcal per 100 g`}
+          onClose={() => setChoice(null)}
+        >
           <AmountForm
             food={selected}
             initialGrams={selected.servingGrams ?? 100}

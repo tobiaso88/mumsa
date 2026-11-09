@@ -1,10 +1,16 @@
 import { usePersistentStorage } from '../hooks/usePersistentStorage'
+import { Icon } from './Icon'
 
 export function StorageSection() {
   const { persisted, request } = usePersistentStorage()
   return (
     <section className="card stack" aria-labelledby="storage-title">
-      <h2 id="storage-title">Din data</h2>
+      <h2 id="storage-title" className="settings-row">
+        <span className="settings-icon">
+          <Icon name="lock" size={18} strokeWidth={2.2} />
+        </span>
+        Din data
+      </h2>
       <p className="hint">
         Allt du loggar sparas bara i den här webbläsaren på den här enheten. Inget konto, ingen synk och ingen statistik
         skickas någonstans. Det enda appen hämtar från internet är produkter när du skannar en streckkod, från Open Food

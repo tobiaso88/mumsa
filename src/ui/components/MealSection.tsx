@@ -1,8 +1,9 @@
 import { entryNutrients } from '../../domain/nutrition/nutrition'
 import type { IsoDate, LogEntry, Meal, Nutrients } from '../../domain/types'
 import { formatNumber } from '../format'
-import { MEAL_LABELS } from '../labels'
+import { MEAL_ICONS, MEAL_LABELS } from '../labels'
 import { toHash } from '../router'
+import { Icon } from './Icon'
 
 type Props = {
   date: IsoDate
@@ -17,8 +18,14 @@ export function MealSection({ date, meal, entries, total, onSelect }: Props) {
   return (
     <section className="card meal" aria-label={label}>
       <header className="meal-header">
+        <span className="meal-icon">
+          <Icon name={MEAL_ICONS[meal]} size={20} />
+        </span>
         <h2>{label}</h2>
         <span className="meal-kcal">{formatNumber(total.kcal)} kcal</span>
+        <a className="meal-add" href={toHash({ name: 'add', date, meal })} aria-label={`Lägg till i ${label.toLocaleLowerCase('sv')}`}>
+          <Icon name="plus" size={24} strokeWidth={2.2} />
+        </a>
       </header>
       {entries.length > 0 && (
         <ul className="entry-list">
@@ -34,9 +41,6 @@ export function MealSection({ date, meal, entries, total, onSelect }: Props) {
           ))}
         </ul>
       )}
-      <a className="button-secondary" href={toHash({ name: 'add', date, meal })}>
-        Lägg till i {label.toLocaleLowerCase('sv')}
-      </a>
     </section>
   )
 }

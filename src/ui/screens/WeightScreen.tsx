@@ -28,9 +28,11 @@ export function WeightScreen({ goals }: { goals: Goals }) {
 
   return (
     <main className="screen stack">
-      <h1>Vikt</h1>
-      <WeightForm weights={weights} />
+      <header>
+        <h1>Vikt</h1>
+      </header>
       <WeightProgress weights={weights} targetKg={goals.targetWeightKg} today={today} />
+      <WeightForm weights={weights} />
       {weights.length > 0 && (
         <section className="card stack" aria-label="Viktkurva">
           <SegmentedControl label="Period" options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />

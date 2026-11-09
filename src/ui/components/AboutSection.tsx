@@ -1,9 +1,16 @@
+import { Icon } from './Icon'
+
 const SLV_ATTRIBUTION = 'Källa: Livsmedelsverkets livsmedelsdatabas (CC BY 4.0)'
 
 export function AboutSection() {
   return (
     <section className="card stack" aria-labelledby="about-title">
-      <h2 id="about-title">Om Mumsa</h2>
+      <h2 id="about-title" className="settings-row">
+        <span className="settings-icon">
+          <Icon name="info" size={18} strokeWidth={2.2} />
+        </span>
+        Om Mumsa
+      </h2>
       <div>
         <h3>Installera på mobilen</h3>
         <p className="hint">

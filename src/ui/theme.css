@@ -1,39 +1,56 @@
+/* Förslag A · Lugn: ljust och luftigt, nära iOS. Systemtypsnittet används så att inget hämtas från nätet. */
 :root {
-  --bg: #fbfaf7;
+  --bg: #f2f2ee;
   --surface: #ffffff;
-  --text: #1f2421;
-  --text-muted: #5f6b64;
-  --border: #e3e1da;
+  --surface-muted: #e6e6e0;
+  --text: #1c1f1d;
+  --text-muted: #636a66;
+  --text-faint: #9aa09c;
+  --border: #e2e2dc;
+  --separator: #ecece6;
   --accent: #2f7d5b;
+  --accent-soft: #e3f0e8;
+  --accent-track: #e6efe9;
   --accent-contrast: #ffffff;
   --protein: #c2573a;
-  --carbs: #d39b2a;
+  --carbs: #c48a1c;
   --fat: #4a6fa5;
   --error: #b3261e;
-  --radius: 12px;
+  --bar-bg: rgb(250 250 247 / 0.92);
+  --backdrop: rgb(20 23 21 / 0.38);
+  --radius: 16px;
+  --radius-small: 12px;
   --gutter: 16px;
-  --nav-height: 56px;
+  --nav-height: 58px;
 
-  font: 16px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font: 17px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141715;
-    --surface: #1d211f;
-    --text: #e8ece9;
-    --text-muted: #9aa59f;
-    --border: #2e3431;
+    --bg: #0f1210;
+    --surface: #1c201e;
+    --surface-muted: #2a2f2c;
+    --text: #edf1ee;
+    --text-muted: #9ca69f;
+    --text-faint: #6e7872;
+    --border: #2c322f;
+    --separator: #2a302d;
     --accent: #5fbf92;
+    --accent-soft: #1f3529;
+    --accent-track: #26332c;
     --accent-contrast: #0e1310;
     --protein: #e07a5f;
     --carbs: #e6b84f;
     --fat: #7d9fd6;
     --error: #f2948c;
+    --bar-bg: rgb(22 26 24 / 0.9);
+    --backdrop: rgb(0 0 0 / 0.55);
   }
 }
 

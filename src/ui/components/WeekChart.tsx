@@ -31,7 +31,7 @@ export function WeekChart({ days, goalKcal, today }: Props) {
         return (
           <g key={d.date}>
             {d.total.kcal > 0 && (
-              <rect x={x} y={top} width={BAR} height={TOP + plot - top} rx={4} className={over ? 'bar bar-over' : 'bar'} />
+              <rect x={x} y={top} width={BAR} height={TOP + plot - top} rx={7} className={over ? 'bar bar-over' : 'bar'} />
             )}
             <text x={x + BAR / 2} y={HEIGHT - 6} textAnchor="middle" className={d.date === today ? 'axis axis-today' : 'axis'}>
               {formatWeekdayShort(d.date)}

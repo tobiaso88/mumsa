@@ -31,16 +31,20 @@ export function WeightProgress({ weights, targetKg, today }: Props) {
   const perWeek = weeklyChange(weights, today)
 
   return (
-    <section className="card day-summary" aria-label="Viktförändring">
-      <div className="kcal-headline">
-        <p className="kcal-big">{formatNumber(progress.latest.kg, 1)} kg</p>
-        <p className="hint">senast vägd {formatShortDate(progress.latest.date)}</p>
+    <section className="card stat-card" aria-label="Viktförändring">
+      <div className="weight-hero">
+        <div>
+          <p className="hint">Senast vägd {formatShortDate(progress.latest.date)}</p>
+          <p className="kcal-big">{formatNumber(progress.latest.kg, 1)} kg</p>
+        </div>
+        {progress.start.date !== progress.latest.date && (
+          <span className="pill">
+            {formatKgChange(progress.changeKg)} sedan {formatShortDate(progress.start.date)}
+          </span>
+        )}
       </div>
-      {progress.start.date !== progress.latest.date && (
-        <p>
-          {formatKgChange(progress.changeKg)} sedan {formatShortDate(progress.start.date)}
-          {perWeek !== null && <>, i snitt {formatKgChange(perWeek)} per vecka den senaste månaden</>}.
-        </p>
+      {perWeek !== null && progress.start.date !== progress.latest.date && (
+        <p className="hint">Det är i snitt {formatKgChange(perWeek)} per vecka den senaste månaden.</p>
       )}
       {targetKg !== undefined && progress.leftKg !== null && progress.reached !== null && (
         <TargetLine leftKg={progress.leftKg} reached={progress.reached} targetKg={targetKg} />

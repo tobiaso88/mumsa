@@ -5,6 +5,7 @@ import { useAction } from '../hooks/useAction'
 import { useExport } from '../hooks/useExport'
 import { useImport } from '../hooks/useImport'
 import { SegmentedControl } from './SegmentedControl'
+import { Icon } from './Icon'
 
 const MODE_OPTIONS: readonly { value: ImportMode; label: string }[] = [
   { value: 'merge', label: 'Slå ihop' },
@@ -50,7 +51,12 @@ export function BackupSection() {
 
   return (
     <section className="card stack" aria-labelledby="backup-title">
-      <h2 id="backup-title">Säkerhetskopia</h2>
+      <h2 id="backup-title" className="settings-row">
+        <span className="settings-icon">
+          <Icon name="download" size={18} strokeWidth={2.2} />
+        </span>
+        Säkerhetskopia
+      </h2>
       <p className="hint">Spara all data som en JSON-fil, till exempel för att flytta den till en annan enhet.</p>
       <button type="button" className="button-secondary" onClick={() => void exporting.run()} disabled={exporting.pending}>
         Exportera data

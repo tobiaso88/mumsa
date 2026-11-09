@@ -1,11 +1,6 @@
 import type { Food } from '../../domain/types'
 import { formatNumber } from '../format'
-
-const SOURCE_LABELS: Record<Food['source'], string> = {
-  custom: 'Eget',
-  slv: 'Livsmedelsverket',
-  off: 'Skannad',
-}
+import { SOURCE_LABELS } from '../labels'
 
 export function FoodList({ foods, onSelect, label }: { foods: Food[]; onSelect: (food: Food) => void; label: string }) {
   return (

@@ -17,8 +17,8 @@ export function FoodSearchResults({ query, results, recent, onSelect }: Props) {
   if (trimmed === '') {
     if (!recent || recent.length === 0) return null
     return (
-      <section className="stack">
-        <h2>Senast loggade</h2>
+      <section>
+        <h2 className="section-title">Senast loggade</h2>
         <FoodList label="Senast loggade" foods={recent} onSelect={onSelect} />
       </section>
     )

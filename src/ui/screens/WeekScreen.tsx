@@ -35,7 +35,7 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
         <WeekChart days={week.days} goalKcal={goals.kcal} today={today} />
       </section>
 
-      <section className="card day-summary" aria-label="Snitt per dag">
+      <section className="card stat-card" aria-label="Snitt per dag">
         <h2>Snitt per loggad dag</h2>
         {week.loggedDays === 0 ? (
           <p className="hint">Inget loggat den här veckan.</p>

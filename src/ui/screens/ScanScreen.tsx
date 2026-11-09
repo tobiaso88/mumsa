@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { isValidBarcode, normalizeBarcode } from '../../domain/foods/barcode'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
+import { Icon } from '../components/Icon'
 import { navigate, toHash, type AddContext } from '../router'
 
 type Phase =
@@ -54,11 +55,17 @@ export function ScanScreen({ date, meal }: AddContext) {
 
   return (
     <main className="screen stack">
-      <h1>Skanna streckkod</h1>
+      <header className="large-title">
+        <h1>Skanna streckkod</h1>
+        <a className="round-button" href={toHash({ name: 'add', date, meal })} aria-label="Tillbaka">
+          <Icon name="close" size={22} strokeWidth={2.2} />
+        </a>
+      </header>
       {phase.kind === 'scanning' && (
         <div className="scanner">
           <video ref={videoRef} muted playsInline aria-label="Kamerabild" hidden={!!cameraError} />
-          {cameraError ? <p className="error">{cameraError}</p> : <p className="hint">Håll streckkoden inom bilden.</p>}
+          <span className="viewfinder" aria-hidden="true" />
+          {cameraError ? <p className="error">{cameraError}</p> : <p className="hint">Håll streckkoden inom ramen.</p>}
         </div>
       )}
       {phase.kind === 'looking' && <p role="status">Söker efter {phase.code} …</p>}
@@ -101,9 +108,6 @@ export function ScanScreen({ date, meal }: AddContext) {
           </button>
         </div>
       </form>
-      <a className="button-secondary" href={toHash({ name: 'add', date, meal })}>
-        Tillbaka
-      </a>
     </main>
   )
 }
