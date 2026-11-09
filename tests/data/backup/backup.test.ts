@@ -1,4 +1,4 @@
-import { makeEntry, makeFood } from '../../helpers/testData'
+import { makeEntry, makeFood, makeRecipe } from '../../helpers/testData'
 import { exportAll, importAll } from '../../../src/data/backup/backup'
 import type { MumsaDb } from '../../../src/data/db/db'
 import { getGoals, getProfile } from '../../../src/data/repos/settingsRepo'
@@ -21,6 +21,7 @@ async function seed(target: MumsaDb) {
   await target.entries.put(makeEntry({ id: 'e1', foodId: 'custom:a' }))
   await target.settings.put({ key: 'goals', value: goals })
   await target.weights.put({ date: '2026-10-20', kg: 70.4, createdAt: '2026-10-20T07:00:00.000Z' })
+  await target.recipes.put(makeRecipe({ id: 'recipe:a' }))
 }
 
 it('återställer exakt samma data efter export och import', async () => {
@@ -31,13 +32,15 @@ it('återställer exakt samma data efter export och import', async () => {
   const target = createTestDb()
   await target.entries.put(makeEntry({ id: 'gammal' }))
   await target.weights.put({ date: '2026-01-01', kg: 90, createdAt: '2026-01-01T07:00:00.000Z' })
-  expect(await importAll(target, exported, 'replace')).toEqual({ foods: 2, entries: 1, weights: 1 })
+  await target.recipes.put(makeRecipe({ id: 'recipe:gammal' }))
+  expect(await importAll(target, exported, 'replace')).toEqual({ foods: 2, entries: 1, weights: 1, recipes: 1 })
 
   expect(await target.foods.toArray()).toEqual(await db.foods.toArray())
   expect((await target.entries.toArray()).map((e) => e.id)).toEqual(['e1'])
   expect(await getGoals(target)).toEqual(goals)
   expect(await getProfile(target)).toEqual(profile)
   expect(await target.weights.toArray()).toEqual(await db.weights.toArray())
+  expect(await target.recipes.toArray()).toEqual(await db.recipes.toArray())
   await target.delete()
 })
 
@@ -49,6 +52,14 @@ it('behåller befintlig data vid sammanslagning', async () => {
   const entries = await db.entries.toArray()
   expect(entries.map((e) => e.id).sort()).toEqual(['e1', 'egen'])
   expect(entries.find((e) => e.id === 'e1')?.grams).toBe(10)
+})
+
+it('behåller egna recept vid sammanslagning', async () => {
+  await seed(db)
+  const exported = await exportAll(db)
+  await db.recipes.put(makeRecipe({ id: 'recipe:egen' }))
+  await importAll(db, exported, 'merge')
+  expect((await db.recipes.toArray()).map((r) => r.id).sort()).toEqual(['recipe:a', 'recipe:egen'])
 })
 
 it('behåller egna vägningar vid sammanslagning', async () => {

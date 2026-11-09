@@ -12,6 +12,7 @@ export const SOURCE_LABELS: Record<Food['source'], string> = {
   custom: 'Eget',
   slv: 'Livsmedelsverket',
   off: 'Skannad',
+  recipe: 'Recept',
 }
 
 export const MEAL_ICONS: Record<Meal, IconName> = {

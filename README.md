@@ -20,6 +20,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - Sök bland cirka 2 600 livsmedel från Livsmedelsverket. Sökningen fungerar offline.
 - Skanna streckkoder med kameran. Produkter hämtas från Open Food Facts.
 - Egna livsmedel, och rättade kopior av livsmedel med fel värden.
+- Egna recept av ingredienser och antal portioner. Ett recept loggas som en eller flera portioner.
 - Logga i gram eller portioner, per frukost, lunch, middag och mellanmål.
 - Dagsvy med intag mot målet och veckovy med diagram och snitt.
 - Export och import av all data som JSON.
@@ -33,7 +34,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - Om du rensar webbplatsdata i webbläsaren försvinner loggen. Under Profil → Inställningar kan du exportera en säkerhetskopia och be webbläsaren om beständig lagring.
 - För att flytta till en ny enhet: exportera på den gamla och välj ”Importera en säkerhetskopia” på den nya.
 - Där webbläsaren stöder det finns även ”Dela eller spara i molnet”, som öppnar telefonens delningsmeny så att du kan lägga säkerhetskopian i Filer, iCloud Drive eller Google Drive. Appen skickar själv ingenting till molnet, så det är en manuell säkerhetskopia och ingen automatisk synk.
-- Exportfilen är JSON i formatversion 2, som innehåller livsmedel, loggposter, mål, profil och vägningar. Filer från version 1 går fortfarande att importera.
+- Exportfilen är JSON i formatversion 3, som innehåller livsmedel, recept, loggposter, mål, profil och vägningar. Filer från version 1 och 2 går fortfarande att importera.
 
 ## Installera på mobilen
 

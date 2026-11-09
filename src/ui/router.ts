@@ -13,11 +13,19 @@ export type FoodFormAction = 'new' | 'copy' | 'edit'
 /** Ett nytt livsmedel kan få en streckkod i förväg. Att kopiera eller ändra kräver ett befintligt livsmedel. */
 export type FoodFormTarget = { action: 'new'; barcode?: string } | { action: 'copy' | 'edit'; foodId: string }
 
+/**
+ * Ett nytt recept, eller ett befintligt som ändras. Receptformuläret öppnas
+ * antingen från lägg till-flödet, som då anges som context, eller från receptlistan.
+ */
+export type RecipeFormTarget = { action: 'new' } | { action: 'edit'; recipeId: string }
+
 export type Route =
   | { name: 'day'; date: IsoDate }
   | ({ name: 'add'; foodId?: string } & AddContext)
   | ({ name: 'scan' } & AddContext)
   | ({ name: 'food' } & FoodFormTarget & AddContext)
+  | { name: 'recipes' }
+  | ({ name: 'recipe'; context?: AddContext } & RecipeFormTarget)
   | { name: 'week'; date: IsoDate }
   | { name: 'weight' }
   | { name: 'profile' }
@@ -31,6 +39,8 @@ const MEAL_SLUGS: Record<Meal, string> = {
 }
 
 const FOOD_ACTION_SLUGS: Record<FoodFormAction, string> = { new: 'ny', copy: 'kopiera', edit: 'andra' }
+
+const RECIPE_ACTION_SLUGS: Record<RecipeFormTarget['action'], string> = { new: 'ny', edit: 'andra' }
 
 function fromSlug<T extends string>(slugs: Record<T, string>, slug: string | undefined): T | undefined {
   return (Object.keys(slugs) as T[]).find((key) => slugs[key] === slug)
@@ -78,6 +88,17 @@ export function parseHash(hash: string, now: Date): Route {
       if (action === 'new') return { name: 'food', action, ...context, barcode: ref && isValidBarcode(ref) ? ref : undefined }
       return ref ? { name: 'food', action, ...context, foodId: ref } : { name: 'add', ...context }
     }
+    case 'recept': {
+      if (!first) return { name: 'recipes' }
+      const action = fromSlug(RECIPE_ACTION_SLUGS, first)
+      if (!action) return { name: 'recipes' }
+      const context = parseAddContext(second, third)
+      if (action === 'new') return { name: 'recipe', action, context }
+      // Id:t kommer efter måltiden, eller direkt efter åtgärden när formuläret öppnas från receptlistan
+      const ref = decode(context ? fourth : second)
+      if (ref) return { name: 'recipe', action, context, recipeId: ref }
+      return context ? { name: 'add', ...context } : { name: 'recipes' }
+    }
     case 'vecka':
       return { name: 'week', date }
     case 'vikt':
@@ -110,6 +131,13 @@ export function toHash(route: Route): string {
     case 'food': {
       const ref = route.action === 'new' ? route.barcode : route.foodId
       return `#/livsmedel/${FOOD_ACTION_SLUGS[route.action]}/${contextPath(route)}${optional(ref)}`
+    }
+    case 'recipes':
+      return '#/recept'
+    case 'recipe': {
+      const slug = RECIPE_ACTION_SLUGS[route.action]
+      const ref = route.action === 'edit' ? optional(route.recipeId) : ''
+      return route.context ? `#/recept/${slug}/${contextPath(route.context)}${ref}` : `#/recept/${slug}${ref}`
     }
     case 'week':
       return `#/vecka/${route.date}`

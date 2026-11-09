@@ -14,9 +14,11 @@ export type AmountFood = {
 /** Två decimaler räcker i fältet. Det exakta värdet sparas separat. */
 const roundForInput = (n: number) => Math.round(n * 100) / 100
 
-export function useAmountForm(food: AmountFood, initialGrams: number, initialMeal: Meal) {
-  const [unit, setUnitState] = useState<AmountUnit>('g')
-  const [amount, setAmountText] = useState(toInputText(initialGrams))
+export function useAmountForm(food: AmountFood, initialGrams: number, initialMeal: Meal, preferPortions = false) {
+  // En portion som startvärde, om livsmedlet har en portionsstorlek
+  const startInPortions = preferPortions && !!food.servingGrams
+  const [unit, setUnitState] = useState<AmountUnit>(startInPortions ? 'portion' : 'g')
+  const [amount, setAmountText] = useState(startInPortions ? '1' : toInputText(initialGrams))
   // Exakt mängd efter ett enhetsbyte, så att avrundningen i fältet inte ändrar det som sparas.
   // Nollställs så fort användaren skriver något själv.
   const [exactGrams, setExactGrams] = useState<number | null>(null)

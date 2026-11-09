@@ -9,6 +9,8 @@ import { DayScreen } from './screens/DayScreen'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { AddFoodScreen } from './screens/AddFoodScreen'
 import { FoodFormScreen } from './screens/FoodFormScreen'
+import { RecipeFormScreen } from './screens/RecipeFormScreen'
+import { RecipesScreen } from './screens/RecipesScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ScanScreen } from './screens/ScanScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
@@ -17,7 +19,7 @@ import { WeightScreen } from './screens/WeightScreen'
 import { TodayProvider } from './TodayProvider'
 
 /** Skärmar som visas modalt, utan flikraden, som i en inbyggd app. */
-const MODAL_ROUTES: ReadonlySet<Route['name']> = new Set(['add', 'scan', 'food'])
+const MODAL_ROUTES: ReadonlySet<Route['name']> = new Set(['add', 'scan', 'food', 'recipe'])
 
 function Shell() {
   const goals = useGoals()
@@ -37,6 +39,8 @@ function Shell() {
           {route.name === 'add' && <AddFoodScreen key={toHash(route)} date={route.date} meal={route.meal} foodId={route.foodId} />}
           {route.name === 'scan' && <ScanScreen key={toHash(route)} date={route.date} meal={route.meal} />}
           {route.name === 'food' && <FoodFormScreen key={toHash(route)} {...route} />}
+          {route.name === 'recipe' && <RecipeFormScreen key={toHash(route)} {...route} />}
+          {route.name === 'recipes' && <RecipesScreen />}
           {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
           {route.name === 'weight' && <WeightScreen goals={goals} />}
           {route.name === 'profile' && <ProfileScreen goals={goals} />}

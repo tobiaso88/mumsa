@@ -9,8 +9,8 @@ export type Nutrients = {
   fat: number
 }
 
-/** off: Open Food Facts, slv: Livsmedelsverket (buntad), custom: eget. */
-export const FOOD_SOURCES = ['off', 'slv', 'custom'] as const
+/** off: Open Food Facts, slv: Livsmedelsverket (buntad), custom: eget, recipe: härlett från ett recept. */
+export const FOOD_SOURCES = ['off', 'slv', 'custom', 'recipe'] as const
 export type FoodSource = (typeof FOOD_SOURCES)[number]
 
 export type Food = {
@@ -23,6 +23,24 @@ export type Food = {
   /** Vikt för en portion i gram, om livsmedlet har en portionsstorlek. */
   servingGrams?: number
   servingLabel?: string
+  updatedAt: string
+}
+
+/** En ingrediens i ett recept. Namn och näring är en ögonblicksbild, som i en loggpost. */
+export type RecipeIngredient = {
+  foodId: string
+  foodName: string
+  grams: number
+  per100g: Nutrients
+}
+
+/** Ett eget recept. Id:t är samtidigt id för det livsmedel receptet loggas som. */
+export type Recipe = {
+  id: string
+  name: string
+  /** Antal portioner receptet ger. Kan vara ett decimaltal, t.ex. 2,5. */
+  servings: number
+  ingredients: RecipeIngredient[]
   updatedAt: string
 }
 

@@ -1,9 +1,10 @@
 import type { FormEvent, ReactNode } from 'react'
-import { MEALS, type Meal, type Nutrients } from '../../domain/types'
+import { MEALS, type Meal } from '../../domain/types'
 import { formatNumber } from '../format'
 import { useAmountForm, type AmountFood } from '../hooks/useAmountForm'
 import { MEAL_LABELS } from '../labels'
 import { AmountStepper } from './AmountStepper'
+import { NutrientPreview } from './NutrientPreview'
 import { SegmentedControl } from './SegmentedControl'
 
 const UNIT_OPTIONS = [
@@ -13,19 +14,12 @@ const UNIT_OPTIONS = [
 
 const MEAL_OPTIONS = MEALS.map((meal) => ({ value: meal, label: MEAL_LABELS[meal] }))
 
-function previewRows(n: Nutrients | null) {
-  return [
-    { label: 'kcal', value: n?.kcal, decimals: 0, color: 'var(--accent)' },
-    { label: 'protein', value: n?.protein, decimals: 1, color: 'var(--protein)' },
-    { label: 'kolh.', value: n?.carbs, decimals: 1, color: 'var(--carbs)' },
-    { label: 'fett', value: n?.fat, decimals: 1, color: 'var(--fat)' },
-  ]
-}
-
 type Props = {
   food: AmountFood & { servingLabel?: string }
   initialGrams: number
   initialMeal: Meal
+  /** Börja i portioner i stället för gram, för livsmedel som oftast loggas som en portion. */
+  preferPortions?: boolean
   /** Text på knappen, eller en funktion av vald måltid, t.ex. "Lägg till i lunch". */
   submitLabel: string | ((meal: Meal) => string)
   onSubmit: (value: { grams: number; meal: Meal }) => void
@@ -35,8 +29,8 @@ type Props = {
   error?: string | null
 }
 
-export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSubmit, extraActions, busy, error }: Props) {
-  const form = useAmountForm(food, initialGrams, initialMeal)
+export function AmountForm({ food, initialGrams, initialMeal, preferPortions, submitLabel, onSubmit, extraActions, busy, error }: Props) {
+  const form = useAmountForm(food, initialGrams, initialMeal, preferPortions)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -60,17 +54,7 @@ export function AmountForm({ food, initialGrams, initialMeal, submitLabel, onSub
         </p>
       )}
       <SegmentedControl label="Måltid" options={MEAL_OPTIONS} value={form.meal} onChange={form.setMeal} />
-      <dl className="nutrient-preview" aria-label="Näring för vald mängd">
-        {previewRows(form.preview).map((row) => (
-          <div key={row.label}>
-            <dt>
-              <span className="dot" style={{ background: row.color }} />
-              {row.label}
-            </dt>
-            <dd>{row.value === undefined ? '–' : formatNumber(row.value, row.decimals)}</dd>
-          </div>
-        ))}
-      </dl>
+      <NutrientPreview nutrients={form.preview} label="Näring för vald mängd" />
       {error && (
         <p className="error" role="alert">
           {error}

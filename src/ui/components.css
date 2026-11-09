@@ -538,6 +538,21 @@ select:focus-visible {
   margin-top: 0;
 }
 
+/* Tre rutor bredvid varandra, t.ex. Skanna, Eget livsmedel och Recept */
+.button-row.tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Ikonen ovanför texten, så att tre rutor ryms på en smal skärm */
+.tiles .tile-button {
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 4px;
+  font-size: 0.8125rem;
+  text-align: center;
+  white-space: normal;
+}
+
 /* Rutor med ikon, t.ex. Skanna och Eget livsmedel */
 .tile-button {
   display: flex;
@@ -1457,6 +1472,28 @@ div.list-row {
 
 .switch[aria-checked='true'] .switch-knob {
   transform: translateX(20px);
+}
+
+/* Ingrediens i ett recept: mängdfält och en knapp för att ta bort raden */
+.ingredient-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-top: 1px solid var(--separator);
+}
+
+.ingredient-row:first-child {
+  border-top: 0;
+}
+
+.ingredient-row .field {
+  border-top: 0;
+}
+
+.ingredient-row .icon-button {
+  width: 36px;
+  height: 36px;
+  margin-right: -8px;
 }
 
 /* Formulär med rubriker ovanför korten, som i Eget livsmedel */

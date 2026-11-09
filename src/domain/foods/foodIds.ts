@@ -4,7 +4,7 @@ import type { FoodSource } from '../types'
  * Livsmedels-id har källan som prefix, så att id:n från olika källor aldrig
  * krockar och så att buntade livsmedel kan kännas igen utan databasuppslag.
  */
-const PREFIXES: Readonly<Record<FoodSource, string>> = { slv: 'slv:', off: 'off:', custom: 'custom:' }
+const PREFIXES: Readonly<Record<FoodSource, string>> = { slv: 'slv:', off: 'off:', custom: 'custom:', recipe: 'recipe:' }
 
 export function slvFoodId(nummer: number): string {
   return `${PREFIXES.slv}${nummer}`
@@ -16,6 +16,15 @@ export function offFoodId(barcode: string): string {
 
 export function customFoodId(uuid: string): string {
   return `${PREFIXES.custom}${uuid}`
+}
+
+export function recipeFoodId(uuid: string): string {
+  return `${PREFIXES.recipe}${uuid}`
+}
+
+/** Sant för id:n som hör till ett recept, som ligger i recipes och inte i foods. */
+export function isRecipeFoodId(id: string): boolean {
+  return id.startsWith(PREFIXES.recipe)
 }
 
 /** Sant för Livsmedelsverkets livsmedel, som är buntade och inte ligger i databasen. */

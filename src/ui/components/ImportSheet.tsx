@@ -21,9 +21,10 @@ function SkippedFoods({ count, done = false }: { count: number; done?: boolean }
   )
 }
 
-/** T.ex. "2 livsmedel, 5 loggposter och 3 vägningar". Vägningar nämns bara om det finns några. */
-function contentSummary(foods: number, entries: number, weights: number): string {
+/** T.ex. "2 livsmedel, 5 loggposter och 3 vägningar". Recept och vägningar nämns bara om det finns några. */
+function contentSummary(foods: number, entries: number, weights: number, recipes: number): string {
   const parts = [`${formatNumber(foods)} livsmedel`, `${formatNumber(entries)} loggposter`]
+  if (recipes > 0) parts.push(`${formatNumber(recipes)} recept`)
   if (weights > 0) parts.push(`${formatNumber(weights)} vägningar`)
   return `${parts.slice(0, -1).join(', ')} och ${parts[parts.length - 1]}`
 }
@@ -49,7 +50,7 @@ export function ImportSheet({ importer, onClose }: Props) {
         {state.kind === 'ready' && (
           <>
             <p>
-              Filen innehåller {contentSummary(state.data.foods.length, state.data.entries.length, state.data.weights.length)}.
+              Filen innehåller {contentSummary(state.data.foods.length, state.data.entries.length, state.data.weights.length, state.data.recipes.length)}.
             </p>
             <SkippedFoods count={state.skippedFoods} />
             <SegmentedControl label="Hur ska filen läsas in?" options={MODE_OPTIONS} value={mode} onChange={setMode} />
@@ -62,7 +63,7 @@ export function ImportSheet({ importer, onClose }: Props) {
         {state.kind === 'done' && (
           <>
             <p className="success" role="status">
-              Klart! {contentSummary(state.foods, state.entries, state.weights)} lästes in.
+              Klart! {contentSummary(state.foods, state.entries, state.weights, state.recipes)} lästes in.
             </p>
             <SkippedFoods count={state.skippedFoods} done />
           </>

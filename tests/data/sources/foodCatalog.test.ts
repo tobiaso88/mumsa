@@ -3,7 +3,9 @@ import type { MumsaDb } from '../../../src/data/db/db'
 import { findFood, findFoods, lookupBarcode, searchAllFoods } from '../../../src/data/sources/foodCatalog'
 import productFixture from '../../fixtures/off-product.json'
 import { cacheOffFoods, createCustomFood } from '../../../src/data/repos/foodsRepo'
+import { createRecipe } from '../../../src/data/repos/recipesRepo'
 import { createTestDb } from '../../helpers/testDb'
+import { makeRecipe } from '../../helpers/testData'
 
 vi.mock('../../../src/data/sources/livsmedelsverket.json', () => ({
   default: {
@@ -37,6 +39,21 @@ it('söker i egna, sparade och buntade livsmedel med egna först', async () => {
     ['off', 'Havregryn'],
     ['slv', 'Havregryn'],
   ])
+})
+
+const { id: _id, updatedAt: _updatedAt, ...recipeInput } = makeRecipe()
+
+it('hittar recept i sökningen, med egna först, och slår upp dem på id', async () => {
+  const recipe = await createRecipe(db, recipeInput)
+  const results = await searchAllFoods(db, 'havregryn')
+  expect(results.map((f) => [f.source, f.name])).toEqual([
+    ['recipe', 'Havregrynsgröt'],
+    ['slv', 'Havregryn'],
+  ])
+
+  expect(await findFood(db, recipe.id)).toMatchObject({ id: recipe.id, source: 'recipe', servingGrams: 200 })
+  expect((await findFoods(db, ['slv:2', recipe.id, 'recipe:saknas'])).map((f) => f.id)).toEqual(['slv:2', recipe.id])
+  expect(await findFood(db, 'recipe:saknas')).toBeUndefined()
 })
 
 it('hittar buntade livsmedel på id', async () => {

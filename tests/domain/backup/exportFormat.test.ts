@@ -1,6 +1,6 @@
 import { createExport, migrateExport, validateImport, type Migration } from '../../../src/domain/backup/exportFormat'
 import { MAX_TEXT_LENGTH } from '../../../src/domain/foods/foodValidation'
-import { makeEntry, makeFood } from '../../helpers/testData'
+import { makeEntry, makeFood, makeRecipe } from '../../helpers/testData'
 
 const valid = createExport(
   {
@@ -9,13 +9,14 @@ const valid = createExport(
     goals: { kcal: 2000, split: { proteinPct: 25, carbsPct: 45, fatPct: 30 } },
     profile: { weightKg: 70, heightCm: 175, ageYears: 30, sex: 'female', activity: 'light' },
     weights: [{ date: '2026-10-20', kg: 70.4, createdAt: '2026-10-20T07:00:00.000Z' }],
+    recipes: [makeRecipe()],
   },
   new Date('2026-10-23T10:00:00Z'),
 )
 
 describe('createExport', () => {
   it('sätter app, version och tidpunkt', () => {
-    expect(valid).toMatchObject({ app: 'mumsa', version: 2, exportedAt: '2026-10-23T10:00:00.000Z' })
+    expect(valid).toMatchObject({ app: 'mumsa', version: 3, exportedAt: '2026-10-23T10:00:00.000Z' })
   })
 })
 
@@ -43,16 +44,22 @@ describe('validateImport', () => {
     expect(result.ok && result.data.goals).toEqual(goals)
   })
 
+  it('uppgraderar en export från version 2 utan recept', () => {
+    const { recipes: _, ...v2 } = { ...valid, version: 2 }
+    const result = validateImport(v2)
+    expect(result.ok && result.data).toEqual({ ...valid, recipes: [] })
+  })
+
   it('uppgraderar en export från version 1 utan vägningar', () => {
     const { weights: _, ...v1 } = { ...valid, version: 1 }
     const result = validateImport(v1)
-    expect(result.ok && result.data).toEqual({ ...valid, weights: [] })
+    expect(result.ok && result.data).toEqual({ ...valid, weights: [], recipes: [] })
   })
 
   it.each([
     ['annan app', { ...valid, app: 'annan' }, 'inte en export från Mumsa'],
     ['inget objekt', 'hej', 'inte en export från Mumsa'],
-    ['nyare version', { ...valid, version: 3 }, 'nyare version av Mumsa'],
+    ['nyare version', { ...valid, version: 4 }, 'nyare version av Mumsa'],
     ['okänd äldre version', { ...valid, version: 0 }, 'Exportversion 0'],
     ['version som inte är ett tal', { ...valid, version: 'ett' }, 'Exportversion ett'],
     ['saknad version', { ...valid, version: undefined }, 'Exportversion undefined'],
@@ -87,6 +94,24 @@ describe('validateImport', () => {
     ['ogiltigt datum för vägning', { ...valid, weights: [{ ...valid.weights[0], date: 'idag' }] }, 'Vägning nummer 1'],
     ['dubblerade vägningar', { ...valid, weights: [valid.weights[0], valid.weights[0]] }, 'samma dag'],
     ['orimligt kalorimål', { ...valid, goals: { ...valid.goals, kcal: 1e9 } }, 'Målen'],
+    ['livsmedel med källan recept', { ...valid, foods: [makeFood({ id: 'recipe:x', source: 'recipe' })] }, 'Livsmedel nummer 1'],
+    ['saknade recept', { ...valid, recipes: undefined }, 'saknar recept'],
+    ['recept utan ingredienser', { ...valid, recipes: [makeRecipe({ ingredients: [] })] }, 'Recept nummer 1'],
+    ['recept med id utan prefix', { ...valid, recipes: [makeRecipe({ id: 'custom:x' })] }, 'Recept nummer 1'],
+    ['recept med noll portioner', { ...valid, recipes: [makeRecipe({ servings: 0 })] }, 'Recept nummer 1'],
+    ['recept med för många portioner', { ...valid, recipes: [makeRecipe({ servings: 1000 })] }, 'Recept nummer 1'],
+    ['recept med tomt namn', { ...valid, recipes: [makeRecipe({ name: ' ' })] }, 'Recept nummer 1'],
+    [
+      'recept med ogiltig mängd',
+      { ...valid, recipes: [makeRecipe({ ingredients: [{ ...makeRecipe().ingredients[0]!, grams: -5 }] })] },
+      'Recept nummer 1',
+    ],
+    [
+      'recept med orimlig näring',
+      { ...valid, recipes: [makeRecipe({ ingredients: [{ ...makeRecipe().ingredients[0]!, per100g: { kcal: 5000, protein: 0, carbs: 0, fat: 0 } }] })] },
+      'Recept nummer 1',
+    ],
+    ['dubblerade recept', { ...valid, recipes: [makeRecipe(), makeRecipe()] }, 'flera recept med samma id'],
   ])('avvisar %s', (_, input, message) => {
     const result = validateImport(input)
     expect(result.ok).toBe(false)
@@ -98,7 +123,7 @@ describe('migrateExport', () => {
   const addField: Migration = (json) => ({ ...json, steps: [...((json.steps as string[] | undefined) ?? []), `från ${String(json.version)}`] })
 
   it('lämnar en export med aktuell version orörd', () => {
-    expect(migrateExport({ version: 2, a: 1 })).toEqual({ version: 2, a: 1 })
+    expect(migrateExport({ version: 3, a: 1 })).toEqual({ version: 3, a: 1 })
   })
 
   it('kör stegen i ordning tills målversionen nås', () => {

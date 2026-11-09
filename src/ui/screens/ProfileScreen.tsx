@@ -95,6 +95,7 @@ export function ProfileScreen({ goals }: { goals: Goals }) {
       </header>
       <GoalCard goals={goals} calculated={isCalculatedGoal(goals, profile)} />
       <ListGroup title="Ditt mål" rows={goalRows(goals, profile, setEditing)} />
+      <ListGroup title="Mat" rows={[{ label: 'Mina recept', icon: 'book', href: toHash({ name: 'recipes' }) }]} />
       {profile && <ListGroup title="Om dig" rows={profileRows(profile, setEditing)} />}
       {editing && <ProfileEditSheet field={editing} goals={goals} profile={profile} onClose={() => setEditing(null)} />}
     </main>

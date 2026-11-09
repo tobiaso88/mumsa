@@ -12,7 +12,7 @@ function items(today: IsoDate): Item[] {
     // Måltiden väljs efter klockslaget när menyn ritas
     { label: 'Lägg till', icon: 'plus', route: addRouteNow(new Date()), active: (r) => r.name === 'add', primary: true },
     { label: 'Vikt', icon: 'weight', route: { name: 'weight' }, active: (r) => r.name === 'weight' },
-    { label: 'Profil', icon: 'user', route: { name: 'profile' }, active: (r) => r.name === 'profile' || r.name === 'settings' },
+    { label: 'Profil', icon: 'user', route: { name: 'profile' }, active: (r) => r.name === 'profile' || r.name === 'settings' || r.name === 'recipes' },
   ]
 }
 

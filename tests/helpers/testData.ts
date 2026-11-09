@@ -1,4 +1,4 @@
-import type { Food, LogEntry } from '../../src/domain/types'
+import type { Food, LogEntry, Recipe } from '../../src/domain/types'
 
 /** Hjälpare för att bygga testdata. Används bara i tester. */
 export function makeFood(overrides: Partial<Food> = {}): Food {
@@ -22,6 +22,20 @@ export function makeEntry(overrides: Partial<LogEntry> = {}): LogEntry {
     grams: 100,
     per100g: { kcal: 370, protein: 13, carbs: 59, fat: 7 },
     createdAt: '2026-10-20T07:30:00.000Z',
+    ...overrides,
+  }
+}
+
+export function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
+  return {
+    id: 'recipe:recipe-1',
+    name: 'Havregrynsgröt',
+    servings: 2,
+    ingredients: [
+      { foodId: 'custom:food-1', foodName: 'Havregryn', grams: 100, per100g: { kcal: 370, protein: 13, carbs: 59, fat: 7 } },
+      { foodId: 'slv:1', foodName: 'Mjölk fett 3%', grams: 300, per100g: { kcal: 60, protein: 3.4, carbs: 4.8, fat: 3 } },
+    ],
+    updatedAt: '2026-10-01T08:00:00.000Z',
     ...overrides,
   }
 }
