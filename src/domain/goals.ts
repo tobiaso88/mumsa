@@ -1,4 +1,5 @@
 import type { ActivityLevel, Goals, MacroSplit, Nutrients, Profile } from './types'
+import { isValidWeightKg } from './weight'
 
 export const KCAL_PER_GRAM = { protein: 4, carbs: 4, fat: 9 } as const
 
@@ -59,8 +60,7 @@ export function macroGrams(kcal: number, split: MacroSplit): Omit<Nutrients, 'kc
 /** Formeln gäller vuxna, därför krävs minst 18 år. */
 export function isValidProfile(profile: Profile): boolean {
   return (
-    profile.weightKg > 0 &&
-    profile.weightKg < 500 &&
+    isValidWeightKg(profile.weightKg) &&
     profile.heightCm > 50 &&
     profile.heightCm < 272 &&
     profile.ageYears >= 18 &&

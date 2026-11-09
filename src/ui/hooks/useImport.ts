@@ -8,7 +8,7 @@ export type ImportState =
   | { kind: 'idle' }
   | { kind: 'ready'; data: ExportData; skippedFoods: number }
   | { kind: 'invalid'; error: string }
-  | { kind: 'done'; foods: number; entries: number; skippedFoods: number }
+  | { kind: 'done'; foods: number; entries: number; weights: number; skippedFoods: number }
 
 /** Läser och validerar en vald fil, så att innehållet kan granskas innan det läses in. */
 async function readImportFile(file: File): Promise<ImportState> {

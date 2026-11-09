@@ -1,4 +1,4 @@
-import { addDays, isIsoDate, isoWeekNumber, parseIsoDate, startOfWeek, toIsoDate, weekDates } from './dates'
+import { addDays, daysBetween, isIsoDate, isoWeekNumber, parseIsoDate, startOfWeek, toIsoDate, weekDates } from './dates'
 
 describe('toIsoDate', () => {
   it('formaterar lokalt datum med nollutfyllnad', () => {
@@ -69,5 +69,18 @@ describe('isoWeekNumber', () => {
     ['2021-01-03', 53], // söndag i vecka 53 2020
   ])('%s ligger i vecka %i', (date, week) => {
     expect(isoWeekNumber(date)).toBe(week)
+  })
+})
+
+describe('daysBetween', () => {
+  it('räknar dagar över månadsskiften', () => {
+    expect(daysBetween('2026-01-30', '2026-02-02')).toBe(3)
+  })
+  it('är negativt bakåt i tiden', () => {
+    expect(daysBetween('2026-02-02', '2026-01-30')).toBe(-3)
+  })
+  it('påverkas inte av sommartid', () => {
+    expect(daysBetween('2026-03-28', '2026-03-30')).toBe(2)
+    expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2)
   })
 })

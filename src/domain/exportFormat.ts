@@ -4,6 +4,7 @@ import { idMatchesSource } from './foodIds'
 import { MAX_TEXT_LENGTH, nutrientIssues } from './foodValidation'
 import { isValidGoalKcal, isValidProfile, isValidSplit } from './goals'
 import { isValidAmount } from './nutrition'
+import { isValidObjective } from './objectives'
 import {
   ACTIVITY_LEVELS,
   FOOD_SOURCES,
@@ -14,9 +15,11 @@ import {
   type LogEntry,
   type Nutrients,
   type Profile,
+  type WeightEntry,
 } from './types'
+import { isValidWeightKg } from './weight'
 
-export const EXPORT_VERSION = 1
+export const EXPORT_VERSION = 2
 
 export type ExportData = {
   app: 'mumsa'
@@ -27,6 +30,7 @@ export type ExportData = {
   entries: LogEntry[]
   goals: Goals | null
   profile: Profile | null
+  weights: WeightEntry[]
 }
 
 export type ImportResult =
@@ -44,7 +48,10 @@ type Obj = Record<string, unknown>
 export type Migration = (json: Record<string, unknown>) => Record<string, unknown>
 
 /** Ett steg läggs till här varje gång exportformatet ändras, med den gamla versionen som nyckel. */
-const MIGRATIONS: Readonly<Partial<Record<number, Migration>>> = {}
+const MIGRATIONS: Readonly<Partial<Record<number, Migration>>> = {
+  // Version 2 lade till vägningar
+  1: (json) => ({ ...json, weights: [] }),
+}
 
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
@@ -109,8 +116,14 @@ function isGoals(v: unknown): v is Goals {
     isNum(v.split.proteinPct) &&
     isNum(v.split.carbsPct) &&
     isNum(v.split.fatPct) &&
-    isValidSplit(v.split as Goals['split'])
+    isValidSplit(v.split as Goals['split']) &&
+    (v.objective === undefined || isValidObjective(v.objective)) &&
+    (v.targetWeightKg === undefined || (isNum(v.targetWeightKg) && isValidWeightKg(v.targetWeightKg)))
   )
+}
+
+function isWeightEntry(v: unknown): v is WeightEntry {
+  return isObj(v) && isIsoDate(v.date) && isNum(v.kg) && isValidWeightKg(v.kg) && isTimestamp(v.createdAt)
 }
 
 function isProfile(v: unknown): v is Profile {
@@ -125,9 +138,11 @@ function isProfile(v: unknown): v is Profile {
   )
 }
 
-function hasDuplicateIds(items: readonly { id: string }[]): boolean {
-  return new Set(items.map((item) => item.id)).size !== items.length
+function hasDuplicates<T>(items: readonly T[], key: (item: T) => string): boolean {
+  return new Set(items.map(key)).size !== items.length
 }
+
+const hasDuplicateIds = (items: readonly { id: string }[]) => hasDuplicates(items, (item) => item.id)
 
 const fail = (error: string): ImportResult => ({ ok: false, error })
 
@@ -172,6 +187,11 @@ function validateCurrent(json: Obj): ImportResult {
   if (goals !== null && !isGoals(goals)) return fail('Målen i filen är ogiltiga.')
   const profile = json.profile ?? null
   if (profile !== null && !isProfile(profile)) return fail('Profilen i filen är ogiltig.')
+  if (!Array.isArray(json.weights)) return fail('Filen saknar vägningar.')
+  const badWeight = json.weights.findIndex((w) => !isWeightEntry(w))
+  if (badWeight !== -1) return fail(`Vägning nummer ${badWeight + 1} är ogiltig.`)
+  const weights = json.weights as WeightEntry[]
+  if (hasDuplicates(weights, (w) => w.date)) return fail('Filen innehåller flera vägningar för samma dag.')
 
   // Livsmedelsverkets livsmedel följer med appen och ska inte ligga i databasen
   const stored = foods.filter((f) => f.source !== 'slv')
@@ -185,6 +205,7 @@ function validateCurrent(json: Obj): ImportResult {
       entries,
       goals,
       profile,
+      weights,
     },
     skippedFoods: foods.length - stored.length,
   }

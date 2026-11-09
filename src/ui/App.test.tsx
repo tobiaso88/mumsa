@@ -29,7 +29,7 @@ it('visar introduktionen när inget mål är satt och dagsvyn efter att målet s
 
   expect(await screen.findByText('0 av 1 900 kcal')).toBeInTheDocument()
   expect(screen.getByRole('navigation', { name: 'Huvudmeny' })).toBeInTheDocument()
-  expect(await getGoals(db)).toEqual({ kcal: 1900, split: goals.split })
+  expect(await getGoals(db)).toEqual({ kcal: 1900, split: goals.split, objective: { kind: 'maintain' } })
 })
 
 it('räknar ut mål från profilen och sparar profilen', async () => {
@@ -52,6 +52,63 @@ it('räknar ut mål från profilen och sparar profilen', async () => {
 
   expect(await screen.findByText('0 av 2 556 kcal')).toBeInTheDocument()
   expect(await getProfile(db)).toEqual({ weightKg: 70, heightCm: 175, ageYears: 30, sex: 'male', activity: 'moderate' })
+})
+
+it('justerar det uträknade målet efter vald inriktning och takt', async () => {
+  const user = userEvent.setup()
+  render(<App db={db} />)
+  await screen.findByRole('heading', { name: 'Välkommen till Mumsa' })
+
+  await user.selectOptions(screen.getByLabelText('Vad vill du uppnå?'), 'lose')
+  await user.click(screen.getByLabelText('Måttlig'))
+  await user.type(screen.getByLabelText('Målvikt (frivillig)'), '65')
+  // Fördelningen fylls i som utgångspunkt för målet
+  expect(screen.getByLabelText('Protein')).toHaveValue('30')
+  await user.type(screen.getByLabelText('Vikt'), '70')
+  await user.type(screen.getByLabelText('Längd'), '175')
+  await user.type(screen.getByLabelText('Ålder'), '30')
+  await user.click(screen.getByLabelText('Man'))
+  await user.selectOptions(screen.getByLabelText('Aktivitetsnivå'), 'moderate')
+
+  // 2556 − 550 kcal per dag för ungefär 0,5 kg per vecka
+  expect(screen.getByText('2 556 kcal')).toBeInTheDocument()
+  expect(screen.getByText('2 006 kcal')).toBeInTheDocument()
+  expect(screen.getByText(/−550 kcal per dag/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Kom igång' }))
+
+  expect(await screen.findByText('0 av 2 006 kcal')).toBeInTheDocument()
+  expect(await getGoals(db)).toEqual({
+    kcal: 2006,
+    split: { proteinPct: 30, carbsPct: 40, fatPct: 30 },
+    objective: { kind: 'lose', pace: 'moderate' },
+    targetWeightKg: 65,
+  })
+})
+
+it('upplyser om att målet ligger under basalomsättningen', async () => {
+  const user = userEvent.setup()
+  render(<App db={db} />)
+  await user.selectOptions(await screen.findByLabelText('Vad vill du uppnå?'), 'lose')
+  await user.click(screen.getByLabelText('Måttlig'))
+  await user.type(screen.getByLabelText('Vikt'), '50')
+  await user.type(screen.getByLabelText('Längd'), '160')
+  await user.type(screen.getByLabelText('Ålder'), '60')
+  await user.click(screen.getByLabelText('Kvinna'))
+  await user.selectOptions(screen.getByLabelText('Aktivitetsnivå'), 'sedentary')
+
+  expect(screen.getByText(/under din uppskattade basalomsättning/)).toBeInTheDocument()
+})
+
+it('avvisar en orimlig målvikt', async () => {
+  const user = userEvent.setup()
+  render(<App db={db} />)
+  await user.selectOptions(await screen.findByLabelText('Vad vill du uppnå?'), 'gain')
+  await user.click(screen.getByLabelText('Ange själv'))
+  await user.type(screen.getByLabelText('Kalorimål per dag'), '2500')
+  await user.type(screen.getByLabelText('Målvikt (frivillig)'), '0')
+
+  expect(screen.getByRole('alert')).toHaveTextContent('Ange målvikten i kilo')
+  expect(screen.getByRole('button', { name: 'Kom igång' })).toBeDisabled()
 })
 
 it('kräver att makrofördelningen blir 100 %', async () => {
@@ -109,4 +166,17 @@ it('låter användaren ändra målet på profilsidan', async () => {
 
   expect(await screen.findByRole('status')).toHaveTextContent('Målet är sparat.')
   expect((await getGoals(db))?.kcal).toBe(1800)
+})
+
+it('erbjuder att använda senaste vägningen i profilen', async () => {
+  await saveGoals(db, goals)
+  await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 175, ageYears: 30, sex: 'male', activity: 'light' } })
+  await db.weights.put({ date: '2026-10-20', kg: 78.4, createdAt: '2026-10-20T07:00:00.000Z' })
+  window.location.hash = '#/profil'
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Använd senaste vägningen (78,4 kg)' }))
+  expect(screen.getByLabelText('Vikt')).toHaveValue('78,4')
+  expect(screen.queryByRole('button', { name: /Använd senaste vägningen/ })).not.toBeInTheDocument()
 })

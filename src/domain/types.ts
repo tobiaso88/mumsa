@@ -51,9 +51,29 @@ export type MacroSplit = {
   fatPct: number
 }
 
+export const OBJECTIVE_KINDS = ['lose', 'maintain', 'gain', 'build_muscle'] as const
+export type ObjectiveKind = (typeof OBJECTIVE_KINDS)[number]
+
+/** Takt för viktförändring. slow ungefär 0,25 kg per vecka, moderate ungefär 0,5 kg. */
+export const PACES = ['slow', 'moderate'] as const
+export type Pace = (typeof PACES)[number]
+
+/** Vad användaren vill uppnå. Att behålla vikten har ingen takt. */
+export type Objective = { kind: 'maintain' } | { kind: Exclude<ObjectiveKind, 'maintain'>; pace: Pace }
+
 export type Goals = {
   kcal: number
   split: MacroSplit
+  /** Saknas i data från äldre versioner och tolkas då som att behålla vikten. */
+  objective?: Objective
+  targetWeightKg?: number
+}
+
+/** En vägning. Högst en per dag, så datumet är nyckeln. */
+export type WeightEntry = {
+  date: IsoDate
+  kg: number
+  createdAt: string
 }
 
 export const SEXES = ['female', 'male'] as const

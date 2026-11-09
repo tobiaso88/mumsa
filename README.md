@@ -15,6 +15,8 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 ## Funktioner
 
 - Kalorimål och fördelning av protein, kolhydrater och fett. Du anger målet själv eller låter appen uppskatta det utifrån vikt, längd, ålder och aktivitetsnivå. Uppskattningen är ingen rekommendation eller medicinsk bedömning.
+- Välj ett mål: gå ner i vikt, behålla vikten, gå upp i vikt eller bygga muskler, med lugn eller måttlig takt. Det uppskattade behovet justeras med en tumregel om ungefär 7 700 kcal per kilo, och fördelningen av energi fylls i som en utgångspunkt som du kan ändra.
+- Logga din vikt, sätt en målvikt och följ förändringen i en viktkurva.
 - Sök bland cirka 2 600 livsmedel från Livsmedelsverket. Sökningen fungerar offline.
 - Skanna streckkoder med kameran. Produkter hämtas från Open Food Facts.
 - Egna livsmedel, och rättade kopior av livsmedel med fel värden.
@@ -25,11 +27,12 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 
 ## Så lagras din data
 
-- Allt du loggar sparas i webbläsarens IndexedDB på din enhet. Det finns ingen server, inget konto och ingen synk mellan enheter.
+- Allt du loggar, även vägningar, sparas i webbläsarens IndexedDB på din enhet. Det finns ingen server, inget konto och ingen synk mellan enheter.
 - Livsmedelsverkets livsmedelsdatabas följer med appen som en fil. Sökningar skickas därför inte någonstans.
 - Det enda nätverksanropet är uppslag av streckkoder hos Open Food Facts. Bara streckkoden skickas. Produkter som hämtats sparas lokalt och fungerar offline nästa gång.
 - Om du rensar webbplatsdata i webbläsaren försvinner loggen. Under Profil → Inställningar kan du exportera en säkerhetskopia och be webbläsaren om beständig lagring.
 - För att flytta till en ny enhet: exportera på den gamla och välj ”Importera en säkerhetskopia” på den nya.
+- Exportfilen är JSON i formatversion 2, som innehåller livsmedel, loggposter, mål, profil och vägningar. Filer från version 1 går fortfarande att importera.
 
 ## Installera på mobilen
 

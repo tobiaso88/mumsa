@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { Food, Goals, LogEntry, Profile } from '../domain/types'
+import type { Food, Goals, LogEntry, Profile, WeightEntry } from '../domain/types'
 
 export type SettingRow = { key: 'goals'; value: Goals } | { key: 'profile'; value: Profile }
 
@@ -7,6 +7,7 @@ export type MumsaDb = Dexie & {
   foods: EntityTable<Food, 'id'>
   entries: EntityTable<LogEntry, 'id'>
   settings: EntityTable<SettingRow, 'key'>
+  weights: EntityTable<WeightEntry, 'date'>
 }
 
 /**
@@ -21,6 +22,8 @@ export function createDb(name = 'mumsa'): MumsaDb {
     entries: 'id, date, foodId, createdAt',
     settings: 'key',
   })
+  // Ny tabell för vägningar. Befintliga tabeller och deras data lämnas orörda.
+  db.version(2).stores({ weights: 'date' })
   return db
 }
 

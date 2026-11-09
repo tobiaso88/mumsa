@@ -10,6 +10,7 @@ function items(today: IsoDate): Item[] {
     // Måltiden väljs efter klockslaget när menyn ritas
     { label: 'Lägg till', route: addRouteNow(new Date()), active: (r) => r.name === 'add' },
     { label: 'Vecka', route: { name: 'week', date: today }, active: (r) => r.name === 'week' },
+    { label: 'Vikt', route: { name: 'weight' }, active: (r) => r.name === 'weight' },
     { label: 'Profil', route: { name: 'profile' }, active: (r) => r.name === 'profile' || r.name === 'settings' },
   ]
 }

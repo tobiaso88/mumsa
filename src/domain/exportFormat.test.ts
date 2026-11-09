@@ -8,13 +8,14 @@ const valid = createExport(
     entries: [makeEntry()],
     goals: { kcal: 2000, split: { proteinPct: 25, carbsPct: 45, fatPct: 30 } },
     profile: { weightKg: 70, heightCm: 175, ageYears: 30, sex: 'female', activity: 'light' },
+    weights: [{ date: '2026-10-20', kg: 70.4, createdAt: '2026-10-20T07:00:00.000Z' }],
   },
   new Date('2026-10-23T10:00:00Z'),
 )
 
 describe('createExport', () => {
   it('sätter app, version och tidpunkt', () => {
-    expect(valid).toMatchObject({ app: 'mumsa', version: 1, exportedAt: '2026-10-23T10:00:00.000Z' })
+    expect(valid).toMatchObject({ app: 'mumsa', version: 2, exportedAt: '2026-10-23T10:00:00.000Z' })
   })
 })
 
@@ -36,10 +37,22 @@ describe('validateImport', () => {
     expect(result.ok && result.data.goals === null && result.data.profile === null).toBe(true)
   })
 
+  it('godkänner mål med inriktning och målvikt', () => {
+    const goals = { ...valid.goals, objective: { kind: 'lose', pace: 'slow' }, targetWeightKg: 65 }
+    const result = validateImport({ ...valid, goals })
+    expect(result.ok && result.data.goals).toEqual(goals)
+  })
+
+  it('uppgraderar en export från version 1 utan vägningar', () => {
+    const { weights: _, ...v1 } = { ...valid, version: 1 }
+    const result = validateImport(v1)
+    expect(result.ok && result.data).toEqual({ ...valid, weights: [] })
+  })
+
   it.each([
     ['annan app', { ...valid, app: 'annan' }, 'inte en export från Mumsa'],
     ['inget objekt', 'hej', 'inte en export från Mumsa'],
-    ['nyare version', { ...valid, version: 2 }, 'nyare version av Mumsa'],
+    ['nyare version', { ...valid, version: 3 }, 'nyare version av Mumsa'],
     ['okänd äldre version', { ...valid, version: 0 }, 'Exportversion 0'],
     ['version som inte är ett tal', { ...valid, version: 'ett' }, 'Exportversion ett'],
     ['saknad version', { ...valid, version: undefined }, 'Exportversion undefined'],
@@ -67,6 +80,12 @@ describe('validateImport', () => {
     ['orimlig näring i loggpost', { ...valid, entries: [makeEntry({ per100g: { kcal: 5000, protein: 0, carbs: 0, fat: 0 } })] }, 'Loggpost nummer 1'],
     ['tomt id för loggpost', { ...valid, entries: [makeEntry({ id: '' })] }, 'Loggpost nummer 1'],
     ['ogiltig tidpunkt för loggpost', { ...valid, entries: [makeEntry({ createdAt: 'nyss' })] }, 'Loggpost nummer 1'],
+    ['okänd inriktning', { ...valid, goals: { ...valid.goals, objective: { kind: 'bulk' } } }, 'Målen'],
+    ['orimlig målvikt', { ...valid, goals: { ...valid.goals, targetWeightKg: 0 } }, 'Målen'],
+    ['saknade vägningar', { ...valid, weights: undefined }, 'saknar vägningar'],
+    ['orimlig vikt', { ...valid, weights: [{ ...valid.weights[0], kg: 900 }] }, 'Vägning nummer 1'],
+    ['ogiltigt datum för vägning', { ...valid, weights: [{ ...valid.weights[0], date: 'idag' }] }, 'Vägning nummer 1'],
+    ['dubblerade vägningar', { ...valid, weights: [valid.weights[0], valid.weights[0]] }, 'samma dag'],
     ['orimligt kalorimål', { ...valid, goals: { ...valid.goals, kcal: 1e9 } }, 'Målen'],
   ])('avvisar %s', (_, input, message) => {
     const result = validateImport(input)
@@ -79,7 +98,7 @@ describe('migrateExport', () => {
   const addField: Migration = (json) => ({ ...json, steps: [...((json.steps as string[] | undefined) ?? []), `från ${String(json.version)}`] })
 
   it('lämnar en export med aktuell version orörd', () => {
-    expect(migrateExport({ version: 1, a: 1 })).toEqual({ version: 1, a: 1 })
+    expect(migrateExport({ version: 2, a: 1 })).toEqual({ version: 2, a: 1 })
   })
 
   it('kör stegen i ordning tills målversionen nås', () => {

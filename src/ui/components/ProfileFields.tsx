@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import { ACTIVITY_LEVELS, SEXES, type ActivityLevel, type Sex } from '../../domain/types'
-import type { GoalsFormState } from '../hooks/useGoalsForm'
+import { formatNumber, parseNumber, toInputText } from '../format'
+import type { GoalsFormSet, GoalsFormState } from '../hooks/useGoalsForm'
 import { NumberField } from './NumberField'
 import { SegmentedControl } from './SegmentedControl'
 
@@ -17,11 +18,14 @@ const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
 
 type Props = {
   state: GoalsFormState
-  set: <K extends keyof GoalsFormState>(key: K, value: GoalsFormState[K]) => void
+  set: GoalsFormSet
+  /** Senaste vägningen, om det finns någon. */
+  latestWeightKg?: number
 }
 
-export function ProfileFields({ state, set }: Props) {
+export function ProfileFields({ state, set, latestWeightKg }: Props) {
   const activityId = useId()
+  const offerLatest = latestWeightKg !== undefined && parseNumber(state.weight) !== latestWeightKg
   return (
     <fieldset className="card">
       <legend>Om dig</legend>
@@ -30,6 +34,11 @@ export function ProfileFields({ state, set }: Props) {
         <NumberField label="Längd" unit="cm" value={state.height} onChange={(v) => set('height', v)} />
         <NumberField label="Ålder" unit="år" value={state.age} onChange={(v) => set('age', v)} />
       </div>
+      {offerLatest && (
+        <button type="button" className="button-secondary" onClick={() => set('weight', toInputText(latestWeightKg))}>
+          Använd senaste vägningen ({formatNumber(latestWeightKg, 1)} kg)
+        </button>
+      )}
       <div className="field">
         <span className="label" aria-hidden="true">
           Kön (används i formeln)

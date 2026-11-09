@@ -13,6 +13,7 @@ import { ProfileScreen } from './screens/ProfileScreen'
 import { ScanScreen } from './screens/ScanScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { WeekScreen } from './screens/WeekScreen'
+import { WeightScreen } from './screens/WeightScreen'
 import { TodayProvider } from './TodayProvider'
 
 function Shell() {
@@ -34,6 +35,7 @@ function Shell() {
           {route.name === 'scan' && <ScanScreen key={toHash(route)} date={route.date} meal={route.meal} />}
           {route.name === 'food' && <FoodFormScreen key={toHash(route)} {...route} />}
           {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
+          {route.name === 'weight' && <WeightScreen goals={goals} />}
           {route.name === 'profile' && <ProfileScreen goals={goals} />}
           <BottomNav route={route} />
         </>

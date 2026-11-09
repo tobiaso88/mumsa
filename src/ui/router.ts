@@ -19,6 +19,7 @@ export type Route =
   | ({ name: 'scan' } & AddContext)
   | ({ name: 'food' } & FoodFormTarget & AddContext)
   | { name: 'week'; date: IsoDate }
+  | { name: 'weight' }
   | { name: 'profile' }
   | { name: 'settings' }
 
@@ -79,6 +80,8 @@ export function parseHash(hash: string, now: Date): Route {
     }
     case 'vecka':
       return { name: 'week', date }
+    case 'vikt':
+      return { name: 'weight' }
     case 'profil':
       return { name: 'profile' }
     case 'installningar':
@@ -110,6 +113,8 @@ export function toHash(route: Route): string {
     }
     case 'week':
       return `#/vecka/${route.date}`
+    case 'weight':
+      return '#/vikt'
     case 'profile':
       return '#/profil'
     case 'settings':

@@ -22,6 +22,13 @@ function SkippedFoods({ count, done = false }: { count: number; done?: boolean }
   )
 }
 
+/** T.ex. "2 livsmedel, 5 loggposter och 3 vägningar". Vägningar nämns bara om det finns några. */
+function contentSummary(foods: number, entries: number, weights: number): string {
+  const parts = [`${formatNumber(foods)} livsmedel`, `${formatNumber(entries)} loggposter`]
+  if (weights > 0) parts.push(`${formatNumber(weights)} vägningar`)
+  return `${parts.slice(0, -1).join(', ')} och ${parts[parts.length - 1]}`
+}
+
 export function BackupSection() {
   const { state, mode, setMode, chooseFile, runImport } = useImport()
   const exportData = useExport()
@@ -59,7 +66,7 @@ export function BackupSection() {
       {state.kind === 'ready' && (
         <>
           <p>
-            Filen innehåller {formatNumber(state.data.foods.length)} livsmedel och {formatNumber(state.data.entries.length)} loggposter.
+            Filen innehåller {contentSummary(state.data.foods.length, state.data.entries.length, state.data.weights.length)}.
           </p>
           <SkippedFoods count={state.skippedFoods} />
           <SegmentedControl label="Hur ska filen läsas in?" options={MODE_OPTIONS} value={mode} onChange={setMode} />
@@ -72,7 +79,7 @@ export function BackupSection() {
       {state.kind === 'done' && (
         <>
           <p className="success" role="status">
-            Klart! {formatNumber(state.foods)} livsmedel och {formatNumber(state.entries)} loggposter lästes in.
+            Klart! {contentSummary(state.foods, state.entries, state.weights)} lästes in.
           </p>
           <SkippedFoods count={state.skippedFoods} done />
         </>

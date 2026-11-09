@@ -45,7 +45,7 @@ it('exporterar all data som en JSON-fil', async () => {
   expect(await screen.findByText('Filen är sparad.')).toBeInTheDocument()
   expect(click).toHaveBeenCalledOnce()
   const data = JSON.parse(await blobs[0]!.text())
-  expect(data).toMatchObject({ app: 'mumsa', version: 1, goals, entries: [{ foodName: 'Havregryn', grams: 40 }] })
+  expect(data).toMatchObject({ app: 'mumsa', version: 2, goals, entries: [{ foodName: 'Havregryn', grams: 40 }] })
 })
 
 it('slår ihop en importerad fil med befintlig data', async () => {

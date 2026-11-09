@@ -96,6 +96,11 @@ fieldset.card > legend {
   outline: none;
 }
 
+/* Datumfältets egna kontroller gör det något högre än textfälten */
+.field-input input[type='date'] {
+  padding-block: 0.5625rem;
+}
+
 .field-input input[aria-invalid] {
   color: var(--error);
 }
@@ -622,4 +627,33 @@ input[type='file']::file-selector-button {
   font-weight: 700;
   padding: 0.375rem 0.5rem;
   cursor: pointer;
+}
+
+.weight-chart .line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.weight-chart .dot {
+  fill: var(--accent);
+}
+
+.weight-row-end {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.weight-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.25rem 0;
+}
+
+.weight-row .entry-name::first-letter {
+  text-transform: uppercase;
 }

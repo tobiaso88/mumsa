@@ -32,6 +32,12 @@ export function addDays(value: IsoDate, days: number): IsoDate {
   return toIsoDate(date)
 }
 
+/** Antal hela dagar från from till to. Negativt om to ligger före from. */
+export function daysBetween(from: IsoDate, to: IsoDate): number {
+  // Avrundning tar hand om timmen som försvinner eller tillkommer vid sommartid
+  return Math.round((parseIsoDate(to).getTime() - parseIsoDate(from).getTime()) / 86_400_000)
+}
+
 /** Måndagen i samma vecka. */
 export function startOfWeek(value: IsoDate): IsoDate {
   const weekday = parseIsoDate(value).getDay()

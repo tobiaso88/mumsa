@@ -13,6 +13,40 @@ test('räknar ut mål från profilen', async ({ page }) => {
   await expect(page.getByText('0 av 2 556 kcal')).toBeVisible()
 })
 
+test('sätter ett mål för viktnedgång och följer vikten', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Vad vill du uppnå?').selectOption('lose')
+  await page.getByText('Måttlig', { exact: true }).click()
+  await page.getByLabel('Målvikt (frivillig)').fill('65')
+  await page.getByLabel('Vikt', { exact: true }).fill('70')
+  await page.getByLabel('Längd').fill('175')
+  await page.getByLabel('Ålder').fill('30')
+  await page.getByText('Man', { exact: true }).click()
+  await page.getByLabel('Aktivitetsnivå').selectOption('moderate')
+  await expect(page.getByText('2 006 kcal')).toBeVisible()
+  await page.getByRole('button', { name: 'Kom igång' }).click()
+  await expect(page.getByText('0 av 2 006 kcal')).toBeVisible()
+
+  await page.getByRole('navigation', { name: 'Huvudmeny' }).getByRole('link', { name: 'Vikt' }).click()
+  const twoWeeksAgo = new Date()
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  await page.getByLabel('Datum').fill(`${twoWeeksAgo.getFullYear()}-${pad(twoWeeksAgo.getMonth() + 1)}-${pad(twoWeeksAgo.getDate())}`)
+  await page.getByLabel('Vikt', { exact: true }).fill('70')
+  await page.getByRole('button', { name: 'Spara vikt' }).click()
+  await expect(page.getByText('Vikten är sparad.')).toBeVisible()
+
+  await page.getByLabel('Datum').fill(new Date().toLocaleDateString('sv-SE'))
+  await page.getByLabel('Vikt', { exact: true }).fill('69,2')
+  await page.getByRole('button', { name: 'Spara vikt' }).click()
+
+  const progress = page.getByRole('region', { name: 'Viktförändring' })
+  await expect(progress.getByText('69,2 kg', { exact: true })).toBeVisible()
+  await expect(progress).toContainText('−0,8 kg sedan')
+  await expect(progress.getByText('4,2 kg kvar till målvikten 65 kg.')).toBeVisible()
+  await expect(page.getByRole('img', { name: /^Vikt: .*Målvikt 65 kg\.$/ })).toBeVisible()
+})
+
 test('loggar, ändrar och tar bort ett livsmedel från Livsmedelsverket', async ({ page }) => {
   await setGoal(page)
   await page.getByRole('link', { name: 'Lägg till i lunch' }).click()

@@ -25,6 +25,7 @@ describe('parseHash', () => {
     ['#/livsmedel/andra/2026-10-20/lunch', { name: 'add', date: '2026-10-20', meal: 'lunch' }],
     ['#/vecka/2026-10-19', { name: 'week', date: '2026-10-19' }],
     ['#/vecka', { name: 'week', date: today }],
+    ['#/vikt', { name: 'weight' }],
     ['#/profil', { name: 'profile' }],
     ['#/installningar', { name: 'settings' }],
     ['#/okand', { name: 'day', date: today }],
@@ -43,6 +44,7 @@ describe('toHash', () => {
     { name: 'food', action: 'new', date: '2026-10-20', meal: 'snack', barcode: undefined },
     { name: 'food', action: 'new', date: '2026-10-20', meal: 'snack', barcode: '7310130321184' },
     { name: 'week', date: '2026-10-19' },
+    { name: 'weight' },
     { name: 'profile' },
     { name: 'settings' },
   ])('går att tolka tillbaka: %o', (route) => {

@@ -20,6 +20,7 @@ async function seed(target: MumsaDb) {
   await target.foods.bulkPut([makeFood({ id: 'custom:a' }), makeFood({ id: 'off:123456', source: 'off', barcode: '123456' })])
   await target.entries.put(makeEntry({ id: 'e1', foodId: 'custom:a' }))
   await target.settings.put({ key: 'goals', value: goals })
+  await target.weights.put({ date: '2026-10-20', kg: 70.4, createdAt: '2026-10-20T07:00:00.000Z' })
 }
 
 it('återställer exakt samma data efter export och import', async () => {
@@ -29,12 +30,14 @@ it('återställer exakt samma data efter export och import', async () => {
 
   const target = createTestDb()
   await target.entries.put(makeEntry({ id: 'gammal' }))
-  expect(await importAll(target, exported, 'replace')).toEqual({ foods: 2, entries: 1 })
+  await target.weights.put({ date: '2026-01-01', kg: 90, createdAt: '2026-01-01T07:00:00.000Z' })
+  expect(await importAll(target, exported, 'replace')).toEqual({ foods: 2, entries: 1, weights: 1 })
 
   expect(await target.foods.toArray()).toEqual(await db.foods.toArray())
   expect((await target.entries.toArray()).map((e) => e.id)).toEqual(['e1'])
   expect(await getGoals(target)).toEqual(goals)
   expect(await getProfile(target)).toEqual(profile)
+  expect(await target.weights.toArray()).toEqual(await db.weights.toArray())
   await target.delete()
 })
 
@@ -46,6 +49,14 @@ it('behåller befintlig data vid sammanslagning', async () => {
   const entries = await db.entries.toArray()
   expect(entries.map((e) => e.id).sort()).toEqual(['e1', 'egen'])
   expect(entries.find((e) => e.id === 'e1')?.grams).toBe(10)
+})
+
+it('behåller egna vägningar vid sammanslagning', async () => {
+  await seed(db)
+  const exported = await exportAll(db)
+  await db.weights.put({ date: '2026-10-25', kg: 70, createdAt: '2026-10-25T07:00:00.000Z' })
+  await importAll(db, exported, 'merge')
+  expect((await db.weights.toArray()).map((w) => w.date)).toEqual(['2026-10-20', '2026-10-25'])
 })
 
 it('lämnar databasen orörd om skrivningen misslyckas', async () => {
