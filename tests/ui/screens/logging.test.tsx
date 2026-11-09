@@ -45,7 +45,7 @@ it('visar dagens intag mot målet och per måltid', async () => {
   expect(screen.getByText('kcal kvar')).toBeInTheDocument()
   const breakfast = screen.getByRole('region', { name: 'Frukost' })
   expect(within(breakfast).getByText('Havregryn fullkorn')).toBeInTheDocument()
-  expect(within(breakfast).getByText('80 g · 300 kcal')).toBeInTheDocument()
+  expect(within(breakfast).getByRole('button', { name: 'Havregryn fullkorn, 80 g, 300 kcal' })).toBeInTheDocument()
   expect(within(screen.getByRole('region', { name: 'Lunch' })).getByText('0 kcal')).toBeInTheDocument()
 })
 
@@ -63,10 +63,10 @@ it('lägger till ett livsmedel från sökningen', async () => {
   await user.clear(amount)
   await user.type(amount, '40')
   expect(within(dialog).getByText('150')).toBeInTheDocument() // 375 × 0,4
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i lunch' }))
 
   const lunch = await screen.findByRole('region', { name: 'Lunch' })
-  expect(await within(lunch).findByText('40 g · 150 kcal')).toBeInTheDocument()
+  expect(await within(lunch).findByRole('button', { name: 'Havregryn fullkorn, 40 g, 150 kcal' })).toBeInTheDocument()
   expect(await getEntriesForDate(db, today)).toMatchObject([
     { meal: 'lunch', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 40, per100g: oats },
   ])
@@ -91,7 +91,7 @@ it('räknar om portioner till gram och visar senast loggade', async () => {
   await user.clear(amount)
   await user.type(amount, '2,5')
   expect(within(dialog).getByText('Motsvarar 30 g.')).toBeInTheDocument()
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i frukost' }))
 
   await screen.findByRole('heading', { name: 'Idag' })
   expect(await getEntriesForDate(db, today)).toMatchObject([{ meal: 'breakfast', grams: 30, foodName: 'Knäckebröd, Leksands' }])
@@ -113,7 +113,7 @@ it('behåller exakt mängd i gram när enheten byts fram och tillbaka', async ()
   expect(within(dialog).getByText('Motsvarar 10 g.')).toBeInTheDocument()
   await user.click(within(dialog).getByLabelText('Gram'))
   expect(amount).toHaveValue('10')
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i frukost' }))
 
   await screen.findByRole('heading', { name: 'Idag' })
   expect(await getEntriesForDate(db, today)).toMatchObject([{ grams: 10 }])
@@ -129,11 +129,11 @@ it('ändrar och tar bort en loggpost', async () => {
   const amount = within(dialog).getByLabelText('Mängd')
   await user.clear(amount)
   await user.type(amount, '60')
-  await user.selectOptions(within(dialog).getByLabelText('Måltid'), 'snack')
+  await user.click(within(dialog).getByLabelText('Mellanmål'))
   await user.click(within(dialog).getByRole('button', { name: 'Spara' }))
 
   const snack = screen.getByRole('region', { name: 'Mellanmål' })
-  expect(await within(snack).findByText('60 g · 225 kcal')).toBeInTheDocument()
+  expect(await within(snack).findByRole('button', { name: 'Havregryn fullkorn, 60 g, 225 kcal' })).toBeInTheDocument()
 
   await user.click(within(snack).getByRole('button', { name: /Havregryn fullkorn/ }))
   dialog = screen.getByRole('dialog', { name: 'Havregryn fullkorn' })
@@ -150,14 +150,14 @@ it('visar ett fel och låter panelen vara öppen om posten inte går att spara',
   render(<App db={db} />)
 
   const dialog = await screen.findByRole('dialog', { name: 'Havregryn fullkorn' })
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i lunch' }))
 
   expect(await within(dialog).findByRole('alert')).toHaveTextContent('Livsmedlet kunde inte loggas. Försök igen.')
-  expect(within(dialog).getByRole('button', { name: 'Lägg till' })).toBeEnabled()
+  expect(within(dialog).getByRole('button', { name: 'Lägg till i lunch' })).toBeEnabled()
   expect(await getEntriesForDate(db, today)).toEqual([])
 
   // Andra försöket lyckas
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i lunch' }))
   expect(await screen.findByRole('heading', { name: 'Idag' })).toBeInTheDocument()
   expect(await getEntriesForDate(db, today)).toHaveLength(1)
   consoleError.mockRestore()
@@ -171,4 +171,20 @@ it('stänger panelen med Escape utan att spara', async () => {
   await user.keyboard('{Escape}')
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   expect((await getEntriesForDate(db, today))[0]?.grams).toBe(80)
+})
+
+it('stegar mängden med plus och minus', async () => {
+  window.location.hash = `#/lagg-till/${today}/lunch/slv%3A702`
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Havregryn fullkorn' })
+  const amount = within(dialog).getByLabelText('Mängd')
+  await user.click(within(dialog).getByRole('button', { name: 'Öka' }))
+  expect(amount).toHaveValue('110')
+  await user.click(within(dialog).getByRole('button', { name: 'Minska' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Minska' }))
+  expect(amount).toHaveValue('90')
+  await user.click(within(dialog).getByLabelText('Middag'))
+  expect(within(dialog).getByRole('button', { name: 'Lägg till i middag' })).toBeEnabled()
 })

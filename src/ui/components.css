@@ -974,9 +974,7 @@ input[type='file']::file-selector-button {
   display: flex;
   flex-direction: column-reverse;
   gap: 2px;
-  padding: 10px 4px;
-  border-radius: var(--radius-small);
-  background: var(--bg);
+  padding: 2px 0;
 }
 
 .nutrient-preview dt {
@@ -991,72 +989,6 @@ input[type='file']::file-selector-button {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Skanning ---------- */
-
-.scanner {
-  position: relative;
-}
-
-.scanner video[hidden] {
-  display: none;
-}
-
-.scanner video {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  max-height: 60dvh;
-  object-fit: cover;
-  border-radius: 20px;
-  background: #151816;
-}
-
-.viewfinder {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72%;
-  aspect-ratio: 16 / 10;
-  transform: translate(-50%, -60%);
-  pointer-events: none;
-  --corner: 28px;
-  background:
-    linear-gradient(#fff, #fff) top left / var(--corner) 4px,
-    linear-gradient(#fff, #fff) top left / 4px var(--corner),
-    linear-gradient(#fff, #fff) top right / var(--corner) 4px,
-    linear-gradient(#fff, #fff) top right / 4px var(--corner),
-    linear-gradient(#fff, #fff) bottom left / var(--corner) 4px,
-    linear-gradient(#fff, #fff) bottom left / 4px var(--corner),
-    linear-gradient(#fff, #fff) bottom right / var(--corner) 4px,
-    linear-gradient(#fff, #fff) bottom right / 4px var(--corner);
-  background-repeat: no-repeat;
-  border-radius: 12px;
-}
-
-.scanner video[hidden] + .viewfinder {
-  display: none;
-}
-
-.scanner > .hint {
-  text-align: center;
-}
-
-.manual-barcode {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.manual-barcode .search-input {
-  background: var(--bg);
-}
-
-.manual-barcode .button-primary {
-  width: auto;
-  min-height: 48px;
-  padding-inline: 20px;
-}
-
 /* ---------- Diagram ---------- */
 
 .week-chart {
@@ -1066,11 +998,15 @@ input[type='file']::file-selector-button {
 }
 
 .week-chart .bar {
-  fill: var(--accent);
+  fill: var(--accent-mid);
 }
 
 .week-chart .bar-over {
-  fill: var(--carbs);
+  fill: var(--accent);
+}
+
+.week-chart .grid-line {
+  stroke: var(--separator);
 }
 
 .week-chart .axis {
@@ -1105,7 +1041,7 @@ input[type='file']::file-selector-button {
 .weight-chart .dot {
   fill: var(--surface);
   stroke: var(--accent);
-  stroke-width: 2;
+  stroke-width: 3;
 }
 
 /* ---------- Vikt ---------- */
@@ -1160,22 +1096,7 @@ input[type='file']::file-selector-button {
 
 /* ---------- Profil och inställningar ---------- */
 
-.settings-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 
-.settings-icon {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-}
 
 .source-list {
   padding-left: 1.25rem;
@@ -1183,53 +1104,6 @@ input[type='file']::file-selector-button {
 
 .source-list li + li {
   margin-top: 0.25rem;
-}
-
-/* ---------- Välkomstskärmen ---------- */
-
-.welcome {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
-  padding-top: 24px;
-}
-
-.welcome .app-icon {
-  width: 88px;
-  height: 88px;
-}
-
-.feature-list {
-  list-style: none;
-  margin: 0;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.feature-list li {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.feature-list .meal-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-}
-
-.feature-list strong {
-  display: block;
-  font-weight: 600;
-}
-
-.feature-list span {
-  color: var(--text-muted);
-  font-size: 0.9375rem;
 }
 
 /* ---------- Notis ---------- */
@@ -1268,4 +1142,797 @@ input[type='file']::file-selector-button {
   font-weight: 700;
   padding: 0.375rem 0.5rem;
   cursor: pointer;
+}
+
+/* ---------- Hjälpklasser ---------- */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+}
+
+.eyebrow {
+  margin-bottom: 2px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eyebrow p {
+  margin: 0;
+}
+
+.eyebrow a {
+  text-decoration: none;
+}
+
+.success-text {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.empty-hint {
+  margin: 0 4px;
+  font-size: 0.9375rem;
+}
+
+.text-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+}
+
+.round-button.filled {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.round-button.dark {
+  background: rgb(255 255 255 / 0.16);
+  color: #fff;
+}
+
+.back-link {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 1.0625rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ---------- Navigeringsrad i modala vyer ---------- */
+
+.nav-bar {
+  display: grid;
+  grid-template-columns: minmax(72px, 1fr) auto minmax(72px, 1fr);
+  align-items: center;
+  min-height: 44px;
+  gap: 8px;
+}
+
+.nav-bar h1 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.nav-bar-side {
+  display: flex;
+}
+
+.nav-bar-end {
+  justify-content: flex-end;
+}
+
+.nav-bar-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-bar-button.strong {
+  font-weight: 600;
+}
+
+.nav-bar-button:disabled {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.modal-screen {
+  padding-top: calc(env(safe-area-inset-top) + 8px);
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+
+/* Lägg till visas som ett ark ovanpå föregående vy */
+.presented-backdrop {
+  position: relative;
+  min-height: 100dvh;
+  padding-top: calc(env(safe-area-inset-top) + 12px);
+  background: #2a2e2c;
+}
+
+.presented-backdrop::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(env(safe-area-inset-top) + 2px);
+  width: min(calc(100% - 36px), 524px);
+  height: 30px;
+  transform: translateX(-50%);
+  border-radius: 12px;
+  background: #8e9390;
+}
+
+.presented {
+  position: relative;
+  min-height: calc(100dvh - env(safe-area-inset-top) - 12px);
+  padding-top: 8px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  border-radius: 14px 14px 0 0;
+  background: var(--bg);
+}
+
+.presented .sheet-grabber {
+  margin-bottom: 4px;
+}
+
+.presented.stack > .nav-bar {
+  margin-top: 0;
+}
+
+/* ---------- Grupperade listor ---------- */
+
+.list-group > .section-title {
+  margin-bottom: 6px;
+}
+
+.list-card {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 0 0 16px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+div.list-row {
+  cursor: default;
+}
+
+.list-row:active:not(div) {
+  background: var(--separator);
+}
+
+.list-row:disabled {
+  opacity: 0.5;
+}
+
+.list-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.list-row-body {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding-right: 16px;
+}
+
+.list-card > li + li .list-row-body {
+  border-top: 1px solid var(--separator);
+}
+
+.list-label {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.list-label.accent {
+  color: var(--accent);
+}
+
+.list-value {
+  color: var(--text-muted);
+  font-size: 1rem;
+  text-align: right;
+}
+
+.chevron {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  margin: 0 4px 0 2px;
+  border: solid var(--text-faint);
+  border-width: 2px 2px 0 0;
+  transform: rotate(45deg);
+}
+
+.list-footer {
+  margin: 6px 16px 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.list-footer p {
+  margin: 0;
+}
+
+.list-footer p + p {
+  margin-top: 6px;
+}
+
+.switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--accent);
+}
+
+.switch:disabled {
+  cursor: default;
+}
+
+.switch-knob {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+  transition: transform 0.2s;
+}
+
+.switch[aria-checked='true'] .switch-knob {
+  transform: translateX(20px);
+}
+
+/* Formulär med rubriker ovanför korten, som i Eget livsmedel */
+fieldset.group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+fieldset.group > legend {
+  padding: 0;
+}
+
+.group-footer {
+  margin: 6px 16px 0;
+}
+
+.sheet .card {
+  background: var(--bg);
+}
+
+/* ---------- Dagsvyn ---------- */
+
+.entry-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.entry-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.entry-kcal,
+.entry-value {
+  flex: none;
+  font-size: 0.9375rem;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-kcal {
+  color: color-mix(in srgb, var(--text) 80%, var(--surface));
+}
+
+/* ---------- Mängd ---------- */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepper-button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.stepper-field {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  min-height: 56px;
+  padding: 6px 12px 0;
+  border-radius: 14px;
+  background: var(--bg);
+}
+
+.stepper-field:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.stepper-field input {
+  width: 4.5ch;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: right;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepper-field input[aria-invalid] {
+  color: var(--error);
+}
+
+.stepper-unit {
+  color: var(--text-muted);
+  font-size: 1.0625rem;
+}
+
+.stepper-hint {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.nutrient-preview dt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.nutrient-preview .dot {
+  width: 7px;
+  height: 7px;
+}
+
+/* ---------- Vecka och profil ---------- */
+
+.chart-headline,
+.card-title-row,
+.goal-headline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chart-headline p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.chart-headline strong {
+  color: var(--text);
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.chart-headline .hint {
+  font-size: 0.8125rem;
+}
+
+.goal-kcal {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-kcal span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.split-bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.split-bar span {
+  flex-basis: 0;
+}
+
+.split-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.split-legend div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.split-legend dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.split-legend dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* ---------- Vikt ---------- */
+
+.target-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.target-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--separator);
+}
+
+.target-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.target-knob {
+  position: absolute;
+  top: -4px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border: 3px solid var(--accent);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.target-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.target-labels strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.target-progress .success {
+  margin: 0;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+/* ---------- Skanning ---------- */
+
+.scan-screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #151816;
+  color: #fff;
+}
+
+.scan-camera {
+  position: absolute;
+  inset: 0;
+}
+
+.scan-camera video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scan-camera video[hidden] {
+  display: none;
+}
+
+.viewfinder {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: min(72%, 300px);
+  aspect-ratio: 16 / 10;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  --corner: 30px;
+  --edge: #fff;
+  background:
+    linear-gradient(var(--edge), var(--edge)) top left / var(--corner) 5px,
+    linear-gradient(var(--edge), var(--edge)) top left / 5px var(--corner),
+    linear-gradient(var(--edge), var(--edge)) top right / var(--corner) 5px,
+    linear-gradient(var(--edge), var(--edge)) top right / 5px var(--corner),
+    linear-gradient(var(--edge), var(--edge)) bottom left / var(--corner) 5px,
+    linear-gradient(var(--edge), var(--edge)) bottom left / 5px var(--corner),
+    linear-gradient(var(--edge), var(--edge)) bottom right / var(--corner) 5px,
+    linear-gradient(var(--edge), var(--edge)) bottom right / 5px var(--corner),
+    linear-gradient(#7bd3a6, #7bd3a6) center / 82% 2px;
+  background-repeat: no-repeat;
+}
+
+.scan-hint {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: calc(34% + 120px);
+  margin: 0;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: #e3e6e4;
+}
+
+.scan-error {
+  top: 30%;
+}
+
+.scan-header {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scan-header h1 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.scan-header-spacer {
+  width: 44px;
+}
+
+.scan-sheet {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  max-width: 536px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.scan-sheet .hint {
+  margin-top: 10px;
+}
+
+.scan-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.scan-status p {
+  margin: 0 0 12px;
+}
+
+.scan-status .button-secondary {
+  margin-top: 10px;
+}
+
+.manual-barcode {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.manual-barcode .search-input {
+  background: var(--bg);
+}
+
+.manual-barcode .button-primary {
+  width: auto;
+  min-height: 48px;
+  padding-inline: 20px;
+}
+
+/* ---------- Välkomstskärmen ---------- */
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-top: calc(env(safe-area-inset-top) + 72px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 32px);
+  padding-inline: 24px;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.welcome .app-icon {
+  width: 96px;
+  height: 96px;
+}
+
+.welcome h1 {
+  margin-top: 10px;
+  font-size: 2rem;
+}
+
+.welcome .lead {
+  margin: 0;
+  font-size: 1.0625rem;
+}
+
+.feature-list {
+  list-style: none;
+  margin: 44px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.feature-list li {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.feature-list strong {
+  display: block;
+  font-weight: 600;
+}
+
+.feature-list span {
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.welcome-actions {
+  margin-top: auto;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Kort som bara innehåller fältrader ska ha raderna kant i kant, som i en inställningslista */
+div.card:has(> .field, > .field-row) {
+  padding-block: 0;
+}
+
+.card .field-input {
+  min-width: 0;
+}
+
+.stack > fieldset.group {
+  margin-top: 28px;
 }

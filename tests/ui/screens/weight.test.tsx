@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { MumsaDb } from '../../../src/data/db/db'
 import { saveGoals } from '../../../src/data/repos/settingsRepo'
@@ -28,14 +28,18 @@ it('loggar dagens vikt och visar läget mot målvikten', async () => {
   render(<App db={db} />)
   expect(await screen.findByText('Logga din vikt för att följa hur den förändras över tid.')).toBeInTheDocument()
 
-  await user.type(screen.getByLabelText('Vikt'), '80,2')
-  await user.click(screen.getByRole('button', { name: 'Spara vikt' }))
+  await user.click(screen.getByRole('button', { name: 'Logga vikt' }))
+  const sheet = screen.getByRole('dialog', { name: 'Logga vikt' })
+  await user.type(within(sheet).getByLabelText('Vikt'), '80,2')
+  await user.click(within(sheet).getByRole('button', { name: 'Spara vikt' }))
 
-  expect(await screen.findByRole('status')).toHaveTextContent('Vikten är sparad.')
   expect(await getWeights(db)).toMatchObject([{ date: today, kg: 80.2 }])
-  const progress = screen.getByRole('region', { name: 'Viktförändring' })
+  const progress = await screen.findByRole('region', { name: 'Viktförändring' })
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   expect(within(progress).getByText('80,2 kg')).toBeInTheDocument()
-  expect(within(progress).getByText('5,2 kg kvar till målvikten 75 kg.')).toBeInTheDocument()
+  expect(within(progress).getByText('5,2 kg kvar')).toBeInTheDocument()
+  expect(progress).toHaveTextContent('Start 80,2')
+  expect(progress).toHaveTextContent('Mål 75')
   expect(screen.getByRole('img', { name: /Vikt: .* 80,2 kg\. Målvikt 75 kg\./ })).toBeInTheDocument()
 })
 
@@ -48,7 +52,7 @@ it('visar förändring och snitt per vecka', async () => {
   const progress = await screen.findByRole('region', { name: 'Viktförändring' })
   expect(progress).toHaveTextContent('−2 kg sedan')
   expect(progress).toHaveTextContent('i snitt −0,5 kg per vecka den senaste månaden')
-  expect(within(progress).getByText('3 kg kvar till målvikten 75 kg.')).toBeInTheDocument()
+  expect(within(progress).getByText('3 kg kvar')).toBeInTheDocument()
 })
 
 it('ersätter en vägning samma dag och tar bort en vägning', async () => {
@@ -58,14 +62,19 @@ it('ersätter en vägning samma dag och tar bort en vägning', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
 
-  expect(await screen.findByText('Ersätter vägningen på 81 kg den dagen.')).toBeInTheDocument()
-  await user.type(screen.getByLabelText('Vikt'), '80,5')
-  await user.click(screen.getByRole('button', { name: 'Spara vikt' }))
-  expect(await screen.findByText('Ersätter vägningen på 80,5 kg den dagen.')).toBeInTheDocument()
+  await user.click(await screen.findByRole('button', { name: 'Logga vikt' }))
+  let sheet = screen.getByRole('dialog', { name: 'Logga vikt' })
+  expect(within(sheet).getByText('Ersätter vägningen på 81 kg den dagen.')).toBeInTheDocument()
+  await user.type(within(sheet).getByLabelText('Vikt'), '80,5')
+  await user.click(within(sheet).getByRole('button', { name: 'Spara vikt' }))
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
   const list = screen.getByRole('list')
   expect(within(list).getAllByRole('listitem')).toHaveLength(2)
-  await user.click(within(list).getAllByRole('button', { name: /Ta bort vägningen/ })[1]!)
+  expect(within(list).getAllByRole('button')[0]).toHaveTextContent('80,5 kg')
+  await user.click(within(list).getAllByRole('button')[1]!)
+  sheet = screen.getByRole('dialog')
+  await user.click(within(sheet).getByRole('button', { name: 'Ta bort vägningen' }))
   expect(await getWeights(db)).toMatchObject([{ date: today, kg: 80.5 }])
 })
 

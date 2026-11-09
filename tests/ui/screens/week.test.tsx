@@ -32,9 +32,11 @@ it('visar veckans dagar, snitt och diagram', async () => {
   expect(await screen.findByRole('heading', { name: 'Vecka 43' })).toBeInTheDocument()
   expect(screen.getByText('19 okt – 25 okt')).toBeInTheDocument()
 
+  const energy = screen.getByRole('region', { name: 'Energi per dag' })
+  expect(energy).toHaveTextContent('Snitt 2 100 kcal')
+  expect(energy).toHaveTextContent('Mål 2 000')
   const average = screen.getByRole('region', { name: 'Snitt per dag' })
-  expect(within(average).getByText('Räknat på 2 av 7 dagar.')).toBeInTheDocument()
-  expect(within(average).getByText('2 100 / 2 000 kcal')).toBeInTheDocument()
+  expect(within(average).getByText('2 av 7 dagar')).toBeInTheDocument()
   expect(within(average).getByText('210 / 100 g')).toBeInTheDocument() // protein
 
   const days = within(screen.getByRole('list', { name: 'Dagar' })).getAllByRole('link')

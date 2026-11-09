@@ -40,9 +40,6 @@ export function WeekChart({ days, goalKcal, today }: Props) {
         )
       })}
       <line x1={0} x2={WIDTH} y1={goalY} y2={goalY} className="goal-line" />
-      <text x={WIDTH} y={goalY - 4} textAnchor="end" className="axis">
-        mål {formatNumber(goalKcal)}
-      </text>
       <line x1={0} x2={WIDTH} y1={TOP + plot} y2={TOP + plot} className="baseline" />
     </svg>
   )

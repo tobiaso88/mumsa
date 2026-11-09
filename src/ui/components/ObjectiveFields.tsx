@@ -1,19 +1,12 @@
 import { useId } from 'react'
 import { PACE_KG_PER_WEEK } from '../../domain/goals/objectives'
-import { OBJECTIVE_KINDS, PACES, type ObjectiveKind, type Pace } from '../../domain/types'
+import { OBJECTIVE_KINDS, PACES, type ObjectiveKind } from '../../domain/types'
 import { formatNumber } from '../format'
+import { OBJECTIVE_LABELS, PACE_LABELS } from '../labels'
 import type { GoalsFormSet, GoalsFormState } from '../hooks/useGoalsForm'
 import { NumberField } from './NumberField'
 import { SegmentedControl } from './SegmentedControl'
 
-const OBJECTIVE_LABELS: Record<ObjectiveKind, string> = {
-  lose: 'Gå ner i vikt',
-  maintain: 'Behålla vikten',
-  gain: 'Gå upp i vikt',
-  build_muscle: 'Bygga muskler',
-}
-
-const PACE_LABELS: Record<Pace, string> = { slow: 'Lugn', moderate: 'Måttlig' }
 const PACE_OPTIONS = PACES.map((pace) => ({ value: pace, label: PACE_LABELS[pace] }))
 
 type Props = {

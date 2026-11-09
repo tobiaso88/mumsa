@@ -1,5 +1,5 @@
 import type { WeightEntry } from '../../../src/domain/types'
-import { isValidWeightKg, weeklyChange, weightProgress, weightsInRange } from '../../../src/domain/weight/weight'
+import { isValidWeightKg, targetProgressRatio, weeklyChange, weightProgress, weightsInRange } from '../../../src/domain/weight/weight'
 
 const w = (date: string, kg: number): WeightEntry => ({ date, kg, createdAt: `${date}T08:00:00.000Z` })
 
@@ -54,5 +54,23 @@ describe('weightsInRange', () => {
   it('tar med gränserna och sorterar äldst först', () => {
     const entries = [w('2026-10-10', 1), w('2026-10-01', 2), w('2026-09-30', 3), w('2026-10-11', 4)]
     expect(weightsInRange(entries, '2026-10-01', '2026-10-10').map((e) => e.date)).toEqual(['2026-10-01', '2026-10-10'])
+  })
+})
+
+describe('targetProgressRatio', () => {
+  const progress = (startKg: number, latestKg: number) => ({ start: w('2026-10-01', startKg), latest: w('2026-10-20', latestKg) })
+
+  it('ger andelen av vägen mot en lägre målvikt', () => {
+    expect(targetProgressRatio(progress(86, 82.4), 76)).toBeCloseTo(0.36)
+  })
+  it('fungerar även mot en högre målvikt', () => {
+    expect(targetProgressRatio(progress(60, 62), 64)).toBeCloseTo(0.5)
+  })
+  it('stannar mellan 0 och 1 när vikten gått åt fel håll eller förbi målet', () => {
+    expect(targetProgressRatio(progress(80, 81), 75)).toBe(0)
+    expect(targetProgressRatio(progress(80, 74), 75)).toBe(1)
+  })
+  it('ger null när målvikten är startvikten', () => {
+    expect(targetProgressRatio(progress(80, 79), 80)).toBeNull()
   })
 })

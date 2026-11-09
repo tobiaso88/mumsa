@@ -10,13 +10,13 @@ type Props = {
   next: Link
 }
 
-/** Stor rubrik med runda pilknappar till föregående och nästa period, till exempel dag eller vecka. */
+/** Stor rubrik med datum ovanför och runda pilknappar till föregående och nästa period, till exempel dag eller vecka. */
 export function PeriodHeader({ title, subtitle, previous, next }: Props) {
   return (
     <header className="large-title period-header">
       <div className="large-title-text">
+        <div className="eyebrow">{subtitle}</div>
         <h1>{title}</h1>
-        {subtitle}
       </div>
       <div className="round-buttons">
         <a className="round-button" href={previous.href} aria-label={previous.label}>

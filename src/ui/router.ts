@@ -21,6 +21,7 @@ export type Route =
   | { name: 'week'; date: IsoDate }
   | { name: 'weight' }
   | { name: 'profile' }
+  | { name: 'goals' }
   | { name: 'settings' }
 
 const MEAL_SLUGS: Record<Meal, string> = {
@@ -83,7 +84,7 @@ export function parseHash(hash: string, now: Date): Route {
     case 'vikt':
       return { name: 'weight' }
     case 'profil':
-      return { name: 'profile' }
+      return first === 'mal' ? { name: 'goals' } : { name: 'profile' }
     case 'installningar':
       return { name: 'settings' }
     default:
@@ -117,6 +118,8 @@ export function toHash(route: Route): string {
       return '#/vikt'
     case 'profile':
       return '#/profil'
+    case 'goals':
+      return '#/profil/mal'
     case 'settings':
       return '#/installningar'
   }

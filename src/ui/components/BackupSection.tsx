@@ -1,95 +1,53 @@
-import { useId, useState } from 'react'
-import type { ImportMode } from '../../data/backup/backup'
-import { formatNumber } from '../format'
+import { useId, useRef, useState } from 'react'
 import { useAction } from '../hooks/useAction'
 import { useExport } from '../hooks/useExport'
 import { useImport } from '../hooks/useImport'
-import { SegmentedControl } from './SegmentedControl'
-import { Icon } from './Icon'
-
-const MODE_OPTIONS: readonly { value: ImportMode; label: string }[] = [
-  { value: 'merge', label: 'Slå ihop' },
-  { value: 'replace', label: 'Ersätt allt' },
-]
-
-/** Livsmedelsverkets livsmedel i en importfil läses aldrig in, eftersom appen redan har dem. */
-function SkippedFoods({ count, done = false }: { count: number; done?: boolean }) {
-  if (count === 0) return null
-  return (
-    <p className="hint">
-      {formatNumber(count)} livsmedel från Livsmedelsverket {done ? 'hoppades' : 'hoppas'} över eftersom de redan ingår i
-      appen.
-    </p>
-  )
-}
-
-/** T.ex. "2 livsmedel, 5 loggposter och 3 vägningar". Vägningar nämns bara om det finns några. */
-function contentSummary(foods: number, entries: number, weights: number): string {
-  const parts = [`${formatNumber(foods)} livsmedel`, `${formatNumber(entries)} loggposter`]
-  if (weights > 0) parts.push(`${formatNumber(weights)} vägningar`)
-  return `${parts.slice(0, -1).join(', ')} och ${parts[parts.length - 1]}`
-}
+import { ImportSheet } from './ImportSheet'
+import { ListGroup } from './ListGroup'
 
 export function BackupSection() {
-  const { state, mode, setMode, chooseFile, runImport } = useImport()
+  const importer = useImport()
   const exportData = useExport()
   const [exported, setExported] = useState(false)
   const fileId = useId()
+  const fileInput = useRef<HTMLInputElement>(null)
 
   const exporting = useAction(async () => {
     await exportData()
     setExported(true)
   }, 'Datan kunde inte exporteras. Försök igen.')
-  // Importen sker i en transaktion, så ett fel lämnar databasen orörd
-  const importing = useAction(runImport, 'Filen kunde inte läsas in. Ingen data har ändrats.')
 
-  function handleImport() {
-    const question = 'All nuvarande data i appen ersätts med innehållet i filen. Vill du fortsätta?'
-    if (mode === 'replace' && !window.confirm(question)) return
-    void importing.run()
+  function closeImport() {
+    void importer.chooseFile(undefined)
+    // Samma fil ska gå att välja igen
+    if (fileInput.current) fileInput.current.value = ''
   }
 
   return (
-    <section className="card stack" aria-labelledby="backup-title">
-      <h2 id="backup-title" className="settings-row">
-        <span className="settings-icon">
-          <Icon name="download" size={18} strokeWidth={2.2} />
-        </span>
-        Säkerhetskopia
-      </h2>
-      <p className="hint">Spara all data som en JSON-fil, till exempel för att flytta den till en annan enhet.</p>
-      <button type="button" className="button-secondary" onClick={() => void exporting.run()} disabled={exporting.pending}>
-        Exportera data
-      </button>
-      {exported && <p className="success" role="status">Filen är sparad.</p>}
-      {exporting.error && <p className="error" role="alert">{exporting.error}</p>}
-
-      <div className="field">
-        <label htmlFor={fileId}>Importera från fil</label>
-        <input id={fileId} type="file" accept=".json,application/json" onChange={(e) => void chooseFile(e.target.files?.[0])} />
-      </div>
-      {state.kind === 'invalid' && <p className="error" role="alert">{state.error}</p>}
-      {state.kind === 'ready' && (
-        <>
-          <p>
-            Filen innehåller {contentSummary(state.data.foods.length, state.data.entries.length, state.data.weights.length)}.
-          </p>
-          <SkippedFoods count={state.skippedFoods} />
-          <SegmentedControl label="Hur ska filen läsas in?" options={MODE_OPTIONS} value={mode} onChange={setMode} />
-          <button type="button" className="button-primary" onClick={handleImport} disabled={importing.pending}>
-            Importera
-          </button>
-          {importing.error && <p className="error" role="alert">{importing.error}</p>}
-        </>
-      )}
-      {state.kind === 'done' && (
-        <>
-          <p className="success" role="status">
-            Klart! {contentSummary(state.foods, state.entries, state.weights)} lästes in.
-          </p>
-          <SkippedFoods count={state.skippedFoods} done />
-        </>
-      )}
-    </section>
+    <>
+      <ListGroup
+        title="Säkerhetskopia"
+        rows={[
+          { label: 'Exportera data', icon: 'download', tint: 'var(--fat)', accent: true, onClick: () => void exporting.run(), disabled: exporting.pending },
+          { label: 'Importera från fil', icon: 'upload', tint: 'var(--fat)', accent: true, htmlFor: fileId },
+        ]}
+        footer={
+          <>
+            <p>En JSON-fil med alla livsmedel, loggposter och vägningar, till exempel för att flytta till en annan enhet.</p>
+            {exported && <p className="success-text" role="status">Filen är sparad.</p>}
+            {exporting.error && <p className="error" role="alert">{exporting.error}</p>}
+          </>
+        }
+      />
+      <input
+        ref={fileInput}
+        id={fileId}
+        className="visually-hidden"
+        type="file"
+        accept=".json,application/json"
+        onChange={(e) => void importer.chooseFile(e.target.files?.[0])}
+      />
+      {importer.state.kind !== 'idle' && <ImportSheet importer={importer} onClose={closeImport} />}
+    </>
   )
 }

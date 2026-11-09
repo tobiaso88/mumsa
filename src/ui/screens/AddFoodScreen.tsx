@@ -3,8 +3,9 @@ import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
 import { FoodSearchResults } from '../components/FoodSearchResults'
 import { Icon } from '../components/Icon'
+import { NavBar } from '../components/NavBar'
 import { Sheet } from '../components/Sheet'
-import { formatDayTitle, formatNumber } from '../format'
+import { formatNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useEntryActions } from '../hooks/useEntryActions'
 import { useFood } from '../hooks/useFood'
@@ -31,58 +32,68 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
     navigate({ name: 'day', date })
   }, 'Livsmedlet kunde inte loggas. Försök igen.')
 
+  const editFood = selected && (
+    <a
+      className="round-button"
+      href={toHash({ name: 'food', action: selected.source === 'custom' ? 'edit' : 'copy', date, meal, foodId: selected.id })}
+      aria-label={selected.source === 'custom' ? 'Ändra livsmedlet' : 'Rätta näringsvärden'}
+    >
+      <Icon name="pencil" size={20} />
+    </a>
+  )
+
   return (
-    <main className="screen stack">
-      <header>
-        <h1>Lägg till i {MEAL_LABELS[meal].toLocaleLowerCase('sv')}</h1>
-        <p className="hint">{formatDayTitle(date)}</p>
-      </header>
-      <label className="search-field">
-        <Icon name="search" size={20} />
-        <input
-          type="search"
-          placeholder="Sök livsmedel, t.ex. havregryn"
-          aria-label="Sök livsmedel"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+    <div className="presented-backdrop">
+      <main className="screen presented stack">
+        <div className="sheet-grabber" aria-hidden="true" />
+        <NavBar
+          title={`Lägg till i ${MEAL_LABELS[meal].toLocaleLowerCase('sv')}`}
+          leading={
+            <a className="nav-bar-button" href={toHash({ name: 'day', date })}>
+              Avbryt
+            </a>
+          }
         />
-      </label>
-      <div className="button-row">
-        <a className="tile-button" href={toHash({ name: 'scan', date, meal })}>
-          <Icon name="scan" size={22} />
-          Skanna streckkod
-        </a>
-        <a className="tile-button" href={toHash({ name: 'food', action: 'new', date, meal })}>
-          <Icon name="pencil" size={22} />
-          Eget livsmedel
-        </a>
-      </div>
-      <FoodSearchResults query={query} results={results} recent={recent} onSelect={setChoice} />
+        <label className="search-field">
+          <Icon name="search" size={20} />
+          <input
+            type="search"
+            placeholder="Sök livsmedel, t.ex. havregryn"
+            aria-label="Sök livsmedel"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+        <div className="button-row">
+          <a className="tile-button" href={toHash({ name: 'scan', date, meal })} aria-label="Skanna streckkod">
+            <Icon name="scan" size={22} />
+            Skanna
+          </a>
+          <a className="tile-button" href={toHash({ name: 'food', action: 'new', date, meal })}>
+            <Icon name="pencil" size={22} />
+            Eget livsmedel
+          </a>
+        </div>
+        <FoodSearchResults query={query} results={results} recent={recent} onSelect={setChoice} />
+      </main>
       {selected && (
         <Sheet
           title={entryName(selected)}
           subtitle={`${SOURCE_LABELS[selected.source]} · ${formatNumber(selected.per100g.kcal)} kcal per 100 g`}
+          action={editFood}
           onClose={() => setChoice(null)}
         >
           <AmountForm
             food={selected}
             initialGrams={selected.servingGrams ?? 100}
             initialMeal={meal}
-            submitLabel="Lägg till"
+            submitLabel={(m) => `Lägg till i ${MEAL_LABELS[m].toLocaleLowerCase('sv')}`}
             onSubmit={(value) => void adding.run(selected, value)}
             busy={adding.pending}
             error={adding.error}
-            extraActions={
-              <a
-                className="button-secondary"
-                href={toHash({ name: 'food', action: selected.source === 'custom' ? 'edit' : 'copy', date, meal, foodId: selected.id })}
-              >
-                {selected.source === 'custom' ? 'Ändra livsmedlet' : 'Rätta näringsvärden'}
-              </a>
-            }
           />
         </Sheet>
       )}
-    </main>
+    </div>
   )
 }

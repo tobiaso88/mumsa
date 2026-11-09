@@ -23,7 +23,7 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
       <PeriodHeader
         title={`Vecka ${isoWeekNumber(weekStart)}`}
         subtitle={
-          <p className="hint">
+          <p>
             {formatShortDate(weekStart)} – {formatShortDate(weekEnd)}
           </p>
         }
@@ -31,19 +31,25 @@ export function WeekScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
         next={{ href: toHash({ name: 'week', date: addDays(weekStart, 7) }), label: 'Nästa vecka' }}
       />
 
-      <section className="card" aria-label="Energi per dag">
+      <section className="card stat-card" aria-label="Energi per dag">
+        <div className="chart-headline">
+          <p>
+            Snitt <strong>{week.loggedDays > 0 ? formatNumber(week.average.kcal) : '–'}</strong> kcal
+          </p>
+          <p className="hint">Mål {formatNumber(goals.kcal)}</p>
+        </div>
         <WeekChart days={week.days} goalKcal={goals.kcal} today={today} />
       </section>
 
       <section className="card stat-card" aria-label="Snitt per dag">
-        <h2>Snitt per loggad dag</h2>
+        <div className="card-title-row">
+          <h2>Snitt per loggad dag</h2>
+          {week.loggedDays > 0 && <span className="hint">{week.loggedDays} av 7 dagar</span>}
+        </div>
         {week.loggedDays === 0 ? (
           <p className="hint">Inget loggat den här veckan.</p>
         ) : (
-          <>
-            <p className="hint">Räknat på {week.loggedDays} av 7 dagar.</p>
-            <MacroProgress intake={week.average} goals={goals} />
-          </>
+          <MacroProgress intake={week.average} goals={goals} energy={false} />
         )}
       </section>
 

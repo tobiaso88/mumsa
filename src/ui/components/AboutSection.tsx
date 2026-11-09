@@ -1,44 +1,66 @@
-import { Icon } from './Icon'
+import { useState } from 'react'
+import { ListGroup } from './ListGroup'
+import { Sheet } from './Sheet'
 
 const SLV_ATTRIBUTION = 'Källa: Livsmedelsverkets livsmedelsdatabas (CC BY 4.0)'
 
-export function AboutSection() {
+function InstallSheet({ onClose }: { onClose: () => void }) {
   return (
-    <section className="card stack" aria-labelledby="about-title">
-      <h2 id="about-title" className="settings-row">
-        <span className="settings-icon">
-          <Icon name="info" size={18} strokeWidth={2.2} />
-        </span>
-        Om Mumsa
-      </h2>
-      <div>
-        <h3>Installera på mobilen</h3>
-        <p className="hint">
-          iPhone: öppna sidan i Safari, tryck på Dela och välj Lägg till på hemskärmen. Android: öppna sidan i Chrome och
-          välj Installera app i menyn. Appen fungerar sedan offline.
+    <Sheet title="Installera på hemskärmen" onClose={onClose}>
+      <div className="stack">
+        <p>
+          <strong>iPhone:</strong> öppna sidan i Safari, tryck på Dela och välj Lägg till på hemskärmen.
         </p>
+        <p>
+          <strong>Android:</strong> öppna sidan i Chrome och välj Installera app i menyn.
+        </p>
+        <p className="hint">Appen fungerar sedan offline.</p>
       </div>
-      <div>
-        <h3>Källor</h3>
-        <ul className="hint source-list">
-          <li>
-            {SLV_ATTRIBUTION}.{' '}
-            <a href="https://www.livsmedelsverket.se/livsmedelsdatabasen" target="_blank" rel="noreferrer">
-              livsmedelsverket.se
-            </a>
-          </li>
-          <li>
-            Produkter via streckkod: Open Food Facts (ODbL), data från bidragsgivare.{' '}
-            <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer">
-              openfoodfacts.org
-            </a>
-          </li>
-        </ul>
-      </div>
-      <p className="hint">
-        Mumsa ger inga medicinska råd. Beräknade mål är uppskattningar från en standardformel. Vänd dig till vården om du har
-        frågor om kost och hälsa.
-      </p>
-    </section>
+    </Sheet>
+  )
+}
+
+function SourcesSheet({ onClose }: { onClose: () => void }) {
+  return (
+    <Sheet title="Källor" onClose={onClose}>
+      <ul className="source-list stack">
+        <li>
+          Livsmedelsverkets livsmedelsdatabas (CC BY 4.0).{' '}
+          <a href="https://www.livsmedelsverket.se/livsmedelsdatabasen" target="_blank" rel="noreferrer">
+            livsmedelsverket.se
+          </a>
+        </li>
+        <li>
+          Produkter via streckkod: Open Food Facts, data från bidragsgivare under ODbL.{' '}
+          <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer">
+            openfoodfacts.org
+          </a>
+        </li>
+      </ul>
+    </Sheet>
+  )
+}
+
+export function AboutSection() {
+  const [open, setOpen] = useState<'install' | 'sources' | null>(null)
+  const close = () => setOpen(null)
+  return (
+    <>
+      <ListGroup
+        title="Om Mumsa"
+        rows={[
+          { label: 'Installera på hemskärmen', icon: 'share', tint: 'var(--text-faint)', onClick: () => setOpen('install') },
+          { label: 'Källor', icon: 'book', tint: 'var(--carbs)', onClick: () => setOpen('sources') },
+        ]}
+        footer={
+          <p>
+            Mumsa ger inga medicinska råd. Beräknade mål är uppskattningar från en standardformel. Vänd dig till vården om du
+            har frågor om kost och hälsa. {SLV_ATTRIBUTION}. Produkter via streckkod: Open Food Facts (ODbL).
+          </p>
+        }
+      />
+      {open === 'install' && <InstallSheet onClose={close} />}
+      {open === 'sources' && <SourcesSheet onClose={close} />}
+    </>
   )
 }

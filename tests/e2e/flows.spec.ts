@@ -3,6 +3,7 @@ import { mockOpenFoodFacts, setGoal } from './helpers.ts'
 
 test('räknar ut mål från profilen', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByLabel('Vikt').fill('70')
   await page.getByLabel('Längd').fill('175')
   await page.getByLabel('Ålder').fill('30')
@@ -15,6 +16,7 @@ test('räknar ut mål från profilen', async ({ page }) => {
 
 test('sätter ett mål för viktnedgång och följer vikten', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByLabel('Vad vill du uppnå?').selectOption('lose')
   await page.getByText('Måttlig', { exact: true }).click()
   await page.getByLabel('Målvikt (frivillig)').fill('65')
@@ -31,19 +33,22 @@ test('sätter ett mål för viktnedgång och följer vikten', async ({ page }) =
   const twoWeeksAgo = new Date()
   twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
   const pad = (n: number) => String(n).padStart(2, '0')
-  await page.getByLabel('Datum').fill(`${twoWeeksAgo.getFullYear()}-${pad(twoWeeksAgo.getMonth() + 1)}-${pad(twoWeeksAgo.getDate())}`)
-  await page.getByLabel('Vikt', { exact: true }).fill('70')
-  await page.getByRole('button', { name: 'Spara vikt' }).click()
-  await expect(page.getByText('Vikten är sparad.')).toBeVisible()
+  await page.getByRole('button', { name: 'Logga vikt' }).click()
+  let sheet = page.getByRole('dialog', { name: 'Logga vikt' })
+  await sheet.getByLabel('Datum').fill(`${twoWeeksAgo.getFullYear()}-${pad(twoWeeksAgo.getMonth() + 1)}-${pad(twoWeeksAgo.getDate())}`)
+  await sheet.getByLabel('Vikt', { exact: true }).fill('70')
+  await sheet.getByRole('button', { name: 'Spara vikt' }).click()
+  await expect(sheet).toBeHidden()
 
-  await page.getByLabel('Datum').fill(new Date().toLocaleDateString('sv-SE'))
-  await page.getByLabel('Vikt', { exact: true }).fill('69,2')
-  await page.getByRole('button', { name: 'Spara vikt' }).click()
+  await page.getByRole('button', { name: 'Logga vikt' }).click()
+  sheet = page.getByRole('dialog', { name: 'Logga vikt' })
+  await sheet.getByLabel('Vikt', { exact: true }).fill('69,2')
+  await sheet.getByRole('button', { name: 'Spara vikt' }).click()
 
   const progress = page.getByRole('region', { name: 'Viktförändring' })
   await expect(progress.getByText('69,2 kg', { exact: true })).toBeVisible()
   await expect(progress).toContainText('−0,8 kg sedan')
-  await expect(progress.getByText('4,2 kg kvar till målvikten 65 kg.')).toBeVisible()
+  await expect(progress.getByText('4,2 kg kvar', { exact: true })).toBeVisible()
   await expect(page.getByRole('img', { name: /^Vikt: .*Målvikt 65 kg\.$/ })).toBeVisible()
 })
 
@@ -57,13 +62,13 @@ test('loggar, ändrar och tar bort ett livsmedel från Livsmedelsverket', async 
   await dialog.getByRole('button', { name: 'Lägg till' }).click()
 
   const lunch = page.getByRole('region', { name: 'Lunch' })
-  await expect(lunch.getByText('40 g · 150 kcal')).toBeVisible()
+  await expect(lunch.getByRole('button', { name: 'Havregryn fullkorn, 40 g, 150 kcal' })).toBeVisible()
   await expect(page.getByText('1 850')).toBeVisible()
 
   await lunch.getByRole('button', { name: /Havregryn fullkorn/ }).click()
   await dialog.getByLabel('Mängd', { exact: true }).fill('80')
   await dialog.getByRole('button', { name: 'Spara' }).click()
-  await expect(lunch.getByText('80 g · 300 kcal')).toBeVisible()
+  await expect(lunch.getByRole('button', { name: 'Havregryn fullkorn, 80 g, 300 kcal' })).toBeVisible()
 
   await lunch.getByRole('button', { name: /Havregryn fullkorn/ }).click()
   await dialog.getByRole('button', { name: 'Ta bort' }).click()
@@ -88,7 +93,7 @@ test('skapar ett eget livsmedel och loggar det i portioner', async ({ page }) =>
   await dialog.getByLabel('Mängd', { exact: true }).fill('2')
   await expect(dialog.getByText('Motsvarar 80 g.')).toBeVisible()
   await dialog.getByRole('button', { name: 'Lägg till' }).click()
-  await expect(page.getByRole('region', { name: 'Mellanmål' }).getByText('80 g · 280 kcal')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Mellanmål' }).getByRole('button', { name: 'Mormors bullar, 80 g, 280 kcal' })).toBeVisible()
 })
 
 test('slår upp en streckkod hos Open Food Facts och använder den offline nästa gång', async ({ page, context }) => {
@@ -107,7 +112,7 @@ test('slår upp en streckkod hos Open Food Facts och använder den offline näst
   await page.getByLabel('Eller skriv in streckkoden').fill('7310130321184')
   await page.getByRole('button', { name: 'Sök' }).click()
   await page.getByRole('dialog', { name: 'AXA Fiber havregryn, AXA' }).getByRole('button', { name: 'Lägg till' }).click()
-  await expect(page.getByRole('region', { name: 'Frukost' }).getByText('40 g · 140 kcal')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Frukost' }).getByRole('button', { name: 'AXA Fiber havregryn, AXA, 40 g, 140 kcal' })).toBeVisible()
 
   await context.setOffline(true)
   await page.getByRole('link', { name: 'Lägg till i lunch' }).click()
@@ -124,7 +129,7 @@ test('erbjuder eget livsmedel för okänd streckkod', async ({ page }) => {
   await page.getByLabel('Eller skriv in streckkoden').fill('7310000000001')
   await page.getByRole('button', { name: 'Sök' }).click()
   await page.getByRole('link', { name: 'Skapa eget livsmedel' }).click()
-  await expect(page.getByLabel('Streckkod (valfritt)')).toHaveValue('7310000000001')
+  await expect(page.getByLabel('Streckkod')).toHaveValue('7310000000001')
 })
 
 test('exporterar och läser in all data på en ny enhet', async ({ page, browser }, testInfo) => {
@@ -133,7 +138,7 @@ test('exporterar och läser in all data på en ny enhet', async ({ page, browser
   await page.getByRole('searchbox', { name: 'Sök livsmedel' }).fill('havregryn fullkorn')
   await page.getByRole('button', { name: /^Havregryn fullkorn/ }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Lägg till' }).click()
-  await expect(page.getByRole('region', { name: 'Middag' }).getByText('100 g · 375 kcal')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Middag' }).getByRole('button', { name: 'Havregryn fullkorn, 100 g, 375 kcal' })).toBeVisible()
 
   await page.goto('/#/installningar')
   const downloadPromise = page.waitForEvent('download')

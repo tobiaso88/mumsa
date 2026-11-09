@@ -13,9 +13,9 @@ export function DayHeader({ date }: { date: IsoDate }) {
       title={isToday ? 'Idag' : formatDayTitle(date)}
       subtitle={
         isToday ? (
-          <p className="hint">{formatDayTitle(date)}</p>
+          <p>{formatDayTitle(date)}</p>
         ) : (
-          <a className="hint" href={toHash({ name: 'day', date: today })}>
+          <a href={toHash({ name: 'day', date: today })}>
             Gå till idag
           </a>
         )

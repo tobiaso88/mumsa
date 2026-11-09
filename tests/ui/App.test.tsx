@@ -18,10 +18,17 @@ afterEach(async () => {
 
 const goals = { kcal: 2000, split: { proteinPct: 25, carbsPct: 45, fatPct: 30 } }
 
+/** Går förbi välkomstskärmen till målformuläret. */
+async function start(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(await screen.findByRole('button', { name: 'Kom igång' }))
+  await screen.findByRole('heading', { name: 'Ditt mål' })
+}
+
 it('visar introduktionen när inget mål är satt och dagsvyn efter att målet sparats', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
   expect(await screen.findByRole('heading', { name: 'Välkommen till Mumsa' })).toBeInTheDocument()
+  await start(user)
 
   await user.click(screen.getByLabelText('Ange själv'))
   await user.type(screen.getByLabelText('Kalorimål per dag'), '1900')
@@ -35,10 +42,10 @@ it('visar introduktionen när inget mål är satt och dagsvyn efter att målet s
 it('räknar ut mål från profilen och sparar profilen', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await screen.findByRole('heading', { name: 'Välkommen till Mumsa' })
+  await start(user)
 
-  const start = screen.getByRole('button', { name: 'Kom igång' })
-  expect(start).toBeDisabled()
+  const submit = screen.getByRole('button', { name: 'Kom igång' })
+  expect(submit).toBeDisabled()
   await user.type(screen.getByLabelText('Vikt'), '70')
   await user.type(screen.getByLabelText('Längd'), '175')
   await user.type(screen.getByLabelText('Ålder'), '30')
@@ -48,7 +55,7 @@ it('räknar ut mål från profilen och sparar profilen', async () => {
   // 1648,75 × 1,55 ≈ 2556
   expect(screen.getByText('2 556 kcal')).toBeInTheDocument()
   expect(screen.getByText(/ingen rekommendation eller medicinsk bedömning/)).toBeInTheDocument()
-  await user.click(start)
+  await user.click(submit)
 
   expect(await screen.findByText('0 av 2 556 kcal')).toBeInTheDocument()
   expect(await getProfile(db)).toEqual({ weightKg: 70, heightCm: 175, ageYears: 30, sex: 'male', activity: 'moderate' })
@@ -57,7 +64,7 @@ it('räknar ut mål från profilen och sparar profilen', async () => {
 it('justerar det uträknade målet efter vald inriktning och takt', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await screen.findByRole('heading', { name: 'Välkommen till Mumsa' })
+  await start(user)
 
   await user.selectOptions(screen.getByLabelText('Vad vill du uppnå?'), 'lose')
   await user.click(screen.getByLabelText('Måttlig'))
@@ -88,7 +95,8 @@ it('justerar det uträknade målet efter vald inriktning och takt', async () => 
 it('upplyser om att målet ligger under basalomsättningen', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await user.selectOptions(await screen.findByLabelText('Vad vill du uppnå?'), 'lose')
+  await start(user)
+  await user.selectOptions(screen.getByLabelText('Vad vill du uppnå?'), 'lose')
   await user.click(screen.getByLabelText('Måttlig'))
   await user.type(screen.getByLabelText('Vikt'), '50')
   await user.type(screen.getByLabelText('Längd'), '160')
@@ -102,7 +110,8 @@ it('upplyser om att målet ligger under basalomsättningen', async () => {
 it('avvisar en orimlig målvikt', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await user.selectOptions(await screen.findByLabelText('Vad vill du uppnå?'), 'gain')
+  await start(user)
+  await user.selectOptions(screen.getByLabelText('Vad vill du uppnå?'), 'gain')
   await user.click(screen.getByLabelText('Ange själv'))
   await user.type(screen.getByLabelText('Kalorimål per dag'), '2500')
   await user.type(screen.getByLabelText('Målvikt (frivillig)'), '0')
@@ -114,7 +123,8 @@ it('avvisar en orimlig målvikt', async () => {
 it('kräver att makrofördelningen blir 100 %', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await user.click(await screen.findByLabelText('Ange själv'))
+  await start(user)
+  await user.click(screen.getByLabelText('Ange själv'))
   await user.type(screen.getByLabelText('Kalorimål per dag'), '2000')
   const protein = screen.getByLabelText('Protein')
   await user.clear(protein)
@@ -141,12 +151,13 @@ it('visar ett fel och behåller formuläret om målet inte går att spara', asyn
   const user = userEvent.setup()
   render(<App db={db} />)
 
-  await user.click(await screen.findByLabelText('Ange själv'))
+  await start(user)
+  await user.click(screen.getByLabelText('Ange själv'))
   await user.type(screen.getByLabelText('Kalorimål per dag'), '1900')
   await user.click(screen.getByRole('button', { name: 'Kom igång' }))
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Målet kunde inte sparas. Försök igen.')
-  expect(screen.getByRole('heading', { name: 'Välkommen till Mumsa' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Ditt mål' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Kom igång' })).toBeEnabled()
   expect(await getGoals(db)).toBeNull()
   consoleError.mockRestore()
@@ -158,13 +169,19 @@ it('låter användaren ändra målet på profilsidan', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
 
+  const goalCard = await screen.findByRole('region', { name: 'Ditt dagliga mål' })
+  expect(goalCard).toHaveTextContent('2 000 kcal')
+  expect(goalCard).toHaveTextContent('25 % · 125 g')
+  await user.click(screen.getByRole('link', { name: /Målet sätts/ }))
+
   const kcal = await screen.findByLabelText('Kalorimål per dag')
   expect(kcal).toHaveValue('2000')
   await user.clear(kcal)
   await user.type(kcal, '1800')
   await user.click(screen.getByRole('button', { name: 'Spara mål' }))
 
-  expect(await screen.findByRole('status')).toHaveTextContent('Målet är sparat.')
+  expect(await screen.findByRole('heading', { name: 'Profil' })).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: 'Ditt dagliga mål' })).toHaveTextContent('1 800 kcal')
   expect((await getGoals(db))?.kcal).toBe(1800)
 })
 
@@ -172,11 +189,30 @@ it('erbjuder att använda senaste vägningen i profilen', async () => {
   await saveGoals(db, goals)
   await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 175, ageYears: 30, sex: 'male', activity: 'light' } })
   await db.weights.put({ date: '2026-10-20', kg: 78.4, createdAt: '2026-10-20T07:00:00.000Z' })
-  window.location.hash = '#/profil'
+  window.location.hash = '#/profil/mal'
   const user = userEvent.setup()
   render(<App db={db} />)
 
   await user.click(await screen.findByRole('button', { name: 'Använd senaste vägningen (78,4 kg)' }))
   expect(screen.getByLabelText('Vikt')).toHaveValue('78,4')
   expect(screen.queryByRole('button', { name: /Använd senaste vägningen/ })).not.toBeInTheDocument()
+})
+
+it('sammanfattar mål och profil på profilsidan', async () => {
+  await saveGoals(db, { ...goals, objective: { kind: 'lose', pace: 'moderate' }, targetWeightKg: 76 })
+  await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 181, ageYears: 38, sex: 'male', activity: 'moderate' } })
+  window.location.hash = '#/profil'
+  render(<App db={db} />)
+
+  const goalRows = await screen.findByRole('region', { name: 'Ditt mål' })
+  expect(goalRows).toHaveTextContent('Räkna ut åt mig')
+  expect(goalRows).toHaveTextContent('Gå ner i vikt')
+  expect(goalRows).toHaveTextContent('0,5 kg/vecka')
+  expect(goalRows).toHaveTextContent('76 kg')
+  const about = screen.getByRole('region', { name: 'Om dig' })
+  expect(about).toHaveTextContent('Man')
+  expect(about).toHaveTextContent('38 år')
+  expect(about).toHaveTextContent('181 cm')
+  expect(about).toHaveTextContent('Måttlig')
+  expect(screen.getByRole('link', { name: /Aktivitetsnivå/ })).toHaveAttribute('href', '#/profil/mal')
 })

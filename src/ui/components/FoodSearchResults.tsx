@@ -28,5 +28,10 @@ export function FoodSearchResults({ query, results, recent, onSelect }: Props) {
   if (results.length === 0) {
     return <p className="hint">Inga träffar på ”{trimmed}”. Skanna produkten eller skapa ett eget livsmedel.</p>
   }
-  return <FoodList label="Sökträffar" foods={results} onSelect={onSelect} />
+  return (
+    <section>
+      <h2 className="section-title">Sökträffar</h2>
+      <FoodList label="Sökträffar" foods={results} onSelect={onSelect} />
+    </section>
+  )
 }

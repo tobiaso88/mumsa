@@ -1,6 +1,6 @@
 import type { CustomFoodInput } from '../../data/repos/foodsRepo'
 import { FoodForm } from '../components/FoodForm'
-import { Icon } from '../components/Icon'
+import { NavBar } from '../components/NavBar'
 import { Loading } from '../components/Loading'
 import { useAction } from '../hooks/useAction'
 import { useFood } from '../hooks/useFood'
@@ -45,23 +45,26 @@ export function FoodFormScreen(props: Props) {
   const initial: FoodFormInitial = props.action === 'new' ? { barcode: props.barcode } : (source ?? {})
   const busy = saving.pending || deleting.pending
 
+  const cancelHref = toHash({ name: 'add', date, meal })
   return (
-    <main className="screen stack">
-      <header className="large-title">
-        <div className="large-title-text">
-          <h1>{TITLES[action]}</h1>
-          {action === 'copy' && source && (
-            <p className="hint">Sparas som ett eget livsmedel. Originalet ändras inte.</p>
-          )}
-        </div>
-        <a className="round-button" href={toHash({ name: 'add', date, meal })} aria-label="Avbryt">
-          <Icon name="close" size={22} strokeWidth={2.2} />
-        </a>
-      </header>
+    <main className="screen modal-screen stack">
       {notFound ? (
-        <p className="error">Livsmedlet finns inte.</p>
+        <>
+          <NavBar
+            title={TITLES[action]}
+            leading={
+              <a className="nav-bar-button" href={cancelHref}>
+                Avbryt
+              </a>
+            }
+          />
+          <p className="error">Livsmedlet finns inte.</p>
+        </>
       ) : (
         <FoodForm
+          title={TITLES[action]}
+          cancelHref={cancelHref}
+          note={action === 'copy' && source ? 'Sparas som ett eget livsmedel. Originalet ändras inte.' : undefined}
           initial={initial}
           submitLabel={action === 'edit' ? 'Spara ändringar' : 'Spara livsmedel'}
           onSubmit={(input) => void saving.run(input)}

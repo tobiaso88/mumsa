@@ -42,6 +42,8 @@ test('skärmdumpar till README @skärmdump', async ({ page }) => {
 
 test('skärmdump av introduktionen @skärmdump', async ({ page }) => {
   await page.goto('/')
+  await page.screenshot({ path: `${OUT}/valkommen.png` })
+  await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByLabel('Vikt').fill('68')
   await page.getByLabel('Längd').fill('170')
   await page.getByLabel('Ålder').fill('36')

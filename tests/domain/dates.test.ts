@@ -1,4 +1,4 @@
-import { addDays, daysBetween, isIsoDate, isoWeekNumber, parseIsoDate, startOfWeek, toIsoDate, weekDates } from '../../src/domain/dates'
+import { addDays, daysBetween, isIsoDate, isoWeekNumber, monthStarts, parseIsoDate, startOfWeek, toIsoDate, weekDates } from '../../src/domain/dates'
 
 describe('toIsoDate', () => {
   it('formaterar lokalt datum med nollutfyllnad', () => {
@@ -82,5 +82,17 @@ describe('daysBetween', () => {
   it('påverkas inte av sommartid', () => {
     expect(daysBetween('2026-03-28', '2026-03-30')).toBe(2)
     expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2)
+  })
+})
+
+describe('monthStarts', () => {
+  it('ger månadernas första dag efter from till och med to', () => {
+    expect(monthStarts('2026-08-11', '2026-11-09')).toEqual(['2026-09-01', '2026-10-01', '2026-11-01'])
+  })
+  it('tar med to om det är en månads första dag och fungerar över årsskiftet', () => {
+    expect(monthStarts('2026-12-15', '2027-02-01')).toEqual(['2027-01-01', '2027-02-01'])
+  })
+  it('ger en tom lista inom samma månad', () => {
+    expect(monthStarts('2026-10-01', '2026-10-31')).toEqual([])
   })
 })

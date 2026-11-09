@@ -1,20 +1,12 @@
 import { useId } from 'react'
-import { ACTIVITY_LEVELS, SEXES, type ActivityLevel, type Sex } from '../../domain/types'
+import { ACTIVITY_LEVELS, SEXES, type ActivityLevel } from '../../domain/types'
 import { formatNumber, parseNumber, toInputText } from '../format'
 import type { GoalsFormSet, GoalsFormState } from '../hooks/useGoalsForm'
+import { ACTIVITY_LABELS, SEX_LABELS } from '../labels'
 import { NumberField } from './NumberField'
 import { SegmentedControl } from './SegmentedControl'
 
-const SEX_LABELS: Record<Sex, string> = { female: 'Kvinna', male: 'Man' }
 const SEX_OPTIONS = SEXES.map((sex) => ({ value: sex, label: SEX_LABELS[sex] }))
-
-const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
-  sedentary: 'Stillasittande, lite eller ingen träning',
-  light: 'Lätt aktiv, träning 1–3 dagar i veckan',
-  moderate: 'Måttligt aktiv, träning 3–5 dagar i veckan',
-  active: 'Mycket aktiv, träning 6–7 dagar i veckan',
-  very_active: 'Extremt aktiv, fysiskt arbete och träning',
-}
 
 type Props = {
   state: GoalsFormState

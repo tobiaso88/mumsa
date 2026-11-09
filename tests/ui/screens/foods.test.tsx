@@ -58,7 +58,7 @@ it('skapar ett eget livsmedel och loggar det direkt', async () => {
 
   const dialog = await screen.findByRole('dialog', { name: 'Mormors bullar' })
   expect(within(dialog).getByLabelText('Mängd')).toHaveValue('40')
-  await user.click(within(dialog).getByRole('button', { name: 'Lägg till' }))
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i lunch' }))
 
   await screen.findByRole('heading', { name: /20 oktober/ })
   expect(await getEntriesForDate(db, date)).toMatchObject([{ foodName: 'Mormors bullar', grams: 40, meal: 'lunch' }])
@@ -142,7 +142,7 @@ describe('skanning', () => {
     await user.click(screen.getByRole('button', { name: 'Sök' }))
 
     await user.click(await screen.findByRole('link', { name: 'Skapa eget livsmedel' }))
-    expect(await screen.findByLabelText('Streckkod (valfritt)')).toHaveValue('7310000000001')
+    expect(await screen.findByLabelText('Streckkod')).toHaveValue('7310000000001')
   })
 
   it('visar fel och låter användaren försöka igen när nätverket fallerar', async () => {

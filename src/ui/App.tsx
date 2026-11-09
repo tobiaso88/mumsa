@@ -4,17 +4,21 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { Loading } from './components/Loading'
 import { DbProvider } from './DbProvider'
 import { useGoals } from './hooks/useSettings'
-import { toHash, useRoute } from './router'
+import { toHash, useRoute, type Route } from './router'
 import { DayScreen } from './screens/DayScreen'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { AddFoodScreen } from './screens/AddFoodScreen'
 import { FoodFormScreen } from './screens/FoodFormScreen'
+import { GoalsScreen } from './screens/GoalsScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ScanScreen } from './screens/ScanScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { WeekScreen } from './screens/WeekScreen'
 import { WeightScreen } from './screens/WeightScreen'
 import { TodayProvider } from './TodayProvider'
+
+/** Skärmar som visas modalt, utan flikraden, som i en inbyggd app. */
+const MODAL_ROUTES: ReadonlySet<Route['name']> = new Set(['add', 'scan', 'food', 'goals'])
 
 function Shell() {
   const goals = useGoals()
@@ -37,7 +41,8 @@ function Shell() {
           {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
           {route.name === 'weight' && <WeightScreen goals={goals} />}
           {route.name === 'profile' && <ProfileScreen goals={goals} />}
-          <BottomNav route={route} />
+          {route.name === 'goals' && <GoalsScreen goals={goals} />}
+          {!MODAL_ROUTES.has(route.name) && <BottomNav route={route} />}
         </>
       )}
     </>

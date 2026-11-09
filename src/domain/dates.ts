@@ -58,3 +58,15 @@ export function isoWeekNumber(value: IsoDate): number {
   const days = Math.round((thursday.getTime() - firstThursday.getTime()) / 86_400_000)
   return 1 + Math.round(days / 7)
 }
+
+/** Den första dagen i varje månad som börjar efter from och senast to, t.ex. för etiketter i ett diagram. */
+export function monthStarts(from: IsoDate, to: IsoDate): IsoDate[] {
+  const start = parseIsoDate(from)
+  const result: IsoDate[] = []
+  const cursor = new Date(start.getFullYear(), start.getMonth() + 1, 1)
+  while (toIsoDate(cursor) <= to) {
+    result.push(toIsoDate(cursor))
+    cursor.setMonth(cursor.getMonth() + 1)
+  }
+  return result
+}

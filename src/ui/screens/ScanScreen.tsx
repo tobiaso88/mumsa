@@ -3,13 +3,8 @@ import { isValidBarcode, normalizeBarcode } from '../../domain/foods/barcode'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import { Icon } from '../components/Icon'
+import { ScanStatus, type ScanPhase } from '../components/ScanStatus'
 import { navigate, toHash, type AddContext } from '../router'
-
-type Phase =
-  | { kind: 'scanning' }
-  | { kind: 'looking'; code: string }
-  | { kind: 'notFound'; code: string }
-  | { kind: 'failed'; code: string; message: string }
 
 const ERROR_TEXTS = {
   offline: 'Du är offline. Nya produkter kan bara hämtas med internet.',
@@ -19,7 +14,7 @@ const ERROR_TEXTS = {
 export function ScanScreen({ date, meal }: AddContext) {
   const lookupBarcode = useBarcodeLookup()
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [phase, setPhase] = useState<Phase>({ kind: 'scanning' })
+  const [phase, setPhase] = useState<ScanPhase>({ kind: 'scanning' })
   const [manual, setManual] = useState('')
   const manualId = useId()
   const busy = useRef(false)
@@ -54,60 +49,46 @@ export function ScanScreen({ date, meal }: AddContext) {
   }
 
   return (
-    <main className="screen stack">
-      <header className="large-title">
-        <h1>Skanna streckkod</h1>
-        <a className="round-button" href={toHash({ name: 'add', date, meal })} aria-label="Tillbaka">
+    <main className="scan-screen">
+      <div className="scan-camera">
+        {phase.kind === 'scanning' && (
+          <>
+            <video ref={videoRef} muted playsInline aria-label="Kamerabild" hidden={!!cameraError} />
+            {!cameraError && <span className="viewfinder" aria-hidden="true" />}
+            <p className={cameraError ? 'scan-hint scan-error' : 'scan-hint'}>{cameraError ?? 'Håll streckkoden inom ramen'}</p>
+          </>
+        )}
+      </div>
+      <header className="scan-header">
+        <a className="round-button dark" href={toHash({ name: 'add', date, meal })} aria-label="Tillbaka">
           <Icon name="close" size={22} strokeWidth={2.2} />
         </a>
+        <h1>Skanna streckkod</h1>
+        <span className="scan-header-spacer" />
       </header>
-      {phase.kind === 'scanning' && (
-        <div className="scanner">
-          <video ref={videoRef} muted playsInline aria-label="Kamerabild" hidden={!!cameraError} />
-          <span className="viewfinder" aria-hidden="true" />
-          {cameraError ? <p className="error">{cameraError}</p> : <p className="hint">Håll streckkoden inom ramen.</p>}
-        </div>
-      )}
-      {phase.kind === 'looking' && <p role="status">Söker efter {phase.code} …</p>}
-      {phase.kind === 'notFound' && (
-        <div className="card">
-          <p>Produkten {phase.code} finns inte i Open Food Facts, eller saknar näringsvärden.</p>
-          <a className="button-secondary" href={toHash({ name: 'food', action: 'new', date, meal, barcode: phase.code })}>
-            Skapa eget livsmedel
-          </a>
-        </div>
-      )}
-      {phase.kind === 'failed' && (
-        <div className="card">
-          <p className="error">{phase.message}</p>
-          <button type="button" className="button-secondary" onClick={() => void lookup(phase.code)}>
-            Försök igen
-          </button>
-        </div>
-      )}
-      {phase.kind !== 'scanning' && (
-        <button type="button" className="button-secondary" onClick={() => setPhase({ kind: 'scanning' })}>
-          Skanna igen
-        </button>
-      )}
-      <form className="card" onSubmit={handleManual}>
-        <label className="label" htmlFor={manualId}>
-          Eller skriv in streckkoden
-        </label>
-        <div className="manual-barcode">
-          <input
-            id={manualId}
-            className="search-input"
-            inputMode="numeric"
-            autoComplete="off"
-            value={manual}
-            onChange={(e) => setManual(e.target.value)}
-          />
-          <button type="submit" className="button-primary">
-            Sök
-          </button>
-        </div>
-      </form>
+      <div className="scan-sheet stack">
+        <ScanStatus phase={phase} date={date} meal={meal} onRetry={(code) => void lookup(code)} onRescan={() => setPhase({ kind: 'scanning' })} />
+        <form onSubmit={handleManual}>
+          <label className="scan-label" htmlFor={manualId}>
+            Eller skriv in streckkoden
+          </label>
+          <div className="manual-barcode">
+            <input
+              id={manualId}
+              className="search-input"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="t.ex. 7310865004703"
+              value={manual}
+              onChange={(e) => setManual(e.target.value)}
+            />
+            <button type="submit" className="button-primary">
+              Sök
+            </button>
+          </div>
+          <p className="hint">Produkter hämtas från Open Food Facts och sparas sedan på enheten.</p>
+        </form>
+      </div>
     </main>
   )
 }

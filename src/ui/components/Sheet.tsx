@@ -5,12 +5,14 @@ type Props = {
   title: string
   /** Rad under rubriken, till exempel källa och energi per 100 g. */
   subtitle?: ReactNode
+  /** Knapp uppe till höger i stället för stängknappen, t.ex. för att ändra livsmedlet. */
+  action?: ReactNode
   onClose: () => void
   children: ReactNode
 }
 
 /** Ark som glider upp från nederkanten. Stängs med Escape eller klick utanför. */
-export function Sheet({ title, subtitle, onClose, children }: Props) {
+export function Sheet({ title, subtitle, action, onClose, children }: Props) {
   const titleId = useId()
 
   useEffect(() => {
@@ -30,9 +32,11 @@ export function Sheet({ title, subtitle, onClose, children }: Props) {
             <h2 id={titleId}>{title}</h2>
             {subtitle && <p className="hint">{subtitle}</p>}
           </div>
-          <button type="button" className="round-button" aria-label="Stäng" onClick={onClose}>
-            <Icon name="close" size={20} strokeWidth={2.2} />
-          </button>
+          {action ?? (
+            <button type="button" className="round-button" aria-label="Stäng" onClick={onClose}>
+              <Icon name="close" size={20} strokeWidth={2.2} />
+            </button>
+          )}
         </header>
         {children}
       </div>

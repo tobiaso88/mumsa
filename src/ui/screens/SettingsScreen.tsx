@@ -12,7 +12,7 @@ export function SettingsScreen() {
           <Icon name="chevronLeft" size={26} strokeWidth={2.4} />
           Profil
         </a>
-        <h1>Inställningar och data</h1>
+        <h1>Inställningar</h1>
       </header>
       <StorageSection />
       <BackupSection />

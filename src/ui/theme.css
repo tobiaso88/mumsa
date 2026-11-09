@@ -11,6 +11,7 @@
   --accent: #2f7d5b;
   --accent-soft: #e3f0e8;
   --accent-track: #e6efe9;
+  --accent-mid: #5fa583;
   --accent-contrast: #ffffff;
   --protein: #c2573a;
   --carbs: #c48a1c;
@@ -44,6 +45,7 @@
     --accent: #5fbf92;
     --accent-soft: #1f3529;
     --accent-track: #26332c;
+    --accent-mid: #3e7d5f;
     --accent-contrast: #0e1310;
     --protein: #e07a5f;
     --carbs: #e6b84f;

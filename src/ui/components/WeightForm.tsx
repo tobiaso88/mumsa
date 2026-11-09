@@ -9,7 +9,7 @@ import { useToday } from '../todayContext'
 import { NumberField } from './NumberField'
 
 /** Loggar en vägning. Datumet är idag om man inte väljer ett annat. */
-export function WeightForm({ weights }: { weights: readonly WeightEntry[] }) {
+export function WeightForm({ weights, onSaved }: { weights: readonly WeightEntry[]; onSaved?: () => void }) {
   const today = useToday()
   const dateId = useId()
   const [kg, setKg] = useState('')
@@ -20,6 +20,7 @@ export function WeightForm({ weights }: { weights: readonly WeightEntry[] }) {
     await log(d, value)
     setKg('')
     setSaved(true)
+    onSaved?.()
   }, 'Vägningen kunde inte sparas. Försök igen.')
 
   const value = parseNumber(kg)
@@ -33,13 +34,15 @@ export function WeightForm({ weights }: { weights: readonly WeightEntry[] }) {
   }
 
   return (
-    <form className="card stack" aria-label="Logga vikt" onSubmit={handleSubmit} onChange={() => setSaved(false)}>
-      <div className="field-row">
-        <NumberField label="Vikt" unit="kg" value={kg} onChange={setKg} invalid={kg !== '' && !kgValid} />
-        <div className="field">
-          <label htmlFor={dateId}>Datum</label>
-          <div className="field-input">
-            <input id={dateId} type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} aria-invalid={!dateValid || undefined} />
+    <form className="stack" aria-label="Logga vikt" onSubmit={handleSubmit} onChange={() => setSaved(false)}>
+      <div className="card">
+        <div className="field-row">
+          <NumberField label="Vikt" unit="kg" value={kg} onChange={setKg} invalid={kg !== '' && !kgValid} />
+          <div className="field">
+            <label htmlFor={dateId}>Datum</label>
+            <div className="field-input">
+              <input id={dateId} type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} aria-invalid={!dateValid || undefined} />
+            </div>
           </div>
         </div>
       </div>

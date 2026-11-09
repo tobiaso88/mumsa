@@ -36,6 +36,16 @@ export function weightProgress(entries: readonly WeightEntry[], targetKg?: numbe
 }
 
 /**
+ * Hur stor del av vägen från första vägningen till målvikten som är avklarad, mellan 0 och 1.
+ * null om målvikten är samma som startvikten, eftersom det då inte finns någon väg att gå.
+ */
+export function targetProgressRatio(progress: Pick<WeightProgress, 'start' | 'latest'>, targetKg: number): number | null {
+  const total = targetKg - progress.start.kg
+  if (total === 0) return null
+  return Math.min(1, Math.max(0, (progress.latest.kg - progress.start.kg) / total))
+}
+
+/**
  * Genomsnittlig förändring i kg per vecka mellan första och sista vägningen
  * under de senaste veckorna fram till today. null om vägningarna ligger
  * mindre än en vecka isär.

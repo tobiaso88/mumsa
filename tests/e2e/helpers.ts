@@ -3,6 +3,7 @@ import { expect, type Page } from '@playwright/test'
 /** Sätter ett manuellt mål via introduktionen och väntar på dagsvyn. */
 export async function setGoal(page: Page, kcal = '2000') {
   await page.goto('/')
+  await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByText('Ange själv').click()
   await page.getByLabel('Kalorimål per dag').fill(kcal)
   await page.getByRole('button', { name: 'Kom igång' }).click()

@@ -10,6 +10,7 @@ test('manifestet beskriver en installerbar app', async ({ page, request }) => {
 
 test('appen och sökningen fungerar offline efter första besöket', async ({ page, context }) => {
   await page.goto('/')
+  await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByText('Ange själv').click()
   await page.getByLabel('Kalorimål per dag').fill('2000')
   await page.getByRole('button', { name: 'Kom igång' }).click()

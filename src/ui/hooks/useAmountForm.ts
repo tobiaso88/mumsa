@@ -45,8 +45,17 @@ export function useAmountForm(food: AmountFood, initialGrams: number, initialMea
     setUnitState(next)
   }
 
+  /** Stegknapparna: 10 g eller en halv portion åt gången, aldrig under noll. */
+  const step = (direction: 1 | -1) => {
+    const size = unit === 'portion' ? 0.5 : 10
+    const current = Number.isFinite(value) ? value : 0
+    const next = Math.max(0, Math.round((current + direction * size) / size) * size)
+    setAmount(toInputText(next))
+  }
+
   return {
     unit,
+    step,
     setUnit,
     amount,
     setAmount,

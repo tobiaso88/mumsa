@@ -31,3 +31,8 @@ export function formatShortDate(date: IsoDate): string {
 export function formatWeekdayShort(date: IsoDate): string {
   return parseIsoDate(date).toLocaleDateString('sv-SE', { weekday: 'short' }).replace('.', '')
 }
+
+/** T.ex. "okt". */
+export function formatMonthShort(date: IsoDate): string {
+  return parseIsoDate(date).toLocaleDateString('sv-SE', { month: 'short' }).replace('.', '')
+}

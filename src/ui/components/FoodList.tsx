@@ -13,7 +13,7 @@ export function FoodList({ foods, onSelect, label }: { foods: Food[]; onSelect: 
               {food.brand && <span className="entry-brand">, {food.brand}</span>}
             </span>
             <span className="entry-meta">
-              {formatNumber(food.per100g.kcal)} kcal/100 g · {SOURCE_LABELS[food.source]}
+              {SOURCE_LABELS[food.source]} · {formatNumber(food.per100g.kcal)} kcal/100 g
             </span>
           </button>
         </li>

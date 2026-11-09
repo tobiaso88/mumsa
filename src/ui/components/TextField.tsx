@@ -10,9 +10,10 @@ export type TextFieldProps = {
   /** Styr vilket tangentbord mobilen visar. */
   inputMode?: 'text' | 'numeric' | 'decimal'
   maxLength?: number
+  placeholder?: string
 }
 
-export function TextField({ label, value, onChange, unit, invalid, inputMode, maxLength }: TextFieldProps) {
+export function TextField({ label, value, onChange, unit, invalid, inputMode, maxLength, placeholder }: TextFieldProps) {
   const id = useId()
   return (
     <div className="field">
@@ -24,6 +25,7 @@ export function TextField({ label, value, onChange, unit, invalid, inputMode, ma
           inputMode={inputMode}
           autoComplete="off"
           maxLength={maxLength}
+          placeholder={placeholder}
           value={value}
           aria-invalid={invalid || undefined}
           onChange={(e) => onChange(e.target.value)}
