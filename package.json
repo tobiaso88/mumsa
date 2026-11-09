@@ -12,6 +12,7 @@
     "e2e": "playwright test",
     "lint": "eslint . && tsc -b",
     "data:livsmedel": "node scripts/build-livsmedel.ts",
+    "data:demo": "node scripts/build-demo-data.ts",
     "icons": "node scripts/build-icons.ts",
     "screenshots": "SCREENSHOTS=1 playwright test --grep @skärmdump"
   },
