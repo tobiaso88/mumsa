@@ -32,6 +32,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - Det enda nätverksanropet är uppslag av streckkoder hos Open Food Facts. Bara streckkoden skickas. Produkter som hämtats sparas lokalt och fungerar offline nästa gång.
 - Om du rensar webbplatsdata i webbläsaren försvinner loggen. Under Profil → Inställningar kan du exportera en säkerhetskopia och be webbläsaren om beständig lagring.
 - För att flytta till en ny enhet: exportera på den gamla och välj ”Importera en säkerhetskopia” på den nya.
+- Där webbläsaren stöder det finns även ”Dela eller spara i molnet”, som öppnar telefonens delningsmeny så att du kan lägga säkerhetskopian i Filer, iCloud Drive eller Google Drive. Appen skickar själv ingenting till molnet, så det är en manuell säkerhetskopia och ingen automatisk synk.
 - Exportfilen är JSON i formatversion 2, som innehåller livsmedel, loggposter, mål, profil och vägningar. Filer från version 1 går fortfarande att importera.
 
 ## Installera på mobilen

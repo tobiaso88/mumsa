@@ -1,9 +1,13 @@
 import { exportAll } from '../../data/backup/backup'
-import { downloadExport } from '../../data/backup/backupFile'
+import { canShareExport, downloadExport, shareExport, type ShareResult } from '../../data/backup/backupFile'
 import { useDb } from '../dbContext'
 
-/** Exporterar all data och sparar den som en fil på enheten. */
+/** Exporterar all data, antingen som en fil på enheten eller via systemets delningsmeny. */
 export function useExport() {
   const db = useDb()
-  return async () => downloadExport(await exportAll(db))
+  return {
+    canShare: canShareExport(),
+    download: async () => downloadExport(await exportAll(db)),
+    share: async (): Promise<ShareResult> => shareExport(await exportAll(db)),
+  }
 }

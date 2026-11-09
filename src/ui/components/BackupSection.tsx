@@ -7,15 +7,20 @@ import { ListGroup } from './ListGroup'
 
 export function BackupSection() {
   const importer = useImport()
-  const exportData = useExport()
+  const exporter = useExport()
   const [exported, setExported] = useState(false)
   const fileId = useId()
   const fileInput = useRef<HTMLInputElement>(null)
 
   const exporting = useAction(async () => {
-    await exportData()
+    await exporter.download()
     setExported(true)
   }, 'Datan kunde inte exporteras. Försök igen.')
+
+  const sharing = useAction(async () => {
+    setExported(false)
+    if ((await exporter.share()) === 'shared') setExported(true)
+  }, 'Datan kunde inte delas. Försök igen.')
 
   function closeImport() {
     void importer.chooseFile(undefined)
@@ -28,14 +33,20 @@ export function BackupSection() {
       <ListGroup
         title="Säkerhetskopia"
         rows={[
+          ...(exporter.canShare
+            ? [{ label: 'Dela eller spara i molnet', icon: 'share' as const, tint: 'var(--fat)', accent: true, onClick: () => void sharing.run(), disabled: sharing.pending }]
+            : []),
           { label: 'Exportera data', icon: 'download', tint: 'var(--fat)', accent: true, onClick: () => void exporting.run(), disabled: exporting.pending },
           { label: 'Importera från fil', icon: 'upload', tint: 'var(--fat)', accent: true, htmlFor: fileId },
         ]}
         footer={
           <>
             <p>En JSON-fil med alla livsmedel, loggposter och vägningar, till exempel för att flytta till en annan enhet.</p>
+            {exporter.canShare && (
+              <p>Med Dela kan du spara filen i Filer, iCloud Drive eller Google Drive. Appen skickar inget själv, och du läser in filen igen med Importera.</p>
+            )}
             {exported && <p className="success-text" role="status">Filen är sparad.</p>}
-            {exporting.error && <p className="error" role="alert">{exporting.error}</p>}
+            {(exporting.error ?? sharing.error) && <p className="error" role="alert">{exporting.error ?? sharing.error}</p>}
           </>
         }
       />

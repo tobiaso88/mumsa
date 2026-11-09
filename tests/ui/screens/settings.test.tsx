@@ -20,6 +20,7 @@ beforeEach(async () => {
 afterEach(async () => {
   cleanup()
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   await db.delete()
 })
 
@@ -46,6 +47,40 @@ it('exporterar all data som en JSON-fil', async () => {
   expect(click).toHaveBeenCalledOnce()
   const data = JSON.parse(await blobs[0]!.text())
   expect(data).toMatchObject({ app: 'mumsa', version: 2, goals, entries: [{ foodName: 'Havregryn', grams: 40 }] })
+})
+
+it('delar exporten via delningsmenyn när webbläsaren stöder det', async () => {
+  await addEntry(db, { date: '2026-10-20', meal: 'lunch', foodId: 'slv:702', foodName: 'Havregryn', grams: 40, per100g: makeEntry().per100g })
+  const share = vi.fn().mockResolvedValue(undefined)
+  vi.stubGlobal('navigator', Object.assign(Object.create(navigator), { share, canShare: () => true }))
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Dela eller spara i molnet' }))
+  expect(await screen.findByText('Filen är sparad.')).toBeInTheDocument()
+  const { files } = share.mock.calls[0]![0] as { files: File[] }
+  expect(files[0]!.name).toMatch(/^mumsa-backup-\d{4}-\d{2}-\d{2}\.json$/)
+  expect(JSON.parse(await files[0]!.text())).toMatchObject({ app: 'mumsa', entries: [{ foodName: 'Havregryn' }] })
+})
+
+it('visar inget fel när användaren stänger delningsmenyn', async () => {
+  vi.stubGlobal(
+    'navigator',
+    Object.assign(Object.create(navigator), { share: vi.fn().mockRejectedValue(new DOMException('', 'AbortError')), canShare: () => true }),
+  )
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Dela eller spara i molnet' }))
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Dela eller spara i molnet' })).toBeEnabled())
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  expect(screen.queryByText('Filen är sparad.')).not.toBeInTheDocument()
+})
+
+it('döljer delningsraden när webbläsaren inte kan dela filer', async () => {
+  render(<App db={db} />)
+  expect(await screen.findByRole('button', { name: 'Exportera data' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Dela eller spara i molnet' })).not.toBeInTheDocument()
 })
 
 it('slår ihop en importerad fil med befintlig data', async () => {
