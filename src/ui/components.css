@@ -1936,3 +1936,45 @@ div.card:has(> .field, > .field-row) {
 .stack > fieldset.group {
   margin-top: 28px;
 }
+
+/* ---------- Vallista med bock ---------- */
+
+.choice-list {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sheet .list-card {
+  background: var(--bg);
+}
+
+.choice-row .list-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-block: 10px;
+}
+
+.choice-hint {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.choice-check {
+  color: var(--accent);
+}
+
+.choice-row:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.group-footer p {
+  margin: 0;
+}
+
+.group-footer p + p {
+  margin-top: 4px;
+}

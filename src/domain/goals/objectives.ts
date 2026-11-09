@@ -1,5 +1,5 @@
-import { DEFAULT_SPLIT } from './goals'
-import { OBJECTIVE_KINDS, PACES, type MacroSplit, type Objective, type ObjectiveKind, type Pace } from '../types'
+import { DEFAULT_SPLIT, estimateDailyKcal } from './goals'
+import { OBJECTIVE_KINDS, PACES, type Goals, type MacroSplit, type Objective, type ObjectiveKind, type Pace, type Profile } from '../types'
 
 /** Tumregel: ungefär så mycket energi motsvarar ett kilo kroppsvikt. Hur kroppen faktiskt svarar varierar. */
 export const KCAL_PER_KG = 7700
@@ -48,4 +48,13 @@ export function isValidObjective(v: unknown): v is Objective {
   const { kind, pace } = v as Record<string, unknown>
   if (!(OBJECTIVE_KINDS as readonly unknown[]).includes(kind)) return false
   return kind === 'maintain' ? pace === undefined : (PACES as readonly unknown[]).includes(pace)
+}
+
+/**
+ * Om kalorimålet är uträknat från profilen. Ett eget kalorimål som skiljer sig från
+ * uträkningen räknas som angivet själv, även om en profil finns sparad sedan tidigare.
+ */
+export function isCalculatedGoal(goals: Pick<Goals, 'kcal' | 'objective'>, profile: Profile | null): boolean {
+  if (!profile) return false
+  return Math.round(adjustedDailyKcal(estimateDailyKcal(profile), goals.objective ?? MAINTAIN)) === goals.kcal
 }

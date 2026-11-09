@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { MumsaDb } from '../../src/data/db/db'
 import { getGoals, getProfile, saveGoals } from '../../src/data/repos/settingsRepo'
@@ -172,36 +172,86 @@ it('låter användaren ändra målet på profilsidan', async () => {
   const goalCard = await screen.findByRole('region', { name: 'Ditt dagliga mål' })
   expect(goalCard).toHaveTextContent('2 000 kcal')
   expect(goalCard).toHaveTextContent('25 % · 125 g')
-  await user.click(screen.getByRole('link', { name: /Målet sätts/ }))
+  await user.click(screen.getByRole('button', { name: /^Kalorimål/ }))
 
-  const kcal = await screen.findByLabelText('Kalorimål per dag')
+  const sheet = screen.getByRole('dialog', { name: 'Kalorimål' })
+  const kcal = within(sheet).getByLabelText('Kalorimål per dag')
   expect(kcal).toHaveValue('2000')
   await user.clear(kcal)
   await user.type(kcal, '1800')
-  await user.click(screen.getByRole('button', { name: 'Spara mål' }))
+  expect(within(sheet).getByRole('status')).toHaveTextContent('Dagligt mål blir 1 800 kcal')
+  await user.click(within(sheet).getByRole('button', { name: 'Spara' }))
 
-  expect(await screen.findByRole('heading', { name: 'Profil' })).toBeInTheDocument()
-  expect(screen.getByRole('region', { name: 'Ditt dagliga mål' })).toHaveTextContent('1 800 kcal')
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  expect(await screen.findByText('1 800')).toBeInTheDocument()
   expect((await getGoals(db))?.kcal).toBe(1800)
+})
+
+it('ändrar bara den inställning som trycks på och räknar om målet', async () => {
+  // 10 × 80 + 6,25 × 181 − 5 × 38 + 5 = 1746,25; × 1,55 − 550 ≈ 2157
+  await saveGoals(db, { ...goals, kcal: 2157, objective: { kind: 'lose', pace: 'moderate' } })
+  await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 181, ageYears: 38, sex: 'male', activity: 'moderate' } })
+  window.location.hash = '#/profil'
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: /^Ålder/ }))
+  const sheet = screen.getByRole('dialog', { name: 'Ålder' })
+  // Bara åldern visas, inte hela formuläret
+  expect(within(sheet).queryByLabelText('Längd')).not.toBeInTheDocument()
+  const age = within(sheet).getByLabelText('Ålder')
+  await user.clear(age)
+  await user.type(age, '40')
+  expect(within(sheet).getByRole('status')).toHaveTextContent('Dagligt mål blir 2 141 kcal')
+  await user.click(within(sheet).getByRole('button', { name: 'Spara' }))
+
+  await waitFor(async () => expect((await getProfile(db))?.ageYears).toBe(40))
+  expect((await getGoals(db))?.kcal).toBe(2141)
+  expect(await screen.findByRole('region', { name: 'Om dig' })).toHaveTextContent('40 år')
+})
+
+it('byter inriktning från en lista och behåller ett eget kalorimål', async () => {
+  await saveGoals(db, goals)
+  window.location.hash = '#/profil'
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: /^Vad vill du uppnå\?/ }))
+  const sheet = screen.getByRole('dialog', { name: 'Vad vill du uppnå?' })
+  await user.click(within(sheet).getByLabelText('Gå ner i vikt'))
+  await user.click(within(sheet).getByRole('button', { name: 'Spara' }))
+
+  await waitFor(async () => expect((await getGoals(db))?.objective).toEqual({ kind: 'lose', pace: 'slow' }))
+  expect((await getGoals(db))?.kcal).toBe(2000)
+  expect(await screen.findByRole('button', { name: /^Takt/ })).toBeInTheDocument()
 })
 
 it('erbjuder att använda senaste vägningen i profilen', async () => {
   await saveGoals(db, goals)
   await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 175, ageYears: 30, sex: 'male', activity: 'light' } })
   await db.weights.put({ date: '2026-10-20', kg: 78.4, createdAt: '2026-10-20T07:00:00.000Z' })
-  window.location.hash = '#/profil/mal'
+  window.location.hash = '#/profil'
   const user = userEvent.setup()
   render(<App db={db} />)
 
-  await user.click(await screen.findByRole('button', { name: 'Använd senaste vägningen (78,4 kg)' }))
-  expect(screen.getByLabelText('Vikt')).toHaveValue('78,4')
-  expect(screen.queryByRole('button', { name: /Använd senaste vägningen/ })).not.toBeInTheDocument()
+  await user.click(await screen.findByRole('button', { name: /^Vikt/ }))
+  const sheet = screen.getByRole('dialog', { name: 'Vikt' })
+  // Vägningarna läses in efter att arket har öppnats
+  await user.click(await within(sheet).findByRole('button', { name: 'Använd senaste vägningen (78,4 kg)' }))
+  expect(within(sheet).getByLabelText('Vikt')).toHaveValue('78,4')
+  expect(within(sheet).queryByRole('button', { name: /Använd senaste vägningen/ })).not.toBeInTheDocument()
+  await user.click(within(sheet).getByRole('button', { name: 'Spara' }))
+
+  // Målet är angivet själv, så bara profilen ändras
+  await waitFor(async () => expect((await getProfile(db))?.weightKg).toBe(78.4))
+  expect((await getGoals(db))?.kcal).toBe(2000)
 })
 
 it('sammanfattar mål och profil på profilsidan', async () => {
-  await saveGoals(db, { ...goals, objective: { kind: 'lose', pace: 'moderate' }, targetWeightKg: 76 })
+  await saveGoals(db, { ...goals, kcal: 2157, objective: { kind: 'lose', pace: 'moderate' }, targetWeightKg: 76 })
   await db.settings.put({ key: 'profile', value: { weightKg: 80, heightCm: 181, ageYears: 38, sex: 'male', activity: 'moderate' } })
   window.location.hash = '#/profil'
+  const user = userEvent.setup()
   render(<App db={db} />)
 
   const goalRows = await screen.findByRole('region', { name: 'Ditt mål' })
@@ -214,5 +264,6 @@ it('sammanfattar mål och profil på profilsidan', async () => {
   expect(about).toHaveTextContent('38 år')
   expect(about).toHaveTextContent('181 cm')
   expect(about).toHaveTextContent('Måttlig')
-  expect(screen.getByRole('link', { name: /Aktivitetsnivå/ })).toHaveAttribute('href', '#/profil/mal')
+  await user.click(screen.getByRole('button', { name: /^Aktivitetsnivå/ }))
+  expect(within(screen.getByRole('dialog', { name: 'Aktivitetsnivå' })).getByLabelText(/Måttligt aktiv/)).toBeChecked()
 })

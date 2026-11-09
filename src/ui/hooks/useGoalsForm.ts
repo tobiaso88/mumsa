@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { bmr, DEFAULT_SPLIT, estimateDailyKcal, isValidGoalKcal, isValidProfile, isValidSplit } from '../../domain/goals/goals'
-import { adjustedDailyKcal, dailyKcalAdjustment, makeObjective, suggestedSplit, weeklyWeightChange } from '../../domain/goals/objectives'
+import {
+  adjustedDailyKcal,
+  dailyKcalAdjustment,
+  isCalculatedGoal,
+  makeObjective,
+  suggestedSplit,
+  weeklyWeightChange,
+} from '../../domain/goals/objectives'
 import type { ActivityLevel, Goals, MacroSplit, ObjectiveKind, Pace, Profile, Sex } from '../../domain/types'
 import { isValidWeightKg } from '../../domain/weight/weight'
 import { parseNumber, toInputText } from '../format'
@@ -29,7 +36,7 @@ function initialState(goals: Goals | null, profile: Profile | null): GoalsFormSt
   const split = goals?.split ?? DEFAULT_SPLIT
   const objective = goals?.objective
   return {
-    mode: goals && !profile ? 'manual' : 'calculated',
+    mode: goals && !isCalculatedGoal(goals, profile) ? 'manual' : 'calculated',
     kcal: toInputText(goals?.kcal),
     protein: toInputText(split.proteinPct),
     carbs: toInputText(split.carbsPct),
@@ -126,3 +133,5 @@ export function useGoalsForm(goals: Goals | null, profile: Profile | null) {
 
   return { state, set, setObjective, split, splitValid, kcal, kcalValid, estimate, targetWeightValid, parsedProfile, result }
 }
+
+export type GoalsFormApi = ReturnType<typeof useGoalsForm>

@@ -9,7 +9,6 @@ import { DayScreen } from './screens/DayScreen'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { AddFoodScreen } from './screens/AddFoodScreen'
 import { FoodFormScreen } from './screens/FoodFormScreen'
-import { GoalsScreen } from './screens/GoalsScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ScanScreen } from './screens/ScanScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
@@ -18,7 +17,7 @@ import { WeightScreen } from './screens/WeightScreen'
 import { TodayProvider } from './TodayProvider'
 
 /** Skärmar som visas modalt, utan flikraden, som i en inbyggd app. */
-const MODAL_ROUTES: ReadonlySet<Route['name']> = new Set(['add', 'scan', 'food', 'goals'])
+const MODAL_ROUTES: ReadonlySet<Route['name']> = new Set(['add', 'scan', 'food'])
 
 function Shell() {
   const goals = useGoals()
@@ -41,7 +40,6 @@ function Shell() {
           {route.name === 'week' && <WeekScreen date={route.date} goals={goals} />}
           {route.name === 'weight' && <WeightScreen goals={goals} />}
           {route.name === 'profile' && <ProfileScreen goals={goals} />}
-          {route.name === 'goals' && <GoalsScreen goals={goals} />}
           {!MODAL_ROUTES.has(route.name) && <BottomNav route={route} />}
         </>
       )}

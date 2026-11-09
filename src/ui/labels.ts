@@ -54,3 +54,31 @@ export const ACTIVITY_SHORT_LABELS: Record<ActivityLevel, string> = {
   active: 'Mycket aktiv',
   very_active: 'Extremt aktiv',
 }
+
+/** Inställningarna som går att ändra var för sig från profilen. */
+export type ProfileField =
+  | 'mode'
+  | 'kcal'
+  | 'objective'
+  | 'pace'
+  | 'targetWeight'
+  | 'split'
+  | 'sex'
+  | 'age'
+  | 'height'
+  | 'weight'
+  | 'activity'
+
+export const PROFILE_FIELD_TITLES: Record<ProfileField, string> = {
+  mode: 'Målet sätts',
+  kcal: 'Kalorimål',
+  objective: 'Vad vill du uppnå?',
+  pace: 'Takt',
+  targetWeight: 'Målvikt',
+  split: 'Fördelning',
+  sex: 'Kön',
+  age: 'Ålder',
+  height: 'Längd',
+  weight: 'Vikt',
+  activity: 'Aktivitetsnivå',
+}

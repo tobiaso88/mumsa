@@ -2,6 +2,7 @@ import { DEFAULT_SPLIT, isValidSplit } from '../../../src/domain/goals/goals'
 import {
   adjustedDailyKcal,
   dailyKcalAdjustment,
+  isCalculatedGoal,
   isValidObjective,
   makeObjective,
   MAINTAIN,
@@ -69,4 +70,20 @@ describe('isValidObjective', () => {
       expect(isValidObjective(v)).toBe(false)
     },
   )
+})
+
+describe('isCalculatedGoal', () => {
+  const profile = { weightKg: 70, heightCm: 175, ageYears: 30, sex: 'male', activity: 'moderate' } as const
+
+  it('känner igen ett mål som är uträknat från profilen', () => {
+    // 1648,75 × 1,55 ≈ 2556
+    expect(isCalculatedGoal({ kcal: 2556 }, profile)).toBe(true)
+    expect(isCalculatedGoal({ kcal: 2006, objective: { kind: 'lose', pace: 'moderate' } }, profile)).toBe(true)
+  })
+  it('räknar ett eget kalorimål som angivet själv', () => {
+    expect(isCalculatedGoal({ kcal: 2000 }, profile)).toBe(false)
+  })
+  it('kräver en profil', () => {
+    expect(isCalculatedGoal({ kcal: 2556 }, null)).toBe(false)
+  })
 })

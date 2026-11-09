@@ -27,6 +27,7 @@ const PATHS = {
   info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h0',
   flash: 'M13 3L5 14h6l-1 7 8-11h-6z',
   trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13',
+  check: 'M5 12.5l4.5 4.5L19 7',
 } as const
 
 export type IconName = keyof typeof PATHS
