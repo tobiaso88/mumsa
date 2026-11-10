@@ -1,4 +1,5 @@
-import { useEffect, useId, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import { Icon } from './Icon'
 
 type Props = {
@@ -11,9 +12,11 @@ type Props = {
   children: ReactNode
 }
 
-/** Ark som glider upp från nederkanten. Stängs med Escape eller klick utanför. */
+/** Ark som glider upp från nederkanten. Stängs med Escape, klick utanför eller genom att dra ner det. */
 export function Sheet({ title, subtitle, action, onClose, children }: Props) {
   const titleId = useId()
+  const sheetRef = useRef<HTMLDivElement>(null)
+  useSwipeToClose(sheetRef, onClose)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -25,7 +28,7 @@ export function Sheet({ title, subtitle, action, onClose, children }: Props) {
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
+      <div ref={sheetRef} className="sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
         <div className="sheet-grabber" aria-hidden="true" />
         <header className="sheet-header">
           <div className="sheet-title">

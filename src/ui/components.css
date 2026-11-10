@@ -935,6 +935,7 @@ button.meal-add {
   max-width: 560px;
   max-height: 90dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--surface);
   border-radius: 16px 16px 0 0;
   padding: 8px 20px calc(20px + env(safe-area-inset-bottom));

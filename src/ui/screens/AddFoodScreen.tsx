@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
 import { FavoriteButton } from '../components/FavoriteButton'
@@ -15,6 +15,7 @@ import { useFavoriteFoods } from '../hooks/useFavorites'
 import { useFood } from '../hooks/useFood'
 import { useFoodSearch, useRecentFoods } from '../hooks/useFoodSearch'
 import { useRecipeFoods } from '../hooks/useRecipes'
+import { useSwipeToClose } from '../hooks/useSwipeToClose'
 import { entryName, MEAL_LABELS, SOURCE_LABELS } from '../labels'
 import { navigate, toHash, type AddContext } from '../router'
 
@@ -52,6 +53,9 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
   const favorites = useFavoriteFoods()
   const recipes = useRecipeFoods()
   const entries = useEntryActions()
+  const screenRef = useRef<HTMLElement>(null)
+  const close = useCallback(() => navigate({ name: 'day', date }), [date])
+  useSwipeToClose(screenRef, close, { page: true })
 
   // Öppna mängdpanelen direkt när vi kommer från skanning eller formuläret
   const selected = choice === undefined ? (preselected ?? null) : choice
@@ -72,7 +76,7 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
 
   return (
     <div className="presented-backdrop">
-      <main className="screen presented stack">
+      <main ref={screenRef} className="screen presented stack">
         <div className="sheet-grabber" aria-hidden="true" />
         <NavBar
           title={`Lägg till i ${MEAL_LABELS[meal].toLocaleLowerCase('sv')}`}
