@@ -1,15 +1,18 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { useUpdateChecks } from '../hooks/useUpdateChecks'
 
 const OFFLINE_NOTICE_MS = 5000
 
 /** Visar en rad när en ny version av appen finns, eller när appen är redo att användas offline. */
 export function UpdatePrompt() {
+  const [registration, setRegistration] = useState<ServiceWorkerRegistration>()
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
-  } = useRegisterSW()
+  } = useRegisterSW({ onRegisteredSW: (_url, reg) => setRegistration(reg) })
+  useUpdateChecks(registration)
 
   useEffect(() => {
     if (!offlineReady) return
