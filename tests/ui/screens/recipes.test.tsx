@@ -213,6 +213,31 @@ describe('receptlistan', () => {
     expect(await getEntriesForDate(db, date)).toEqual([])
   })
 
+  it('sparar ändringar och loggar receptet i dagens måltid', async () => {
+    const recipe = await createRecipe(db, recipeInput)
+    window.location.hash = `#/recept/andra/${encodeURIComponent(recipe.id)}`
+    const user = userEvent.setup()
+    render(<App db={db} />)
+
+    await fill(user, 'Antal portioner', '4')
+    await user.click(screen.getByRole('button', { name: 'Logga i dagboken' }))
+
+    // Mängdpanelen öppnas för idag med den ändrade portionen förvald
+    const dialog = await screen.findByRole('dialog', { name: 'Havregrynsgröt' })
+    expect(within(dialog).getByText('Motsvarar 100 g.')).toBeInTheDocument()
+    expect(window.location.hash).toMatch(/^#\/lagg-till\/\d{4}-\d{2}-\d{2}\/[a-z]+\/recipe/)
+    expect(await listRecipes(db)).toMatchObject([{ id: recipe.id, servings: 4 }])
+  })
+
+  it('visar inte loggknappen när receptet öppnats från lägg till-flödet', async () => {
+    const recipe = await createRecipe(db, recipeInput)
+    window.location.hash = `#/recept/andra/${date}/lunch/${encodeURIComponent(recipe.id)}`
+    render(<App db={db} />)
+
+    await screen.findByRole('button', { name: 'Spara ändringar' })
+    expect(screen.queryByRole('button', { name: 'Logga i dagboken' })).not.toBeInTheDocument()
+  })
+
   it('skapar ett nytt recept från listan och avbryter tillbaka till den', async () => {
     window.location.hash = '#/recept'
     const user = userEvent.setup()

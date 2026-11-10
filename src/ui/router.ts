@@ -46,7 +46,8 @@ function fromSlug<T extends string>(slugs: Record<T, string>, slug: string | und
   return (Object.keys(slugs) as T[]).find((key) => slugs[key] === slug)
 }
 
-function addContextNow(now: Date): AddContext {
+/** Idag och den måltid som passar tiden på dygnet. */
+export function addContextNow(now: Date): AddContext {
   return { date: toIsoDate(now), meal: defaultMealForHour(now.getHours()) }
 }
 

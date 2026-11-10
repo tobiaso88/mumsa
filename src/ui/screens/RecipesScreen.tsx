@@ -17,7 +17,7 @@ function recipeRow(recipe: Recipe): ListRow {
   }
 }
 
-/** Alla egna recept. Ett recept öppnas för att ändras eller tas bort, utan att något loggas. */
+/** Alla egna recept. Ett recept öppnas för att ändras, loggas eller tas bort. */
 export function RecipesScreen() {
   const recipes = useRecipeList()
   if (!recipes) return <Loading />
@@ -42,7 +42,7 @@ export function RecipesScreen() {
         <ListGroup
           label="Mina recept"
           rows={recipes.map(recipeRow)}
-          footer="Näring per portion. Logga ett recept från Lägg till i dagboken."
+          footer="Näring per portion. Öppna ett recept för att ändra eller logga det."
         />
       )}
     </main>

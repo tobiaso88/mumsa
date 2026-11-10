@@ -5,7 +5,7 @@ import { RecipeForm } from '../components/RecipeForm'
 import { useAction } from '../hooks/useAction'
 import { useRecipeActions } from '../hooks/useRecipeActions'
 import { useRecipe } from '../hooks/useRecipes'
-import { navigate, toHash, type AddContext, type RecipeFormTarget } from '../router'
+import { addContextNow, navigate, toHash, type AddContext, type RecipeFormTarget } from '../router'
 
 type Props = { context?: AddContext } & RecipeFormTarget
 
@@ -18,9 +18,16 @@ export function RecipeFormScreen(props: Props) {
   // Tillbaka till lägg till-flödet om formuläret öppnades därifrån, annars till receptlistan
   const backTo = (id?: string) => navigate(context ? { name: 'add', ...context, foodId: id } : { name: 'recipes' })
 
+  const save = (input: RecipeInput) => (recipeId ? recipes.update(recipeId, input) : recipes.create(input))
+
   const saving = useAction(async (input: RecipeInput) => {
-    const saved = recipeId ? await recipes.update(recipeId, input) : await recipes.create(input)
-    backTo(saved.id)
+    backTo((await save(input)).id)
+  }, 'Receptet kunde inte sparas. Försök igen.')
+
+  // Från receptlistan: spara eventuella ändringar och öppna mängdpanelen för dagens måltid
+  const logging = useAction(async (input: RecipeInput) => {
+    const saved = await save(input)
+    navigate({ name: 'add', ...addContextNow(new Date()), foodId: saved.id })
   }, 'Receptet kunde inte sparas. Försök igen.')
 
   const deleting = useAction(async (id: string) => {
@@ -53,7 +60,7 @@ export function RecipeFormScreen(props: Props) {
     )
   }
 
-  const busy = saving.pending || deleting.pending
+  const busy = saving.pending || logging.pending || deleting.pending
   return (
     <main className="screen modal-screen stack">
       <RecipeForm
@@ -63,7 +70,10 @@ export function RecipeFormScreen(props: Props) {
         submitLabel={action === 'edit' ? 'Spara ändringar' : 'Spara recept'}
         onSubmit={(input) => void saving.run(input)}
         busy={busy}
-        error={saving.error ?? deleting.error}
+        error={saving.error ?? logging.error ?? deleting.error}
+        secondarySubmit={
+          action === 'edit' && !context ? { label: 'Logga i dagboken', onSubmit: (input) => void logging.run(input) } : undefined
+        }
         extraActions={
           action === 'edit' && (
             <button type="button" className="button-danger" onClick={handleDelete} disabled={busy}>

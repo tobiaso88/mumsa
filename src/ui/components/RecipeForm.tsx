@@ -18,13 +18,25 @@ type Props = {
   initial?: Recipe
   submitLabel: string
   onSubmit: (input: RecipeInput) => void
+  /** En knapp under formuläret som också sparar, till exempel för att spara och logga. */
+  secondarySubmit?: { label: string; onSubmit: (input: RecipeInput) => void }
   extraActions?: ReactNode
   /** Sant medan formuläret sparas. Stänger av knappen så att inget sparas två gånger. */
   busy?: boolean
   error?: string | null
 }
 
-export function RecipeForm({ title, cancelHref, initial, submitLabel, onSubmit, extraActions, busy, error }: Props) {
+export function RecipeForm({
+  title,
+  cancelHref,
+  initial,
+  submitLabel,
+  onSubmit,
+  secondarySubmit,
+  extraActions,
+  busy,
+  error,
+}: Props) {
   const form = useRecipeForm(initial)
   const [picking, setPicking] = useState(false)
 
@@ -98,6 +110,16 @@ export function RecipeForm({ title, cancelHref, initial, submitLabel, onSubmit, 
           <p className="error" role="alert">
             {error}
           </p>
+        )}
+        {secondarySubmit && (
+          <button
+            type="button"
+            className="button-secondary"
+            onClick={() => form.input && secondarySubmit.onSubmit(form.input)}
+            disabled={!form.input || busy}
+          >
+            {secondarySubmit.label}
+          </button>
         )}
         {extraActions}
       </form>
