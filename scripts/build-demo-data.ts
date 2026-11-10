@@ -4,13 +4,17 @@
  *
  *   npm run data:demo
  *   npm run data:demo -- --years 10 --end 2026-12-31 --seed 7 --out demo/stor.json
+ *   npm run data:demo -- --end 2026-11-11 --morning
+ *
+ * Med --morning är sista dagen påbörjad: bara frukosten är loggad, så att
+ * resten av dagen kan loggas under en demo.
  *
  * Personen och allt den äter är påhittat. Vikten följer en enkel
  * energibalans: loggat intag plus det som glöms bort, mot en förbrukning som
  * sjunker när vikten går ner. Resultatet blir platåer, semesteruppehåll,
  * fredagsmys och högtider i stället för en jämn kurva.
  *
- * Utdata följer exportformatet i src/domain/backup/exportFormat.ts (version 2).
+ * Utdata följer exportformatet i src/domain/backup/exportFormat.ts (version 4).
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
@@ -21,6 +25,7 @@ import {
   EXTRA_FOODS,
   FEASTS,
   LUNCHES,
+  RECIPES,
   SNACKS,
   TREATS,
   type DayContext,
@@ -30,7 +35,7 @@ import {
   type Template,
 } from './demo/catalog.ts'
 
-const EXPORT_VERSION = 2
+const EXPORT_VERSION = 4
 const KCAL_PER_KG = 7700
 type Meal = 'breakfast' | 'lunch' | 'dinner' | 'snack'
 /** Ungefärliga klockslag i minuter efter midnatt. Mellanmål kan vara förmiddag, eftermiddag eller kväll. */
@@ -144,6 +149,14 @@ function vacationDays(years: number[]): Set<string> {
 type FoodRef = { id: string; name: string; per100g: Nutrients; since: number }
 type SlvRow = [number, string, number, number, number, number]
 
+/** Samma räkning som recipeToFood i appen: ingrediensernas näring delad på deras sammanlagda vikt. */
+function recipePer100g(ingredients: readonly { grams: number; per100g: Nutrients }[]): Nutrients {
+  const total = ingredients.reduce((sum, i) => sum + i.grams, 0)
+  const per100g = (pick: (n: Nutrients) => number) =>
+    (ingredients.reduce((sum, i) => sum + (pick(i.per100g) * i.grams) / 100, 0) * 100) / total
+  return { kcal: per100g((n) => n.kcal), protein: per100g((n) => n.protein), carbs: per100g((n) => n.carbs), fat: per100g((n) => n.fat) }
+}
+
 async function loadFoods(rnd: Random, start: number) {
   const json = JSON.parse(
     await readFile(new URL('../src/data/sources/livsmedelsverket.json', import.meta.url), 'utf8'),
@@ -157,12 +170,22 @@ async function loadFoods(rnd: Random, start: number) {
     refs.set(key, { id, name: food.name, per100g: food.per100g, since })
     return { id, ...food, updatedAt: new Date(start + since * DAY_MS + 19 * 3_600_000).toISOString() }
   })
+  const recipes = RECIPES.map(({ key, name, servings, since, ingredients: parts }) => {
+    const ingredients = parts.map(({ food, grams }) => {
+      const ref = refs.get(food)
+      if (!ref) throw new Error(`Receptet ${name} använder ett livsmedel som saknas: ${food}`)
+      return { foodId: ref.id, foodName: ref.name, grams, per100g: ref.per100g }
+    })
+    const id = `recipe:${rnd.uuid()}`
+    refs.set(key, { id, name, per100g: recipePer100g(ingredients), since })
+    return { id, name, servings, ingredients, updatedAt: new Date(start + since * DAY_MS + 19 * 3_600_000).toISOString() }
+  })
   const all = [BREAKFASTS, LUNCHES, DINNERS, SNACKS, TREATS].flat().flatMap((t) => t.items)
   const missing = [...all, ...Object.values(FEASTS).flatMap((f) => Object.values(f).flat())]
     .map((portion) => portion.food)
     .filter((food) => !refs.has(food))
   if (missing.length > 0) throw new Error(`Saknade livsmedel i katalogen: ${[...new Set(missing)].join(', ')}`)
-  return { refs, foods }
+  return { refs, foods, recipes }
 }
 
 // --- Dagboken -----------------------------------------------------------
@@ -233,7 +256,7 @@ function dayFactor(rnd: Random, ctx: DayContext) {
   return byWeekday * rnd.normal(1, ctx.phase === 'lose' ? 0.07 : 0.1) * (ctx.phase === 'maintain' ? 1.03 : 1)
 }
 
-function simulate(rnd: Random, start: number, days: number, refs: Map<number | string, FoodRef>) {
+function simulate(rnd: Random, start: number, days: number, refs: Map<number | string, FoodRef>, morning: boolean) {
   const startYear = new Date(start).getUTCFullYear()
   const years = Array.from({ length: Math.ceil(days / 365) + 1 }, (_, i) => startYear + i)
   const feasts = feastDays(years)
@@ -263,14 +286,20 @@ function simulate(rnd: Random, start: number, days: number, refs: Map<number | s
     if (slump === 0 && phase.objective.kind === 'maintain' && rnd.chance(0.012)) slump = rnd.int(7, 20)
     const rate = vacation.has(date) ? 0 : slump > 0 ? 0.3 : holiday ? 0.75 : phase.logRate - Math.min(0.12, (day - phase.from) * 0.00015)
     if (slump > 0) slump--
-    const logged = rnd.chance(rate)
+    // Med --morning är sista dagen påbörjad och har bara frukosten loggad
+    const started = morning && day === days - 1
+    const logged = rnd.chance(rate) || started
 
     let intake = burn * rnd.normal(vacation.has(date) ? 1.18 : 1.08, 0.12)
     if (logged) {
       const planned = planDay(rnd, ctx, day, feast, refs)
       const forgotDinner = !feast && rnd.chance(0.04)
-      const kept = forgotDinner ? planned.filter((pl) => pl.meal === 'breakfast' || pl.meal === 'lunch') : planned
-      const grams = portionGrams(rnd, kept, feast ? null : goalKcal * dayFactor(rnd, ctx), refs)
+      const kept = started
+        ? planned.filter((pl) => pl.meal === 'breakfast')
+        : forgotDinner
+          ? planned.filter((pl) => pl.meal === 'breakfast' || pl.meal === 'lunch')
+          : planned
+      const grams = portionGrams(rnd, kept, feast || started ? null : goalKcal * dayFactor(rnd, ctx), refs)
       let loggedKcal = 0
       kept.forEach((pl, i) => {
         const food = refs.get(pl.portion.food)!
@@ -312,6 +341,7 @@ async function main() {
       end: { type: 'string', default: toIso(Date.now()) },
       seed: { type: 'string', default: '1' },
       out: { type: 'string', default: 'demo/mumsa-demo.json' },
+      morning: { type: 'boolean', default: false },
     },
   })
   const years = Number(values.years)
@@ -321,20 +351,22 @@ async function main() {
   const start = end - (days - 1) * DAY_MS
   const rnd = makeRandom(Number(values.seed))
 
-  const { refs, foods } = await loadFoods(rnd, start)
-  const { entries, weights, goalKcal, objective } = simulate(rnd, start, days, refs)
+  const { refs, foods, recipes } = await loadFoods(rnd, start)
+  const { entries, weights, goalKcal, objective } = simulate(rnd, start, days, refs, values.morning)
   const latestKg = weights[weights.length - 1]?.kg ?? PERSON.startKg
   const split = objective.kind === 'lose' ? { proteinPct: 30, carbsPct: 40, fatPct: 30 } : { proteinPct: 25, carbsPct: 45, fatPct: 30 }
 
   const data = {
     app: 'mumsa',
     version: EXPORT_VERSION,
-    exportedAt: new Date(end + 20 * 3_600_000).toISOString(),
+    exportedAt: new Date(end + (values.morning ? 9 : 20) * 3_600_000).toISOString(),
     foods,
     entries,
     goals: { kcal: goalKcal, split, objective, targetWeightKg: TARGET_KG },
     profile: { weightKg: latestKg, heightCm: PERSON.heightCm, ageYears: PERSON.ageAtEnd, sex: PERSON.sex, activity: PERSON.activity },
     weights,
+    recipes,
+    favorites: [],
   }
   await mkdir(dirname(values.out), { recursive: true })
   const text = JSON.stringify(data)
@@ -343,7 +375,7 @@ async function main() {
   const loggedDays = new Set(entries.map((e) => e.date)).size
   console.log(
     `${values.out}: ${toIso(start)} – ${values.end}, ${loggedDays} av ${days} dagar loggade, ` +
-      `${entries.length} loggposter, ${weights.length} vägningar, ` +
+      `${entries.length} loggposter, ${recipes.length} recept, ${weights.length} vägningar, ` +
       `${PERSON.startKg} → ${latestKg} kg, ${(text.length / 1024 / 1024).toFixed(1)} MB`,
   )
 }

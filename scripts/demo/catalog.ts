@@ -20,9 +20,18 @@ export type ExtraFood = {
   since: number
 }
 
+/** Ett eget recept av basvaror. since är dagen i dagboken då det skapades. */
+export type DemoRecipe = {
+  key: string
+  name: string
+  servings: number
+  since: number
+  ingredients: { food: number; grams: number }[]
+}
+
 /**
  * En del av en måltid. food är ett SLV-nummer eller nyckeln till ett extra
- * livsmedel. fixed betyder att mängden inte skalas efter dagens mål, till
+ * livsmedel eller ett recept. fixed betyder att mängden inte skalas efter dagens mål, till
  * exempel ett ägg eller en kopp kaffe. p är sannolikheten att delen är med.
  */
 export type Portion = { food: number | string; grams: number; step?: number; fixed?: boolean; p?: number }
@@ -147,6 +156,84 @@ export const EXTRA_FOODS: ExtraFood[] = [
   },
 ]
 
+export const RECIPES: DemoRecipe[] = [
+  {
+    key: 'kottfarssas',
+    name: 'Köttfärssås',
+    servings: 4,
+    since: 540,
+    ingredients: [
+      { food: 951, grams: 500 },
+      { food: 422, grams: 800 },
+      { food: 344, grams: 150 },
+      { food: 289, grams: 150 },
+      { food: 410, grams: 30 },
+      { food: 4659, grams: 20 },
+      { food: 371, grams: 10 },
+    ],
+  },
+  {
+    key: 'kycklinggryta',
+    name: 'Krämig kycklinggryta',
+    servings: 4,
+    since: 585,
+    ingredients: [
+      { food: 1173, grams: 600 },
+      { food: 1717, grams: 250 },
+      { food: 351, grams: 200 },
+      { food: 344, grams: 120 },
+      { food: 410, grams: 30 },
+      { food: 2189, grams: 20 },
+    ],
+  },
+  {
+    key: 'linsgryta',
+    name: 'Röd linsgryta med kokos',
+    servings: 4,
+    since: 630,
+    ingredients: [
+      { food: 884, grams: 250 },
+      { food: 1566, grams: 400 },
+      { food: 422, grams: 400 },
+      { food: 344, grams: 130 },
+      { food: 289, grams: 150 },
+      { food: 371, grams: 10 },
+      { food: 2189, grams: 20 },
+    ],
+  },
+  {
+    key: 'bananpannkakor',
+    name: 'Bananpannkakor',
+    servings: 2,
+    since: 660,
+    ingredients: [
+      { food: 553, grams: 240 },
+      { food: 1225, grams: 220 },
+      { food: 702, grams: 60 },
+      { food: 2306, grams: 2 },
+    ],
+  },
+  {
+    key: 'applegrot',
+    name: 'Havregrynsgröt med äpple och kanel',
+    servings: 1,
+    since: 690,
+    ingredients: [
+      { food: 702, grams: 45 },
+      { food: 150, grams: 200 },
+      { food: 588, grams: 100 },
+      { food: 2306, grams: 1 },
+    ],
+  },
+]
+
+/** Recept loggas i hela portioner, som när man väljer portion i appen. */
+const serving = (key: string, extra: Omit<Portion, 'food' | 'grams'> = {}): Portion => {
+  const recipe = RECIPES.find((r) => r.key === key)
+  if (!recipe) throw new Error(`Okänt recept: ${key}`)
+  return unit(key, recipe.ingredients.reduce((sum, i) => sum + i.grams, 0) / recipe.servings, extra)
+}
+
 export const BREAKFASTS: Template[] = [
   { weight: 40, items: [p(702, 45), p(150, 150, { step: 10 }), p(1798, 20, { p: 0.5 }), unit(553, 120, { p: 0.3 }), p(556, 50, { p: 0.3 }), ...COFFEE] },
   { weight: 18, items: [p(114, 250, { step: 10 }), p(712, 40), unit(553, 120, { p: 0.4 }), ...COFFEE] },
@@ -158,6 +245,8 @@ export const BREAKFASTS: Template[] = [
   { weight: 4, items: [unit('havreyoghurt', 150), p('granola', 40), ...COFFEE] },
   { weight: 10, items: [p(2197, 150), unit(200, 60), p(6, 8), p(79, 20), unit(641, 200), ...COFFEE], when: (c) => (weekend(c) ? 4 : 0) },
   { weight: 6, items: [p(2769, 200), p(1801, 30), p(1715, 30, { p: 0.6 }), ...COFFEE], when: (c) => (weekend(c) ? 3 : 0) },
+  { weight: 14, items: [serving('applegrot'), ...COFFEE], when: (c) => (weekend(c) ? 0.3 : 1) },
+  { weight: 8, items: [serving('bananpannkakor'), p(556, 50, { p: 0.5 }), ...COFFEE], when: (c) => (weekend(c) ? 4 : 0.2) },
 ]
 
 export const LUNCHES: Template[] = [
@@ -192,6 +281,9 @@ export const DINNERS: Template[] = [
   { weight: 5, items: [p(511, 200), p(231, 200), p(1798, 25)], when: (c) => (winter(c) ? 1.5 : 0.3) },
   { weight: 5, items: [p(1192, 200), p(238, 200), p(2233, 30), p(444, 80)], when: (c) => (summer(c) ? 3 : 0.3) },
   { weight: 4, items: [p(1110, 150), unit(198, 70), p(245, 180), p(1969, 20)] },
+  { weight: 9, items: [serving('kottfarssas'), p(846, 220), p(390, 60, { p: 0.4 })] },
+  { weight: 8, items: [serving('kycklinggryta'), p(2513, 180)] },
+  { weight: 6, items: [serving('linsgryta'), p(2513, 150)] },
   // Fredagsmys
   {
     weight: 0,
