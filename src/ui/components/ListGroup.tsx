@@ -4,6 +4,8 @@ import { Icon, type IconName } from './Icon'
 export type ListRow = {
   label: ReactNode
   value?: ReactNode
+  /** Mindre text på en egen rad under etiketten. */
+  detail?: ReactNode
   /** Leder till en annan vy. */
   href?: string
   onClick?: () => void
@@ -35,7 +37,14 @@ function RowContent({ row, chevron }: { row: ListRow; chevron: boolean }) {
         </span>
       )}
       <span className="list-row-body">
-        <span className={row.accent ? 'list-label accent' : 'list-label'}>{row.label}</span>
+        {row.detail !== undefined ? (
+          <span className="list-label-stack">
+            <span className={row.accent ? 'list-label accent' : 'list-label'}>{row.label}</span>
+            <span className="list-detail">{row.detail}</span>
+          </span>
+        ) : (
+          <span className={row.accent ? 'list-label accent' : 'list-label'}>{row.label}</span>
+        )}
         {row.value !== undefined && <span className="list-value">{row.value}</span>}
         {row.trailing}
         {chevron && <span className="chevron" aria-hidden="true" />}

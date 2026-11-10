@@ -12,7 +12,7 @@ function recipeRow(recipe: Recipe): ListRow {
   const servings = `${formatNumber(recipe.servings, 2)} ${recipe.servings === 1 ? 'portion' : 'portioner'}`
   return {
     label: recipe.name,
-    value: perServing ? `${formatNumber(perServing.kcal)} kcal · ${servings}` : servings,
+    detail: perServing ? `${formatNumber(perServing.kcal)} kcal · ${servings}` : servings,
     href: toHash({ name: 'recipe', action: 'edit', recipeId: recipe.id }),
   }
 }

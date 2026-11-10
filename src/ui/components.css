@@ -1417,6 +1417,20 @@ div.list-row {
   font-size: 1rem;
 }
 
+.list-label-stack {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+}
+
+.list-detail {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
 .list-label.accent {
   color: var(--accent);
 }
