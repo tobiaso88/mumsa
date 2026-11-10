@@ -119,6 +119,64 @@ it('behåller exakt mängd i gram när enheten byts fram och tillbaka', async ()
   expect(await getEntriesForDate(db, today)).toMatchObject([{ grams: 10 }])
 })
 
+it('räknar om dl och msk till gram med Livsmedelsverkets mått', async () => {
+  window.location.hash = `#/lagg-till/${today}/frukost/slv:702`
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Havregryn fullkorn' })
+  // Måtten kommer från den riktiga filen med Livsmedelsverkets volymvikter
+  await user.click(within(dialog).getByLabelText('dl'))
+  const amount = within(dialog).getByLabelText('Mängd')
+  await user.clear(amount)
+  await user.type(amount, '2')
+  expect(within(dialog).getByText('1 dl väger ungefär 39 g enligt Livsmedelsverket.')).toBeInTheDocument()
+  expect(within(dialog).getByText('Motsvarar 78 g.')).toBeInTheDocument()
+
+  await user.click(within(dialog).getByLabelText('msk'))
+  expect(amount).toHaveValue('13')
+  expect(within(dialog).getByText('Motsvarar 78 g.')).toBeInTheDocument()
+  await user.click(within(dialog).getByRole('button', { name: 'Lägg till i frukost' }))
+
+  await screen.findByRole('heading', { name: 'Idag' })
+  expect(await getEntriesForDate(db, today)).toMatchObject([{ foodId: 'slv:702', grams: 78 }])
+})
+
+it('börjar på 1 dl när enheten byts innan mängden har ändrats', async () => {
+  window.location.hash = `#/lagg-till/${today}/frukost/slv:702`
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Havregryn fullkorn' })
+  const amount = within(dialog).getByLabelText('Mängd')
+  await user.click(within(dialog).getByLabelText('dl'))
+  expect(amount).toHaveValue('1')
+  expect(within(dialog).getByText('Motsvarar 39 g.')).toBeInTheDocument()
+  await user.click(within(dialog).getByLabelText('Gram'))
+  expect(amount).toHaveValue('100')
+})
+
+it('räknar om en sparad mängd till dl när en loggpost ändras', async () => {
+  await addEntry(db, { date: today, meal: 'breakfast', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 78, per100g: oats })
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Havregryn fullkorn, 78 g, 293 kcal' }))
+  const dialog = screen.getByRole('dialog', { name: 'Havregryn fullkorn' })
+  await user.click(await within(dialog).findByLabelText('dl'))
+  expect(within(dialog).getByLabelText('Mängd')).toHaveValue('2')
+})
+
+it('visar bara gram för livsmedel utan mått och portion', async () => {
+  const cheese = makeFood({ id: 'off:2', source: 'off', name: 'Ost' })
+  await cacheOffFoods(db, [cheese])
+  window.location.hash = `#/lagg-till/${today}/frukost/${cheese.id}`
+  render(<App db={db} />)
+
+  const dialog = await screen.findByRole('dialog', { name: 'Ost' })
+  expect(within(dialog).queryByRole('radiogroup', { name: 'Enhet' })).not.toBeInTheDocument()
+})
+
 it('ändrar och tar bort en loggpost', async () => {
   await addEntry(db, { date: today, meal: 'breakfast', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 80, per100g: oats })
   const user = userEvent.setup()

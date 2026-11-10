@@ -13,6 +13,13 @@ export type Nutrients = {
 export const FOOD_SOURCES = ['off', 'slv', 'custom', 'recipe'] as const
 export type FoodSource = (typeof FOOD_SOURCES)[number]
 
+/** Hushållsmått: deciliter, matsked, tesked och styck. */
+export const MEASURE_UNITS = ['dl', 'msk', 'tsk', 'st'] as const
+export type MeasureUnit = (typeof MEASURE_UNITS)[number]
+
+/** Gram för ett av varje mått, t.ex. { dl: 39, msk: 6 } för havregryn. Vikterna är ungefärliga. */
+export type Measures = Partial<Record<MeasureUnit, number>>
+
 export type Food = {
   id: string
   name: string
@@ -23,6 +30,11 @@ export type Food = {
   /** Vikt för en portion i gram, om livsmedlet har en portionsstorlek. */
   servingGrams?: number
   servingLabel?: string
+  /**
+   * Vikt per hushållsmått. För Livsmedelsverkets livsmedel kommer den från
+   * deras rapport om volymvikter och sparas aldrig. Egna livsmedel kan ange dl.
+   */
+  measures?: Measures
   updatedAt: string
 }
 

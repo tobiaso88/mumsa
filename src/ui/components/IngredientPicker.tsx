@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { isValidAmount } from '../../domain/nutrition/nutrition'
 import type { Food } from '../../domain/types'
-import { formatNumber, parseNumber, toInputText } from '../format'
+import { formatNumber } from '../format'
+import { useAmount } from '../hooks/useAmount'
 import { useFavoriteFoods } from '../hooks/useFavorites'
 import { useFoodSearch, useRecentFoods } from '../hooks/useFoodSearch'
 import { entryName, SOURCE_LABELS } from '../labels'
+import { AmountInput } from './AmountInput'
 import { FoodSearchResults } from './FoodSearchResults'
 import { Icon } from './Icon'
-import { NumberField } from './NumberField'
 import { Sheet } from './Sheet'
 
 type Props = {
@@ -18,44 +18,41 @@ type Props = {
 /** Ett recept är inte en ingrediens i ett annat recept. */
 const isIngredient = (food: Food) => food.source !== 'recipe'
 
-/** Sök ett livsmedel och ange mängd i gram. Används för att lägga till en ingrediens i ett recept. */
+/** Mängd för en vald ingrediens, i gram eller hushållsmått. */
+function IngredientAmount({ food, onAdd, onBack, onClose }: { food: Food; onAdd: Props['onAdd']; onBack: () => void; onClose: () => void }) {
+  const amount = useAmount(food, food.servingGrams ?? 100)
+  const { grams } = amount
+
+  return (
+    <Sheet title={entryName(food)} subtitle={`${SOURCE_LABELS[food.source]} · ${formatNumber(food.per100g.kcal)} kcal per 100 g`} onClose={onClose}>
+      <form
+        className="stack"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (grams !== null) onAdd(food, grams)
+        }}
+      >
+        <AmountInput amount={amount} servingLabel={food.servingLabel} source={food.source} />
+        <button type="submit" className="button-primary" disabled={grams === null}>
+          Lägg till ingrediens
+        </button>
+        <button type="button" className="button-secondary" onClick={onBack}>
+          Välj ett annat livsmedel
+        </button>
+      </form>
+    </Sheet>
+  )
+}
+
+/** Sök ett livsmedel och ange mängd i gram eller hushållsmått. Används för att lägga till en ingrediens i ett recept. */
 export function IngredientPicker({ onAdd, onClose }: Props) {
   const [query, setQuery] = useState('')
   const [food, setFood] = useState<Food | null>(null)
-  const [amount, setAmount] = useState('')
   const results = useFoodSearch(query)
   const recent = useRecentFoods()
   const favorites = useFavoriteFoods()
-  const grams = parseNumber(amount)
 
-  function choose(chosen: Food) {
-    setFood(chosen)
-    setAmount(toInputText(chosen.servingGrams ?? 100))
-  }
-
-  if (food) {
-    return (
-      <Sheet title={entryName(food)} subtitle={`${SOURCE_LABELS[food.source]} · ${formatNumber(food.per100g.kcal)} kcal per 100 g`} onClose={onClose}>
-        <form
-          className="stack"
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (isValidAmount(grams)) onAdd(food, grams)
-          }}
-        >
-          <div className="card">
-            <NumberField label="Mängd" unit="g" value={amount} onChange={setAmount} invalid={!isValidAmount(grams)} />
-          </div>
-          <button type="submit" className="button-primary" disabled={!isValidAmount(grams)}>
-            Lägg till ingrediens
-          </button>
-          <button type="button" className="button-secondary" onClick={() => setFood(null)}>
-            Välj ett annat livsmedel
-          </button>
-        </form>
-      </Sheet>
-    )
-  }
+  if (food) return <IngredientAmount key={food.id} food={food} onAdd={onAdd} onBack={() => setFood(null)} onClose={onClose} />
 
   return (
     <Sheet title="Lägg till ingrediens" onClose={onClose}>
@@ -75,7 +72,7 @@ export function IngredientPicker({ onAdd, onClose }: Props) {
           results={results?.filter(isIngredient)}
           favorites={favorites?.filter(isIngredient)}
           recent={recent?.filter(isIngredient)}
-          onSelect={choose}
+          onSelect={setFood}
         />
       </div>
     </Sheet>

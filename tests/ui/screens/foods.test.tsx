@@ -54,6 +54,7 @@ it('skapar ett eget livsmedel och loggar det direkt', async () => {
   await fill(user, 'Fett', '13')
   await fill(user, 'Portionsstorlek', '40')
   await fill(user, 'Beskrivning', '1 bulle')
+  await fill(user, 'Vikt per dl', '25')
   await user.click(save)
 
   const dialog = await screen.findByRole('dialog', { name: 'Mormors bullar' })
@@ -62,7 +63,7 @@ it('skapar ett eget livsmedel och loggar det direkt', async () => {
 
   await screen.findByRole('heading', { name: /20 oktober/ })
   expect(await getEntriesForDate(db, date)).toMatchObject([{ foodName: 'Mormors bullar', grams: 40, meal: 'lunch' }])
-  expect(await listCustomFoods(db)).toMatchObject([{ name: 'Mormors bullar', servingGrams: 40, servingLabel: '1 bulle' }])
+  expect(await listCustomFoods(db)).toMatchObject([{ name: 'Mormors bullar', servingGrams: 40, servingLabel: '1 bulle', measures: { dl: 25 } }])
 })
 
 it('visar fel för omöjliga värden och varnar för energi som inte stämmer', async () => {

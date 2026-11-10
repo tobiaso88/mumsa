@@ -2,6 +2,7 @@ import { isQuickEntry, quickEntryKcal, QUICK_ENTRY_NAME } from '../../domain/nut
 import type { LogEntry } from '../../domain/types'
 import { useAction } from '../hooks/useAction'
 import { useEntryActions } from '../hooks/useEntryActions'
+import { useFood } from '../hooks/useFood'
 import { AmountForm } from './AmountForm'
 import { QuickEntryForm, type QuickEntryValue } from './QuickEntryForm'
 import { Sheet } from './Sheet'
@@ -40,12 +41,21 @@ function DeleteButton({ onClick, disabled }: { onClick: () => void; disabled: bo
 
 function EditAmount({ entry, onClose }: Props) {
   const { saving, deleting, busy } = useEntryEditing(entry, onClose)
+  // Mått och portion hämtas från livsmedlet om det finns kvar. Näringen kommer alltid från posten.
+  const food = useFood(entry.foodId)
 
   return (
     <Sheet title={entry.foodName} onClose={onClose}>
       <AmountForm
-        food={{ per100g: entry.per100g }}
+        food={{
+          per100g: entry.per100g,
+          measures: food?.measures,
+          servingGrams: food?.servingGrams,
+          servingLabel: food?.servingLabel,
+          source: food?.source,
+        }}
         initialGrams={entry.grams}
+        initialIsSaved
         initialMeal={entry.meal}
         submitLabel="Spara"
         onSubmit={(value) => void saving.run(value)}

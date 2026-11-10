@@ -34,6 +34,12 @@ describe('validateImport', () => {
     expect(result.ok && result.skippedFoods).toBe(1)
   })
 
+  it('godkänner egna livsmedel med vikt per dl', () => {
+    const foods = [makeFood({ measures: { dl: 39 } })]
+    const result = validateImport({ ...valid, foods })
+    expect(result.ok && result.data.foods).toEqual(foods)
+  })
+
   it('godkänner export utan mål och profil', () => {
     const result = validateImport({ ...valid, goals: null, profile: undefined })
     expect(result.ok && result.data.goals === null && result.data.profile === null).toBe(true)
@@ -97,6 +103,8 @@ describe('validateImport', () => {
     ['tomt namn', { ...valid, foods: [makeFood({ name: '  ' })] }, 'Livsmedel nummer 1'],
     ['ogiltig streckkod', { ...valid, foods: [makeFood({ barcode: '12ab' })] }, 'Livsmedel nummer 1'],
     ['för stor portion', { ...valid, foods: [makeFood({ servingGrams: 1e9 })] }, 'Livsmedel nummer 1'],
+    ['orimlig vikt per dl', { ...valid, foods: [makeFood({ measures: { dl: 900 } })] }, 'Livsmedel nummer 1'],
+    ['okänt mått', { ...valid, foods: [makeFood({ measures: { kopp: 100 } as never })] }, 'Livsmedel nummer 1'],
     ['ogiltig tidpunkt för livsmedel', { ...valid, foods: [makeFood({ updatedAt: 'igår' })] }, 'Livsmedel nummer 1'],
     ['för många gram', { ...valid, entries: [makeEntry({ grams: 1e9 })] }, 'Loggpost nummer 1'],
     ['orimlig näring i loggpost', { ...valid, entries: [makeEntry({ per100g: { kcal: 5000, protein: 0, carbs: 0, fat: 0 } })] }, 'Loggpost nummer 1'],

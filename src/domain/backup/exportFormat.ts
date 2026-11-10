@@ -2,6 +2,7 @@ import { isValidBarcode } from '../foods/barcode'
 import { isIsoDate } from '../dates'
 import { idMatchesSource } from '../foods/foodIds'
 import { MAX_TEXT_LENGTH, nutrientIssues } from '../foods/foodValidation'
+import { isValidMeasures } from '../foods/measures'
 import { isValidGoalKcal, isValidProfile, isValidSplit } from '../goals/goals'
 import { isValidAmount } from '../nutrition/nutrition'
 import { isValidRecipe, isValidServings } from '../recipes/recipes'
@@ -100,6 +101,8 @@ function isFood(v: unknown): v is Food {
     isNutrients(v.per100g) &&
     (v.servingGrams === undefined || (isNum(v.servingGrams) && isValidAmount(v.servingGrams))) &&
     isOptText(v.servingLabel) &&
+    // Fältet kom till efter version 4 men är valfritt, så äldre filer behöver ingen migrering
+    (v.measures === undefined || isValidMeasures(v.measures)) &&
     isTimestamp(v.updatedAt)
   )
 }

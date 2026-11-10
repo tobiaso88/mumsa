@@ -1,6 +1,7 @@
 import type { FormEvent, ReactNode } from 'react'
 import type { CustomFoodInput } from '../../data/repos/foodsRepo'
 import { MAX_KCAL_PER_100G, MAX_TEXT_LENGTH, type NutrientIssue } from '../../domain/foods/foodValidation'
+import { MAX_GRAMS_PER_DL } from '../../domain/foods/measures'
 import { formatNumber } from '../format'
 import { useFoodForm, type FoodFormInitial } from '../hooks/useFoodForm'
 import { NavBar } from './NavBar'
@@ -30,7 +31,7 @@ type Props = {
 }
 
 export function FoodForm({ title, cancelHref, note, initial, submitLabel, onSubmit, extraActions, busy, error }: Props) {
-  const { fields, set, issues, servingValid, barcodeValid, kcalWarning, input } = useFoodForm(initial)
+  const { fields, set, issues, servingValid, gramsPerDlValid, barcodeValid, kcalWarning, input } = useFoodForm(initial)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -66,6 +67,17 @@ export function FoodForm({ title, cancelHref, note, initial, submitLabel, onSubm
           <TextField label="Beskrivning" value={fields.servingLabel} onChange={(v) => set('servingLabel', v)} maxLength={MAX_TEXT_LENGTH} />
         </div>
         <p className="hint group-footer">Valfritt. Till exempel 30 g och ”1 skiva”.</p>
+      </fieldset>
+      <fieldset className="group">
+        <legend className="section-title">Mått</legend>
+        <div className="card">
+          <NumberField label="Vikt per dl" unit="g" value={fields.gramsPerDl} onChange={(v) => set('gramsPerDl', v)} invalid={!gramsPerDlValid} />
+        </div>
+        <p className="hint group-footer">
+          {gramsPerDlValid
+            ? 'Valfritt. Gör att du kan ange mängd i dl, msk och tsk. Väg till exempel 1 dl.'
+            : `Vikten per dl ska vara mer än 0 och högst ${formatNumber(MAX_GRAMS_PER_DL)} g.`}
+        </p>
       </fieldset>
       <fieldset className="group">
         <legend className="section-title">Näring per 100 g</legend>

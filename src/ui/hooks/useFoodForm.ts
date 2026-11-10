@@ -2,8 +2,9 @@ import { useState } from 'react'
 import type { CustomFoodInput } from '../../data/repos/foodsRepo'
 import { isValidBarcode, normalizeBarcode } from '../../domain/foods/barcode'
 import { kcalLooksOff, MAX_TEXT_LENGTH, nutrientIssues } from '../../domain/foods/foodValidation'
+import { isValidGramsPerDl } from '../../domain/foods/measures'
 import { isValidAmount } from '../../domain/nutrition/nutrition'
-import type { Food, Nutrients } from '../../domain/types'
+import type { Food, Measures, Nutrients } from '../../domain/types'
 import { parseNumber, toInputText } from '../format'
 
 export type FoodFormFields = {
@@ -16,9 +17,10 @@ export type FoodFormFields = {
   fat: string
   servingGrams: string
   servingLabel: string
+  gramsPerDl: string
 }
 
-export type FoodFormInitial = Partial<Pick<Food, 'name' | 'brand' | 'barcode' | 'per100g' | 'servingGrams' | 'servingLabel'>>
+export type FoodFormInitial = Partial<Pick<Food, 'name' | 'brand' | 'barcode' | 'per100g' | 'servingGrams' | 'servingLabel' | 'measures'>>
 
 /** Kortar text som sparades innan längdgränsen fanns, så att formuläret går att spara. */
 const initialText = (text: string | undefined) => (text ?? '').slice(0, MAX_TEXT_LENGTH)
@@ -34,7 +36,18 @@ function initialFields(food: FoodFormInitial): FoodFormFields {
     fat: toInputText(food.per100g?.fat),
     servingGrams: toInputText(food.servingGrams),
     servingLabel: initialText(food.servingLabel),
+    gramsPerDl: toInputText(food.measures?.dl),
   }
+}
+
+/**
+ * Formuläret ändrar bara vikten per dl. Övriga uppmätta mått, t.ex. från en
+ * kopia av ett livsmedel från Livsmedelsverket, följer med så länge dl är orörd.
+ * En ny dl-vikt ersätter dem, eftersom de annars inte längre stämmer med varandra.
+ */
+function measuresFor(initial: Measures | undefined, dl: number | undefined): Measures | undefined {
+  if (initial?.dl === dl) return initial
+  return dl === undefined ? undefined : { dl }
 }
 
 const optionalText = (text: string) => text.trim() || undefined
@@ -55,12 +68,14 @@ export function useFoodForm(initial: FoodFormInitial) {
   const touched = [fields.kcal, fields.protein, fields.carbs, fields.fat].some((f) => f.trim() !== '')
   const serving = fields.servingGrams.trim() === '' ? undefined : parseNumber(fields.servingGrams)
   const servingValid = serving === undefined || isValidAmount(serving)
+  const gramsPerDl = fields.gramsPerDl.trim() === '' ? undefined : parseNumber(fields.gramsPerDl)
+  const gramsPerDlValid = gramsPerDl === undefined || isValidGramsPerDl(gramsPerDl)
   const barcode = normalizeBarcode(fields.barcode)
   const barcodeValid = barcode === '' || isValidBarcode(barcode)
   const nameValid = fields.name.trim() !== ''
 
   const input: CustomFoodInput | null =
-    nameValid && issues.length === 0 && servingValid && barcodeValid
+    nameValid && issues.length === 0 && servingValid && gramsPerDlValid && barcodeValid
       ? {
           name: fields.name.trim(),
           brand: optionalText(fields.brand),
@@ -68,6 +83,7 @@ export function useFoodForm(initial: FoodFormInitial) {
           per100g,
           servingGrams: serving,
           servingLabel: serving === undefined ? undefined : optionalText(fields.servingLabel),
+          measures: measuresFor(initial.measures, gramsPerDl),
         }
       : null
 
@@ -76,6 +92,7 @@ export function useFoodForm(initial: FoodFormInitial) {
     set,
     issues: touched ? issues : [],
     servingValid,
+    gramsPerDlValid,
     barcodeValid,
     kcalWarning: issues.length === 0 && kcalLooksOff(per100g),
     input,

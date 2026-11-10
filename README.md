@@ -21,7 +21,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - Skanna streckkoder med kameran. Produkter hämtas från Open Food Facts.
 - Egna livsmedel, och rättade kopior av livsmedel med fel värden.
 - Egna recept av ingredienser och antal portioner. Ett recept loggas som en eller flera portioner.
-- Logga i gram eller portioner, per frukost, lunch, middag och mellanmål.
+- Logga i gram eller portioner, per frukost, lunch, middag och mellanmål. Vanliga basvaror som havregryn, vetemjöl, mjölk och filmjölk går också att ange i dl, msk eller tsk, med vikter från Livsmedelsverket. Egna livsmedel kan få en vikt per dl.
 - Kopiera en tidigare måltid till dagen du tittar på, till exempel gårdagens frukost, så slipper du logga samma mat igen.
 - Snabbregistrera bara kalorier när du inte vet vad maten innehåller. Protein, kolhydrater och fett räknas då inte med.
 - Markera livsmedel och recept som favoriter. De visas överst när du ska lägga till något.
@@ -32,7 +32,8 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 ## Så lagras din data
 
 - Allt du loggar, även vägningar, sparas i webbläsarens IndexedDB på din enhet. Det finns ingen server, inget konto och ingen synk mellan enheter.
-- Livsmedelsverkets livsmedelsdatabas följer med appen som en fil. Sökningar skickas därför inte någonstans.
+- Livsmedelsverkets livsmedelsdatabas och deras tabell över hushållsmått följer med appen som filer. Sökningar skickas därför inte någonstans.
+- Det som loggas sparas alltid i gram. En mängd i dl eller msk räknas om när du loggar, så en senare ändring av vikten per dl påverkar inte gamla poster.
 - Det enda nätverksanropet är uppslag av streckkoder hos Open Food Facts. Bara streckkoden skickas. Produkter som hämtats sparas lokalt och fungerar offline nästa gång.
 - Om du rensar webbplatsdata i webbläsaren försvinner loggen. Under Profil → Inställningar kan du exportera en säkerhetskopia och be webbläsaren om beständig lagring.
 - För att flytta till en ny enhet: exportera på den gamla och välj ”Importera en säkerhetskopia” på den nya.
@@ -68,4 +69,5 @@ Koden är uppdelad i tre lager: `src/domain/` (rena beräkningar), `src/data/` (
 ## Källor och licenser
 
 - Livsmedelsverkets livsmedelsdatabas, licens [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.sv). Källa: Livsmedelsverket.
+- Hushållsmått (dl, msk, tsk och styck) från Livsmedelsverkets rapport [Volymvikter, viktförändringsfaktorer och avfall, PM 2024](https://www.livsmedelsverket.se/globalassets/publikationsdatabas/pm/2024/pm-2024-volymvikter-viktforandringsfaktorer-och-avfall.pdf), tabell 1–13. Vikterna är uppmätta genomsnitt och visas som ungefärliga. Rapportens namn är kopplade för hand till livsmedelsdatabasen i `src/data/sources/volymvikter.ts`, och bara när det är samma vara i samma form.
 - Produktdata från [Open Food Facts](https://world.openfoodfacts.org), licens ODbL.

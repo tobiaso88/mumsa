@@ -1,25 +1,21 @@
 import type { FormEvent, ReactNode } from 'react'
-import { MEALS, type Meal } from '../../domain/types'
-import { formatNumber } from '../format'
+import { MEALS, type Food, type Meal } from '../../domain/types'
 import { useAmountForm, type AmountFood } from '../hooks/useAmountForm'
 import { MEAL_LABELS } from '../labels'
-import { AmountStepper } from './AmountStepper'
+import { AmountInput } from './AmountInput'
 import { NutrientPreview } from './NutrientPreview'
 import { SegmentedControl } from './SegmentedControl'
-
-const UNIT_OPTIONS = [
-  { value: 'g', label: 'Gram' },
-  { value: 'portion', label: 'Portioner' },
-] as const
 
 const MEAL_OPTIONS = MEALS.map((meal) => ({ value: meal, label: MEAL_LABELS[meal] }))
 
 type Props = {
-  food: AmountFood & { servingLabel?: string }
+  food: AmountFood & { servingLabel?: string; source?: Food['source'] }
   initialGrams: number
   initialMeal: Meal
   /** Börja i portioner i stället för gram, för livsmedel som oftast loggas som en portion. */
   preferPortions?: boolean
+  /** Startmängden är sparad, t.ex. när en loggpost ändras, och räknas om vid enhetsbyte. */
+  initialIsSaved?: boolean
   /** Text på knappen, eller en funktion av vald måltid, t.ex. "Lägg till i lunch". */
   submitLabel: string | ((meal: Meal) => string)
   onSubmit: (value: { grams: number; meal: Meal }) => void
@@ -29,8 +25,9 @@ type Props = {
   error?: string | null
 }
 
-export function AmountForm({ food, initialGrams, initialMeal, preferPortions, submitLabel, onSubmit, extraActions, busy, error }: Props) {
-  const form = useAmountForm(food, initialGrams, initialMeal, preferPortions)
+export function AmountForm(props: Props) {
+  const { food, initialGrams, initialMeal, preferPortions, initialIsSaved, submitLabel, onSubmit, extraActions, busy, error } = props
+  const form = useAmountForm(food, initialGrams, initialMeal, { preferPortions, initialIsSaved })
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -39,20 +36,7 @@ export function AmountForm({ food, initialGrams, initialMeal, preferPortions, su
 
   return (
     <form className="stack" onSubmit={handleSubmit}>
-      {form.canUsePortions && <SegmentedControl label="Enhet" options={UNIT_OPTIONS} value={form.unit} onChange={form.setUnit} />}
-      <AmountStepper
-        value={form.amount}
-        onChange={form.setAmount}
-        onStep={form.step}
-        unit={form.unit === 'g' ? 'g' : 'portioner'}
-        invalid={form.grams === null}
-      />
-      {form.unit === 'portion' && (
-        <p className="hint stepper-hint">
-          {food.servingLabel && <span>En portion är {food.servingLabel}. </span>}
-          {form.grams !== null && <span>Motsvarar {formatNumber(form.grams)} g.</span>}
-        </p>
-      )}
+      <AmountInput amount={form} servingLabel={food.servingLabel} source={food.source} />
       <SegmentedControl label="Måltid" options={MEAL_OPTIONS} value={form.meal} onChange={form.setMeal} />
       <NutrientPreview nutrients={form.preview} label="Näring för vald mängd" />
       {error && (

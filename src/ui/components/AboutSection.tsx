@@ -31,6 +31,16 @@ function SourcesSheet({ onClose }: { onClose: () => void }) {
           </a>
         </li>
         <li>
+          Hushållsmått: Livsmedelsverket, Volymvikter, viktförändringsfaktorer och avfall (PM 2024). Vikterna är ungefärliga.{' '}
+          <a
+            href="https://www.livsmedelsverket.se/globalassets/publikationsdatabas/pm/2024/pm-2024-volymvikter-viktforandringsfaktorer-och-avfall.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
+            livsmedelsverket.se
+          </a>
+        </li>
+        <li>
           Produkter via streckkod: Open Food Facts, data från bidragsgivare under ODbL.{' '}
           <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer">
             openfoodfacts.org
