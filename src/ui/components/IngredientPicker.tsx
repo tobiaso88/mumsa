@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { isValidAmount } from '../../domain/nutrition/nutrition'
 import type { Food } from '../../domain/types'
 import { formatNumber, parseNumber, toInputText } from '../format'
+import { useFavoriteFoods } from '../hooks/useFavorites'
 import { useFoodSearch, useRecentFoods } from '../hooks/useFoodSearch'
 import { entryName, SOURCE_LABELS } from '../labels'
 import { FoodSearchResults } from './FoodSearchResults'
@@ -24,6 +25,7 @@ export function IngredientPicker({ onAdd, onClose }: Props) {
   const [amount, setAmount] = useState('')
   const results = useFoodSearch(query)
   const recent = useRecentFoods()
+  const favorites = useFavoriteFoods()
   const grams = parseNumber(amount)
 
   function choose(chosen: Food) {
@@ -68,7 +70,13 @@ export function IngredientPicker({ onAdd, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
           />
         </label>
-        <FoodSearchResults query={query} results={results?.filter(isIngredient)} recent={recent?.filter(isIngredient)} onSelect={choose} />
+        <FoodSearchResults
+          query={query}
+          results={results?.filter(isIngredient)}
+          favorites={favorites?.filter(isIngredient)}
+          recent={recent?.filter(isIngredient)}
+          onSelect={choose}
+        />
       </div>
     </Sheet>
   )

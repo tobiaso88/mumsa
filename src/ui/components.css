@@ -538,9 +538,9 @@ select:focus-visible {
   margin-top: 0;
 }
 
-/* Tre rutor bredvid varandra, t.ex. Skanna, Eget livsmedel och Recept */
+/* Fyra rutor bredvid varandra: Skanna, Eget livsmedel, Recept och Kalorier */
 .button-row.tiles {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 /* Ikonen ovanför texten, så att tre rutor ryms på en smal skärm */
@@ -551,6 +551,13 @@ select:focus-visible {
   font-size: 0.8125rem;
   text-align: center;
   white-space: normal;
+}
+
+/* En ruta som är en knapp ska se ut som de som är länkar */
+button.tile-button {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 /* Rutor med ikon, t.ex. Skanna och Eget livsmedel */
@@ -836,6 +843,13 @@ input[type='file']::file-selector-button {
   color: var(--text-muted);
   font-size: 0.9375rem;
   font-variant-numeric: tabular-nums;
+}
+
+button.meal-add {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 
 .meal-add {
@@ -2014,4 +2028,33 @@ div.card:has(> .field, > .field-row) {
 
 .group-footer p + p {
   margin-top: 4px;
+}
+
+/* ---------- Kopiera måltid och favoriter ---------- */
+
+.food-list.copy-day-list .entry::after {
+  /* Ett val, inte en länk vidare, så ingen pil */
+  display: none;
+}
+
+.copy-day-items {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-day-check {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  flex: none;
+  color: var(--accent);
+}
+
+.round-button.favorite.active {
+  color: var(--accent);
+}
+
+.round-button.favorite:disabled {
+  opacity: 0.5;
 }

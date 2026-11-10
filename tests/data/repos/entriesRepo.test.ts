@@ -1,6 +1,7 @@
 import { makeEntry } from '../../helpers/testData'
 import type { MumsaDb } from '../../../src/data/db/db'
 import {
+  addEntries,
   addEntry,
   deleteEntry,
   getEntriesForDate,
@@ -60,4 +61,28 @@ it('ger senast loggade livsmedel utan dubbletter', async () => {
   }
   expect(await getRecentFoodIds(db)).toEqual(['c', 'a', 'b'])
   expect(await getRecentFoodIds(db, 2)).toEqual(['c', 'a'])
+})
+
+it('lägger till flera poster som behåller sin ordning', async () => {
+  const added = await addEntries(db, [input({ foodName: 'A' }), input({ foodName: 'B' }), input({ foodName: 'C' })], new Date('2026-10-20T12:00:00Z'))
+  expect(new Set(added.map((e) => e.id)).size).toBe(3)
+  expect((await getEntriesForDate(db, '2026-10-20')).map((e) => e.foodName)).toEqual(['A', 'B', 'C'])
+})
+
+it('lägger inte till något när listan är tom', async () => {
+  expect(await addEntries(db, [])).toEqual([])
+  expect(await db.entries.count()).toBe(0)
+})
+
+it('tar med snabbregistreringar i dagen men inte bland senast loggade livsmedel', async () => {
+  await addEntry(db, input({ foodId: 'a' }), new Date('2026-10-20T07:00:00Z'))
+  await addEntry(db, input({ foodId: 'quick:kcal' }), new Date('2026-10-20T08:00:00Z'))
+  expect(await db.entries.count()).toBe(2)
+  expect(await getRecentFoodIds(db)).toEqual(['a'])
+})
+
+it('ändrar namnet på en post', async () => {
+  const entry = await addEntry(db, input())
+  await updateEntry(db, entry.id, { foodName: 'Nytt namn' })
+  expect((await getEntriesForDate(db, entry.date))[0]?.foodName).toBe('Nytt namn')
 })

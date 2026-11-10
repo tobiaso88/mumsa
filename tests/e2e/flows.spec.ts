@@ -163,3 +163,40 @@ test('exporterar och läser in all data på en ny enhet', async ({ page, browser
   await expect(newPage.getByRole('region', { name: 'Middag' }).getByText('Havregryn fullkorn')).toBeVisible()
   await other.close()
 })
+
+test('kopierar gårdagens lunch, loggar kalorier snabbt och återanvänder en favorit', async ({ page }) => {
+  await setGoal(page)
+
+  // Gårdagens lunch, där havregrynen också markeras som favorit
+  await page.getByRole('link', { name: 'Föregående dag' }).click()
+  await page.getByRole('link', { name: 'Lägg till i lunch' }).click()
+  await page.getByRole('searchbox', { name: 'Sök livsmedel' }).fill('havregryn fullkorn')
+  await page.getByRole('button', { name: /^Havregryn fullkorn/ }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name: 'Markera som favorit' }).click()
+  await expect(dialog.getByRole('button', { name: 'Ta bort som favorit' })).toBeVisible()
+  await dialog.getByLabel('Mängd', { exact: true }).fill('40')
+  await dialog.getByRole('button', { name: 'Lägg till' }).click()
+  await expect(page.getByRole('region', { name: 'Lunch' }).getByRole('button', { name: 'Havregryn fullkorn, 40 g, 150 kcal' })).toBeVisible()
+
+  // Kopiera den till idag
+  await page.getByRole('link', { name: 'Nästa dag' }).click()
+  await expect(page.getByRole('heading', { name: 'Idag' })).toBeVisible()
+  await page.getByRole('button', { name: 'Kopiera till lunch' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Kopiera 1 post' }).click()
+  const lunch = page.getByRole('region', { name: 'Lunch' })
+  await expect(lunch.getByRole('button', { name: 'Havregryn fullkorn, 40 g, 150 kcal' })).toBeVisible()
+
+  // Logga bara kalorier
+  await page.getByRole('link', { name: 'Lägg till i middag' }).click()
+  await page.getByRole('button', { name: 'Kalorier' }).click()
+  await dialog.getByLabel('Namn (valfritt)').fill('Pizza')
+  await dialog.getByLabel('Energi').fill('500')
+  await dialog.getByRole('button', { name: 'Lägg till i middag' }).click()
+  await expect(page.getByRole('region', { name: 'Middag' }).getByRole('button', { name: 'Pizza, 500 kcal' })).toBeVisible()
+  await expect(page.getByText('1 350')).toBeVisible() // 2000 − 150 − 500
+
+  // Favoriten finns överst när man lägger till något nytt
+  await page.getByRole('link', { name: 'Lägg till i frukost' }).click()
+  await expect(page.getByRole('list', { name: 'Favoriter' }).getByRole('button', { name: /^Havregryn fullkorn/ })).toBeVisible()
+})

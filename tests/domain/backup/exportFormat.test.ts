@@ -10,13 +10,14 @@ const valid = createExport(
     profile: { weightKg: 70, heightCm: 175, ageYears: 30, sex: 'female', activity: 'light' },
     weights: [{ date: '2026-10-20', kg: 70.4, createdAt: '2026-10-20T07:00:00.000Z' }],
     recipes: [makeRecipe()],
+    favorites: ['custom:food-1', 'slv:702'],
   },
   new Date('2026-10-23T10:00:00Z'),
 )
 
 describe('createExport', () => {
   it('sätter app, version och tidpunkt', () => {
-    expect(valid).toMatchObject({ app: 'mumsa', version: 3, exportedAt: '2026-10-23T10:00:00.000Z' })
+    expect(valid).toMatchObject({ app: 'mumsa', version: 4, exportedAt: '2026-10-23T10:00:00.000Z' })
   })
 })
 
@@ -44,26 +45,40 @@ describe('validateImport', () => {
     expect(result.ok && result.data.goals).toEqual(goals)
   })
 
+  it('uppgraderar en export från version 3 utan favoriter', () => {
+    const { favorites: _, ...v3 } = { ...valid, version: 3 }
+    const result = validateImport(v3)
+    expect(result.ok && result.data).toEqual({ ...valid, favorites: [] })
+  })
+
   it('uppgraderar en export från version 2 utan recept', () => {
-    const { recipes: _, ...v2 } = { ...valid, version: 2 }
+    const { recipes: _, favorites: __, ...v2 } = { ...valid, version: 2 }
     const result = validateImport(v2)
-    expect(result.ok && result.data).toEqual({ ...valid, recipes: [] })
+    expect(result.ok && result.data).toEqual({ ...valid, recipes: [], favorites: [] })
   })
 
   it('uppgraderar en export från version 1 utan vägningar', () => {
-    const { weights: _, ...v1 } = { ...valid, version: 1 }
+    const { weights: _, favorites: __, ...v1 } = { ...valid, version: 1 }
     const result = validateImport(v1)
-    expect(result.ok && result.data).toEqual({ ...valid, weights: [], recipes: [] })
+    expect(result.ok && result.data).toEqual({ ...valid, weights: [], recipes: [], favorites: [] })
+  })
+
+  it('tar bort dubbletter bland favoriterna', () => {
+    const result = validateImport({ ...valid, favorites: ['custom:a', 'custom:a', 'slv:1'] })
+    expect(result.ok && result.data.favorites).toEqual(['custom:a', 'slv:1'])
   })
 
   it.each([
     ['annan app', { ...valid, app: 'annan' }, 'inte en export från Mumsa'],
     ['inget objekt', 'hej', 'inte en export från Mumsa'],
-    ['nyare version', { ...valid, version: 4 }, 'nyare version av Mumsa'],
+    ['nyare version', { ...valid, version: 5 }, 'nyare version av Mumsa'],
     ['okänd äldre version', { ...valid, version: 0 }, 'Exportversion 0'],
     ['version som inte är ett tal', { ...valid, version: 'ett' }, 'Exportversion ett'],
     ['saknad version', { ...valid, version: undefined }, 'Exportversion undefined'],
     ['saknade listor', { ...valid, foods: undefined }, 'saknar livsmedel'],
+    ['favoriter som inte är en lista', { ...valid, favorites: 'custom:a' }, 'Favoriterna'],
+    ['tomt id bland favoriterna', { ...valid, favorites: ['custom:a', ' '] }, 'Favoriterna'],
+    ['favorit som inte är text', { ...valid, favorites: [7] }, 'Favoriterna'],
     ['ogiltigt livsmedel', { ...valid, foods: [makeFood(), { id: 'x' }] }, 'Livsmedel nummer 2'],
     ['negativ näring', { ...valid, foods: [makeFood({ per100g: { kcal: -1, protein: 0, carbs: 0, fat: 0 } })] }, 'Livsmedel nummer 1'],
     ['id som inte stämmer med källan', { ...valid, foods: [makeFood({ id: 'slv:1', source: 'custom' })] }, 'Livsmedel nummer 1'],
@@ -123,7 +138,7 @@ describe('migrateExport', () => {
   const addField: Migration = (json) => ({ ...json, steps: [...((json.steps as string[] | undefined) ?? []), `från ${String(json.version)}`] })
 
   it('lämnar en export med aktuell version orörd', () => {
-    expect(migrateExport({ version: 3, a: 1 })).toEqual({ version: 3, a: 1 })
+    expect(migrateExport({ version: 4, a: 1 })).toEqual({ version: 4, a: 1 })
   })
 
   it('kör stegen i ordning tills målversionen nås', () => {

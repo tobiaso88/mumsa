@@ -1,7 +1,11 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Food, Goals, LogEntry, Profile, Recipe, WeightEntry } from '../../domain/types'
 
-export type SettingRow = { key: 'goals'; value: Goals } | { key: 'profile'; value: Profile }
+/** Favoriter är en lista med livsmedels-id. Ingen ny tabell behövs, så schemat är oförändrat. */
+export type SettingRow =
+  | { key: 'goals'; value: Goals }
+  | { key: 'profile'; value: Profile }
+  | { key: 'favorites'; value: string[] }
 
 export type MumsaDb = Dexie & {
   foods: EntityTable<Food, 'id'>

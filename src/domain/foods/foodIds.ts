@@ -36,3 +36,13 @@ export function isSlvFoodId(id: string): boolean {
 export function idMatchesSource(id: string, source: FoodSource): boolean {
   return id.length > PREFIXES[source].length && id.startsWith(PREFIXES[source])
 }
+
+/**
+ * Id för snabbregistrerade kalorier. Det är inget livsmedel och har ingen
+ * källa i FoodSource, utan används bara som foodId på loggposter.
+ */
+export const QUICK_FOOD_ID = 'quick:kcal'
+
+export function isQuickFoodId(id: string): boolean {
+  return id === QUICK_FOOD_ID
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { summarizeDay } from '../../domain/nutrition/summary'
-import { MEALS, type Goals, type IsoDate, type LogEntry } from '../../domain/types'
+import { MEALS, type Goals, type IsoDate, type LogEntry, type Meal } from '../../domain/types'
+import { CopyMealSheet } from '../components/CopyMealSheet'
 import { DayHeader } from '../components/DayHeader'
 import { DaySummary } from '../components/DaySummary'
 import { EditEntrySheet } from '../components/EditEntrySheet'
@@ -11,6 +12,7 @@ import { useDayEntries } from '../hooks/useEntries'
 export function DayScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
   const entries = useDayEntries(date)
   const [editing, setEditing] = useState<LogEntry | null>(null)
+  const [copyingTo, setCopyingTo] = useState<Meal | null>(null)
   if (!entries) return <Loading />
   const summary = summarizeDay(entries)
 
@@ -26,9 +28,11 @@ export function DayScreen({ date, goals }: { date: IsoDate; goals: Goals }) {
           entries={entries.filter((e) => e.meal === meal)}
           total={summary.byMeal[meal]}
           onSelect={setEditing}
+          onCopy={setCopyingTo}
         />
       ))}
       {editing && <EditEntrySheet entry={editing} onClose={() => setEditing(null)} />}
+      {copyingTo && <CopyMealSheet date={date} meal={copyingTo} onClose={() => setCopyingTo(null)} />}
     </main>
   )
 }

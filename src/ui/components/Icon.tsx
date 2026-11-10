@@ -28,6 +28,8 @@ const PATHS = {
   flash: 'M13 3L5 14h6l-1 7 8-11h-6z',
   trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13',
   check: 'M5 12.5l4.5 4.5L19 7',
+  copy: 'M9 9h10v11H9zM15 9V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4',
+  star: 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z',
 } as const
 
 export type IconName = keyof typeof PATHS
@@ -36,17 +38,19 @@ type Props = {
   name: IconName
   size?: number
   strokeWidth?: number
+  /** Fyller ikonen med färg, till exempel för en vald stjärna. */
+  filled?: boolean
 }
 
 /** Dekorativ ikon. Knappar och länkar som bara har en ikon behöver en egen aria-label. */
-export function Icon({ name, size = 24, strokeWidth = 2 }: Props) {
+export function Icon({ name, size = 24, strokeWidth = 2, filled = false }: Props) {
   return (
     <svg
       className="icon"
       viewBox="0 0 24 24"
       width={size}
       height={size}
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth={strokeWidth}
       strokeLinecap="round"

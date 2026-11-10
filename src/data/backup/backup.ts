@@ -1,6 +1,7 @@
 import { createExport, type ExportData } from '../../domain/backup/exportFormat'
+import { mergeFavorites } from '../../domain/foods/favorites'
 import type { MumsaDb } from '../db/db'
-import { getGoals, getProfile, saveGoals, saveProfile } from '../repos/settingsRepo'
+import { getFavoriteIds, getGoals, getProfile, saveFavoriteIds, saveGoals, saveProfile } from '../repos/settingsRepo'
 import { getWeights } from '../repos/weightsRepo'
 
 export type ImportMode = 'replace' | 'merge'
@@ -17,6 +18,7 @@ export async function exportAll(db: MumsaDb, now = new Date()): Promise<ExportDa
         profile: await getProfile(db),
         weights: await getWeights(db),
         recipes: await db.recipes.toArray(),
+        favorites: await getFavoriteIds(db),
       },
       now,
     ),
@@ -30,7 +32,7 @@ export async function exportAll(db: MumsaDb, now = new Date()): Promise<ExportDa
  * kastas felet och databasen lämnas orörd.
  */
 export async function importAll(db: MumsaDb, data: ExportData, mode: ImportMode): Promise<ImportCounts> {
-  const { foods, entries, goals, profile, weights, recipes } = data
+  const { foods, entries, goals, profile, weights, recipes, favorites } = data
   await db.transaction('rw', [db.foods, db.entries, db.settings, db.weights, db.recipes], async () => {
     if (mode === 'replace') {
       await Promise.all([db.foods.clear(), db.entries.clear(), db.settings.clear(), db.weights.clear(), db.recipes.clear()])
@@ -41,6 +43,8 @@ export async function importAll(db: MumsaDb, data: ExportData, mode: ImportMode)
     await db.recipes.bulkPut(recipes)
     if (goals) await saveGoals(db, goals)
     if (profile) await saveProfile(db, profile)
+    // Vid sammanslagning behålls de favoriter som redan finns
+    if (favorites.length > 0) await saveFavoriteIds(db, mergeFavorites(await getFavoriteIds(db), favorites))
   })
   return { foods: foods.length, entries: entries.length, weights: weights.length, recipes: recipes.length }
 }

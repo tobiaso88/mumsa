@@ -5,22 +5,36 @@ type Props = {
   query: string
   /** Sökträffar för frågan, undefined medan sökningen pågår. */
   results: Food[] | undefined
+  /** Favoriter, som visas först innan användaren har skrivit något. */
+  favorites: Food[] | undefined
   /** Senast loggade livsmedel, som visas innan användaren har skrivit något. */
   recent: Food[] | undefined
   onSelect: (food: Food) => void
 }
 
 /** Sökträffar medan användaren söker, annars de senast loggade livsmedlen. */
-export function FoodSearchResults({ query, results, recent, onSelect }: Props) {
+export function FoodSearchResults({ query, results, favorites, recent, onSelect }: Props) {
   const trimmed = query.trim()
 
   if (trimmed === '') {
-    if (!recent || recent.length === 0) return null
+    // En favorit visas bara en gång, bland favoriterna
+    const favoriteIds = new Set(favorites?.map((f) => f.id))
+    const latest = recent?.filter((f) => !favoriteIds.has(f.id)) ?? []
     return (
-      <section>
-        <h2 className="section-title">Senast loggade</h2>
-        <FoodList label="Senast loggade" foods={recent} onSelect={onSelect} />
-      </section>
+      <>
+        {favorites && favorites.length > 0 && (
+          <section>
+            <h2 className="section-title">Favoriter</h2>
+            <FoodList label="Favoriter" foods={favorites} onSelect={onSelect} />
+          </section>
+        )}
+        {latest.length > 0 && (
+          <section>
+            <h2 className="section-title">Senast loggade</h2>
+            <FoodList label="Senast loggade" foods={latest} onSelect={onSelect} />
+          </section>
+        )}
+      </>
     )
   }
 

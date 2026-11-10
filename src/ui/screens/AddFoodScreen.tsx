@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
+import { FavoriteButton } from '../components/FavoriteButton'
 import { FoodList } from '../components/FoodList'
 import { FoodSearchResults } from '../components/FoodSearchResults'
 import { Icon } from '../components/Icon'
 import { NavBar } from '../components/NavBar'
+import { QuickEntrySheet } from '../components/QuickEntrySheet'
 import { Sheet } from '../components/Sheet'
 import { formatNumber } from '../format'
 import { useAction } from '../hooks/useAction'
 import { useEntryActions } from '../hooks/useEntryActions'
+import { useFavoriteFoods } from '../hooks/useFavorites'
 import { useFood } from '../hooks/useFood'
 import { useFoodSearch, useRecentFoods } from '../hooks/useFoodSearch'
 import { useRecipeFoods } from '../hooks/useRecipes'
@@ -42,9 +45,11 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
   const [query, setQuery] = useState('')
   // undefined tills användaren själv har valt eller stängt något
   const [choice, setChoice] = useState<Food | null>()
+  const [quickOpen, setQuickOpen] = useState(false)
   const preselected = useFood(foodId)
   const results = useFoodSearch(query)
   const recent = useRecentFoods()
+  const favorites = useFavoriteFoods()
   const recipes = useRecipeFoods()
   const entries = useEntryActions()
 
@@ -56,10 +61,13 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
     navigate({ name: 'day', date })
   }, 'Livsmedlet kunde inte loggas. Försök igen.')
 
-  const editFood = selected && (
-    <a className="round-button" href={editHref(selected, date, meal)} aria-label={EDIT_LABELS[selected.source]}>
-      <Icon name="pencil" size={20} />
-    </a>
+  const sheetActions = selected && (
+    <div className="round-buttons">
+      <FavoriteButton foodId={selected.id} />
+      <a className="round-button" href={editHref(selected, date, meal)} aria-label={EDIT_LABELS[selected.source]}>
+        <Icon name="pencil" size={20} />
+      </a>
+    </div>
   )
 
   return (
@@ -97,6 +105,10 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
             <Icon name="book" size={22} />
             Recept
           </a>
+          <button type="button" className="tile-button" onClick={() => setQuickOpen(true)}>
+            <Icon name="flash" size={22} />
+            Kalorier
+          </button>
         </div>
         {query.trim() === '' && recipes && recipes.length > 0 && (
           <section>
@@ -104,13 +116,14 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
             <FoodList label="Mina recept" foods={recipes} onSelect={setChoice} />
           </section>
         )}
-        <FoodSearchResults query={query} results={results} recent={recent} onSelect={setChoice} />
+        <FoodSearchResults query={query} results={results} favorites={favorites} recent={recent} onSelect={setChoice} />
       </main>
+      {quickOpen && <QuickEntrySheet date={date} meal={meal} onClose={() => setQuickOpen(false)} />}
       {selected && (
         <Sheet
           title={entryName(selected)}
           subtitle={sheetSubtitle(selected)}
-          action={editFood}
+          action={sheetActions}
           onClose={() => setChoice(null)}
         >
           <AmountForm

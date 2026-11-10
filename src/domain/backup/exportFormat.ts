@@ -22,7 +22,7 @@ import {
 } from '../types'
 import { isValidWeightKg } from '../weight/weight'
 
-export const EXPORT_VERSION = 3
+export const EXPORT_VERSION = 4
 
 export type ExportData = {
   app: 'mumsa'
@@ -35,6 +35,8 @@ export type ExportData = {
   profile: Profile | null
   weights: WeightEntry[]
   recipes: Recipe[]
+  /** Id:n på livsmedel som användaren har markerat som favoriter, i den ordning de lades till. */
+  favorites: string[]
 }
 
 export type ImportResult =
@@ -57,6 +59,8 @@ const MIGRATIONS: Readonly<Partial<Record<number, Migration>>> = {
   1: (json) => ({ ...json, weights: [] }),
   // Version 3 lade till recept
   2: (json) => ({ ...json, recipes: [] }),
+  // Version 4 lade till favoriter
+  3: (json) => ({ ...json, favorites: [] }),
 }
 
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -233,6 +237,10 @@ function validateCurrent(json: Obj): ImportResult {
   const recipes = json.recipes as Recipe[]
   if (hasDuplicateIds(recipes)) return fail('Filen innehåller flera recept med samma id.')
 
+  if (!Array.isArray(json.favorites) || !json.favorites.every(isNonEmptyText)) return fail('Favoriterna i filen är ogiltiga.')
+  // Samma livsmedel ska inte ligga två gånger
+  const favorites = [...new Set(json.favorites as string[])]
+
   // Livsmedelsverkets livsmedel följer med appen och ska inte ligga i databasen
   const stored = foods.filter((f) => f.source !== 'slv')
   return {
@@ -247,6 +255,7 @@ function validateCurrent(json: Obj): ImportResult {
       profile,
       weights,
       recipes,
+      favorites,
     },
     skippedFoods: foods.length - stored.length,
   }

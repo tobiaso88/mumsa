@@ -1,13 +1,25 @@
+import { isQuickFoodId } from '../../domain/foods/foodIds'
+import type { NewLogEntry } from '../../domain/nutrition/copyMeal'
 import type { IsoDate, LogEntry } from '../../domain/types'
 import { newId, type MumsaDb } from '../db/db'
 
-export type NewEntry = Omit<LogEntry, 'id' | 'createdAt'>
-export type EntryChanges = Partial<Pick<LogEntry, 'grams' | 'meal' | 'date'>>
+export type NewEntry = NewLogEntry
+export type EntryChanges = Partial<Pick<LogEntry, 'grams' | 'meal' | 'date' | 'foodName'>>
 
 export async function addEntry(db: MumsaDb, input: NewEntry, now = new Date()): Promise<LogEntry> {
   const entry: LogEntry = { ...input, id: newId(), createdAt: now.toISOString() }
   await db.entries.add(entry)
   return entry
+}
+
+/**
+ * Lägger till flera poster på en gång. Varje post får en millisekund senare
+ * tidpunkt än den förra, så att de behåller sin ordning när dagen visas.
+ */
+export async function addEntries(db: MumsaDb, inputs: readonly NewEntry[], now = new Date()): Promise<LogEntry[]> {
+  const entries = inputs.map((input, i): LogEntry => ({ ...input, id: newId(), createdAt: new Date(now.getTime() + i).toISOString() }))
+  await db.entries.bulkAdd(entries)
+  return entries
 }
 
 export async function updateEntry(db: MumsaDb, id: string, changes: EntryChanges): Promise<void> {
@@ -36,7 +48,8 @@ export async function getRecentFoodIds(db: MumsaDb, limit = 15): Promise<string[
     .reverse()
     .until(() => ids.size >= limit)
     .each((e) => {
-      ids.add(e.foodId)
+      // Snabbregistreringar är inget livsmedel som går att logga igen
+      if (!isQuickFoodId(e.foodId)) ids.add(e.foodId)
     })
   return [...ids].slice(0, limit)
 }
