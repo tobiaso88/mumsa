@@ -196,7 +196,8 @@ test('kopierar gårdagens lunch, loggar kalorier snabbt och återanvänder en fa
   await expect(page.getByRole('region', { name: 'Middag' }).getByRole('button', { name: 'Pizza, 500 kcal' })).toBeVisible()
   await expect(page.getByText('1 350')).toBeVisible() // 2000 − 150 − 500
 
-  // Favoriten finns överst när man lägger till något nytt
+  // Favoriten finns under sin flik när man lägger till något nytt
   await page.getByRole('link', { name: 'Lägg till i frukost' }).click()
+  await page.getByRole('radiogroup', { name: 'Visa' }).getByText('Favoriter').click()
   await expect(page.getByRole('list', { name: 'Favoriter' }).getByRole('button', { name: /^Havregryn fullkorn/ })).toBeVisible()
 })
