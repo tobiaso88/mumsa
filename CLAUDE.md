@@ -85,7 +85,9 @@ Node 24 krävs. Ingen `.env` behövs; `BASE_PATH` sätts bara av GitHub Actions 
 
 ## CI/CD
 
-`.github/workflows/deploy.yml` kör lint, enhetstester, Playwright och bygge vid push och pull request, och publicerar till GitHub Pages (https://tobiaso88.github.io/mumsa/) vid push till `main`. Inga GitHub Secrets behövs.
+- `.github/workflows/ci.yml` kör lint, enhetstester, Playwright och bygge. Den körs för pull requests mot `main` och anropas av `deploy.yml`.
+- `.github/workflows/deploy.yml` körs vid push till `main`: först anropas `ci.yml`, och bara om den går igenom publiceras bygget till GitHub Pages (https://tobiaso88.github.io/mumsa/).
+- Inga GitHub Secrets behövs.
 
 ## Definition av klart
 

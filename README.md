@@ -113,7 +113,7 @@ mumsa/
 | Streckkoder | Open Food Facts API | Öppen och gratis, med bra täckning av svenska produkter |
 | Kamera | BarcodeDetector med @zxing/browser som reserv | Webbläsarens inbyggda avläsare där den finns, och zxing i till exempel Safari |
 | Tester | Vitest, Testing Library, Playwright | Enhetstester för all logik i `domain/` och end-to-end-tester av de viktigaste flödena |
-| CI/CD | GitHub Actions, GitHub Pages | Lint, tester och bygge vid varje push och pull request, och publicering vid push till `main`. Inga hemligheter behövs |
+| CI/CD | GitHub Actions, GitHub Pages | `ci.yml` kör lint, tester och bygge för pull requests och före varje publicering. `deploy.yml` publicerar vid push till `main`, bara om CI har gått igenom. Inga hemligheter behövs |
 
 ## Begränsningar
 
