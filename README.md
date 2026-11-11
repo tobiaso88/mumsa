@@ -45,12 +45,29 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - **iPhone:** öppna appen i Safari, tryck på Dela och välj *Lägg till på hemskärmen*.
 - **Android:** öppna appen i Chrome och välj *Installera app* i menyn.
 
-## Utveckling
+## Kom igång
 
-Kräver Node 24.
+### Krav
+
+- Node 24 och npm
+- Inga externa tjänster, konton eller API-nycklar. Streckkodsuppslagen mot Open Food Facts kräver ingen nyckel.
+
+### Installation
 
 ```bash
+git clone https://github.com/tobiaso88/mumsa
+cd mumsa
 npm install
+```
+
+### Konfiguration
+
+Ingen `.env`-fil behövs. Den enda miljövariabeln är `BASE_PATH`, som anger sökvägen appen serveras från. Den är `/` om den inte är satt, och GitHub Actions sätter den till `/mumsa/` när appen byggs för GitHub Pages.
+
+### Kör projektet
+
+```bash
+npm run dev
 ```
 
 | Kommando | Vad det gör |
@@ -63,8 +80,54 @@ npm install
 | `npm run screenshots` | Tar om skärmdumparna i `docs/screenshots/` |
 | `npm run icons` | Skapar appikonerna i `public/` |
 | `npm run data:livsmedel` | Hämtar Livsmedelsverkets databas till `src/data/sources/livsmedelsverket.json` |
+| `npm run data:demo` | Skapar en påhittad dagbok i `demo/` som kan importeras i appen |
 
-Koden är uppdelad i tre lager: `src/domain/` (rena beräkningar), `src/data/` (IndexedDB, Open Food Facts, kamera och filer) och `src/ui/` (React). Inom `domain/` och `data/` ligger filerna i undermappar per område, till exempel `domain/goals/` och `data/repos/`. Alla tester ligger i `tests/`, som speglar strukturen i `src/`, och end-to-end-testerna i `tests/e2e/`. GitHub Actions kör lint och alla tester vid varje push och publicerar till GitHub Pages från `main`.
+## Arkitektur
+
+Appen är en statisk webbapp utan backend och är uppdelad i tre lager. `src/domain/` innehåller rena funktioner och typer, till exempel näringsberäkningar, summering per dag och målberäkning, utan React eller I/O. `src/data/` är det enda lagret som pratar med omvärlden: IndexedDB, Open Food Facts, kameran och filer för import och export. Det returnerar domäntyper, så resten av appen känner inte till Open Food Facts format. `src/ui/` innehåller React-komponenter och hooks, som hämtar data via `data/` och låter `domain/` göra alla beräkningar.
+
+```
+mumsa/
+├── src/
+│   ├── domain/        # Rena beräkningar och typer: foods, nutrition, goals, recipes, weight, backup
+│   ├── data/          # IndexedDB (db, repos), livsmedelskällor, säkerhetskopior och streckkodsskanner
+│   ├── ui/            # React-skärmar, komponenter, hooks och stilar
+│   └── main.tsx       # Startpunkt
+├── tests/             # Speglar src/, plus e2e/ (Playwright), helpers/ och fixtures/
+├── scripts/           # Hämtar Livsmedelsverkets data, skapar ikoner och demodata
+├── public/            # Favicon och appikoner
+├── docs/              # Skärmdumpar och planeringsdokument
+├── .github/workflows/ # Lint, tester, bygge och publicering till GitHub Pages
+└── vite.config.ts     # Bygge och PWA-inställningar (manifest och service worker)
+```
+
+## Teknisk stack
+
+| Komponent | Val | Anledning |
+| --- | --- | --- |
+| Språk och ramverk | TypeScript, React | Typkontroll fångar fel i näringsberäkningarna, och React är väletablerat för ett mobilgränssnitt |
+| Bygge | Vite | Snabb utvecklingsmiljö och bygger till statiska filer som kan ligga på GitHub Pages |
+| Installation och offline | vite-plugin-pwa | Appen kan läggas på hemskärmen och fungerar offline via en service worker |
+| Lagring | IndexedDB via Dexie | All data stannar i webbläsaren, så ingen backend eller inget konto behövs. Dexie sköter schemamigreringar |
+| Livsmedelsdata | Livsmedelsverkets livsmedelsdatabas | Öppen data (CC BY 4.0) om svenska basvaror. Den följer med appen, så sökningen fungerar offline |
+| Streckkoder | Open Food Facts API | Öppen och gratis, med bra täckning av svenska produkter |
+| Kamera | BarcodeDetector med @zxing/browser som reserv | Webbläsarens inbyggda avläsare där den finns, och zxing i till exempel Safari |
+| Tester | Vitest, Testing Library, Playwright | Enhetstester för all logik i `domain/` och end-to-end-tester av de viktigaste flödena |
+| CI/CD | GitHub Actions, GitHub Pages | Lint, tester och bygge vid varje push och pull request, och publicering vid push till `main`. Inga hemligheter behövs |
+
+## Begränsningar
+
+- Ingen synk mellan enheter. Data flyttas bara genom att exportera och importera en säkerhetskopia för hand.
+- Datan finns bara i webbläsaren. Om man rensar webbplatsdata eller avinstallerar appen försvinner loggen, om man inte har en säkerhetskopia. På iPhone kan Safari dessutom rensa data för webbplatser som inte har använts på länge.
+- Sökningen omfattar bara Livsmedelsverkets cirka 2 600 basvaror och egna livsmedel. Märkesvaror hittas bara genom att skanna streckkoden, eftersom Open Food Facts fritextsökning inte går att anropa från webbläsaren.
+- Näringsvärden från Open Food Facts läggs in av användare och kan vara ofullständiga eller fel. De går att rätta genom att spara en egen kopia.
+- Skanning av nya produkter kräver nätverk. Allt annat fungerar offline.
+- Uppskattade kalorimål bygger på allmänna formler och är ingen medicinsk rekommendation.
+- Gränssnittet finns bara på svenska.
+
+## Utvecklat med
+
+Claude Code (agentdriven utveckling) som del av kursen Next-Generation Software Development with AI.
 
 ## Källor och licenser
 
