@@ -1,5 +1,7 @@
 import { render, renderHook, screen, waitFor } from '@testing-library/react'
 import { ErrorBoundary } from '../../../src/ui/components/ErrorBoundary'
+import { DbProvider } from '../../../src/ui/DbProvider'
+import { createTestDb } from '../../helpers/testDb'
 import { useAsync } from '../../../src/ui/hooks/useAsync'
 
 afterEach(() => {
@@ -34,10 +36,13 @@ function Failing() {
 it('kastar fel till närmaste ErrorBoundary', async () => {
   // React och ErrorBoundary loggar felet, vilket är väntat här
   vi.spyOn(console, 'error').mockImplementation(() => {})
+  // Felskärmen kan exportera datan och behöver därför en databas
   render(
-    <ErrorBoundary>
-      <Failing />
-    </ErrorBoundary>,
+    <DbProvider db={createTestDb()}>
+      <ErrorBoundary>
+        <Failing />
+      </ErrorBoundary>
+    </DbProvider>,
   )
   expect(await screen.findByRole('heading', { name: 'Något gick fel' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Ladda om' })).toBeInTheDocument()

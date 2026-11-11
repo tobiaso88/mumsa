@@ -9,6 +9,11 @@ export const MAX_MACROS_PER_100G = 105
 export const MAX_KCAL_PER_100G = 950
 /** Längsta namn, varumärke eller portionsbeskrivning. Gäller både formulär, import och Open Food Facts. */
 export const MAX_TEXT_LENGTH = 200
+/**
+ * Längsta namn på en loggpost eller ingrediens. Namnet sparas som "namn, varumärke",
+ * så det får plats med två fulla texter och avgränsaren.
+ */
+export const MAX_ENTRY_NAME_LENGTH = 2 * MAX_TEXT_LENGTH + 2
 
 /** Hårda fel som gör värdena omöjliga per 100 g. */
 export function nutrientIssues(n: Nutrients): NutrientIssue[] {

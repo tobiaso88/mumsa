@@ -1,6 +1,6 @@
 import { MAX_TEXT_LENGTH } from '../../../src/domain/foods/foodValidation'
 import productFixture from '../../fixtures/off-product.json'
-import { getByBarcode, mapOffProduct, OffError } from '../../../src/data/sources/openFoodFacts'
+import { anySignal, getByBarcode, mapOffProduct, OffError } from '../../../src/data/sources/openFoodFacts'
 
 const now = new Date('2026-10-23T10:00:00Z')
 
@@ -10,8 +10,39 @@ function mockFetch(response: Response | Error) {
   return fn
 }
 
+const nativeAny = Object.getOwnPropertyDescriptor(AbortSignal, 'any')
+
+/** Som i Safari före 17.4. Återställs efter varje test. */
+function withoutAbortSignalAny() {
+  Object.defineProperty(AbortSignal, 'any', { value: undefined, configurable: true, writable: true })
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
+  if (nativeAny) Object.defineProperty(AbortSignal, 'any', nativeAny)
+})
+
+describe.each([
+  ['med AbortSignal.any', () => {}],
+  ['utan AbortSignal.any', withoutAbortSignalAny],
+])('anySignal %s', (_, setup) => {
+  beforeEach(setup)
+
+  it('avbryts med orsaken från den signal som avbryts först', () => {
+    const a = new AbortController()
+    const b = new AbortController()
+    const combined = anySignal([a.signal, b.signal])
+    expect(combined.aborted).toBe(false)
+    b.abort('b')
+    expect(combined.aborted).toBe(true)
+    expect(combined.reason).toBe('b')
+  })
+
+  it('är avbruten direkt om en signal redan är avbruten', () => {
+    const combined = anySignal([new AbortController().signal, AbortSignal.abort('klar')])
+    expect(combined.aborted).toBe(true)
+    expect(combined.reason).toBe('klar')
+  })
 })
 
 describe('mapOffProduct', () => {
@@ -118,6 +149,13 @@ describe('getByBarcode', () => {
     const error = await getByBarcode('7310130321184').catch((e: unknown) => e)
     expect(error).toBeInstanceOf(OffError)
     expect(error).toMatchObject({ kind: 'network' })
+  })
+
+  it('fungerar med en egen signal i webbläsare utan AbortSignal.any, t.ex. äldre Safari', async () => {
+    withoutAbortSignalAny()
+    mockFetch(Response.json(productFixture))
+    const food = await getByBarcode('7310130321184', new AbortController().signal, now)
+    expect(food?.id).toBe('off:7310130321184')
   })
 
   it('anropar inte API:t offline', async () => {

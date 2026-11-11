@@ -1,7 +1,7 @@
 import { isValidBarcode } from '../foods/barcode'
 import { isIsoDate } from '../dates'
 import { idMatchesSource } from '../foods/foodIds'
-import { MAX_TEXT_LENGTH, nutrientIssues } from '../foods/foodValidation'
+import { MAX_ENTRY_NAME_LENGTH, MAX_TEXT_LENGTH, nutrientIssues } from '../foods/foodValidation'
 import { isValidMeasures } from '../foods/measures'
 import { isValidGoalKcal, isValidProfile, isValidSplit } from '../goals/goals'
 import { isValidAmount } from '../nutrition/nutrition'
@@ -72,7 +72,9 @@ const isText = (v: unknown): v is string => isStr(v) && v.length <= MAX_TEXT_LEN
 const isOptText = (v: unknown) => v === undefined || isText(v)
 /** Id och namn får inte vara tomma. */
 const isNonEmptyText = (v: unknown): v is string => isText(v) && v.trim() !== ''
-const isTimestamp = (v: unknown): v is string => isStr(v) && !Number.isNaN(Date.parse(v))
+/** Namn på loggposter och ingredienser, som kan innehålla både namn och varumärke. */
+const isEntryName = (v: unknown): v is string => isStr(v) && v.length <= MAX_ENTRY_NAME_LENGTH && v.trim() !== ''
+const isTimestamp =(v: unknown): v is string => isStr(v) && !Number.isNaN(Date.parse(v))
 const isOneOf = <T>(list: readonly T[], v: unknown): v is T => (list as readonly unknown[]).includes(v)
 
 /** Samma gränser som när ett livsmedel sparas i formuläret. */
@@ -114,7 +116,7 @@ function isEntry(v: unknown): v is LogEntry {
     isIsoDate(v.date) &&
     isOneOf(MEALS, v.meal) &&
     isNonEmptyText(v.foodId) &&
-    isNonEmptyText(v.foodName) &&
+    isEntryName(v.foodName) &&
     isNum(v.grams) &&
     isValidAmount(v.grams) &&
     isNutrients(v.per100g) &&
@@ -126,7 +128,7 @@ function isIngredient(v: unknown): v is RecipeIngredient {
   return (
     isObj(v) &&
     isNonEmptyText(v.foodId) &&
-    isNonEmptyText(v.foodName) &&
+    isEntryName(v.foodName) &&
     isNum(v.grams) &&
     isValidAmount(v.grams) &&
     isNutrients(v.per100g)

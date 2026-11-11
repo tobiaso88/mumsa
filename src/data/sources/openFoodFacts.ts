@@ -101,6 +101,23 @@ export function mapOffProduct(raw: OffProduct, now: Date): Food | null {
   }
 }
 
+/**
+ * En signal som avbryts när någon av signalerna avbryts. AbortSignal.any saknas
+ * i Safari före 17.4, så där kopplas signalerna ihop för hand.
+ */
+export function anySignal(signals: readonly AbortSignal[]): AbortSignal {
+  if (typeof AbortSignal.any === 'function') return AbortSignal.any([...signals])
+  const controller = new AbortController()
+  for (const signal of signals) {
+    if (signal.aborted) {
+      controller.abort(signal.reason)
+      break
+    }
+    signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true, signal: controller.signal })
+  }
+  return controller.signal
+}
+
 async function getJson(url: string, signal?: AbortSignal): Promise<unknown> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     throw new OffError('offline', 'Du är offline.')
@@ -108,7 +125,7 @@ async function getJson(url: string, signal?: AbortSignal): Promise<unknown> {
   const timeout = AbortSignal.timeout(TIMEOUT_MS)
   let response: Response
   try {
-    response = await fetch(url, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout })
+    response = await fetch(url, { signal: signal ? anySignal([signal, timeout]) : timeout })
   } catch (error) {
     if (signal?.aborted) throw error
     if (timeout.aborted) throw new OffError('timeout', 'Open Food Facts svarade inte i tid.')

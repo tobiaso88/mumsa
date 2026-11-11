@@ -145,6 +145,40 @@ it('visar ett felmeddelande i stället för en tom skärm när datan inte går a
   consoleError.mockRestore()
 })
 
+it('låter användaren spara en säkerhetskopia från felskärmen', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  await saveGoals(db, goals)
+  // Dagsvyn kraschar, men exporten läser tabellerna på annat sätt och fungerar
+  vi.spyOn(db.entries, 'where').mockReturnValue({
+    equals: () => ({ sortBy: () => Promise.reject(new Error('Trasig fråga')) }),
+  } as never)
+  const blobs: Blob[] = []
+  vi.spyOn(URL, 'createObjectURL').mockImplementation((blob) => {
+    blobs.push(blob as Blob)
+    return 'blob:mumsa'
+  })
+  vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Spara en säkerhetskopia' }))
+  expect(await screen.findByText('Säkerhetskopian är sparad.')).toBeInTheDocument()
+  expect(JSON.parse(await blobs[0]!.text())).toMatchObject({ app: 'mumsa', goals })
+  consoleError.mockRestore()
+})
+
+it('säger ifrån om säkerhetskopian inte går att spara från felskärmen', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.spyOn(db.settings, 'get').mockRejectedValue(new Error('UnknownError'))
+  const user = userEvent.setup()
+  render(<App db={db} />)
+
+  await user.click(await screen.findByRole('button', { name: 'Spara en säkerhetskopia' }))
+  expect(await screen.findByText(/ingen säkerhetskopia kunde sparas/)).toBeInTheDocument()
+  consoleError.mockRestore()
+})
+
 it('visar ett fel och behåller formuläret om målet inte går att spara', async () => {
   const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
   vi.spyOn(db.settings, 'put').mockRejectedValueOnce(new Error('QuotaExceededError'))

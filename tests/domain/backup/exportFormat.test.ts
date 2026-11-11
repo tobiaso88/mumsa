@@ -1,5 +1,5 @@
 import { createExport, migrateExport, validateImport, type Migration } from '../../../src/domain/backup/exportFormat'
-import { MAX_TEXT_LENGTH } from '../../../src/domain/foods/foodValidation'
+import { MAX_ENTRY_NAME_LENGTH, MAX_TEXT_LENGTH } from '../../../src/domain/foods/foodValidation'
 import { makeEntry, makeFood, makeRecipe } from '../../helpers/testData'
 
 const valid = createExport(
@@ -32,6 +32,24 @@ describe('validateImport', () => {
     const result = validateImport({ ...valid, foods: [...valid.foods, slv] })
     expect(result.ok && result.data.foods).toEqual(valid.foods)
     expect(result.ok && result.skippedFoods).toBe(1)
+  })
+
+  it('godkänner loggposter och ingredienser vars namn har både långt namn och långt varumärke', () => {
+    const foodName = `${'a'.repeat(MAX_TEXT_LENGTH)}, ${'b'.repeat(MAX_TEXT_LENGTH)}`
+    const recipe = makeRecipe()
+    const json = JSON.parse(
+      JSON.stringify({
+        ...valid,
+        entries: [makeEntry({ foodName })],
+        recipes: [{ ...recipe, ingredients: recipe.ingredients.map((i) => ({ ...i, foodName })) }],
+      }),
+    )
+    expect(validateImport(json).ok).toBe(true)
+  })
+
+  it('avvisar loggposter med längre namn än namn och varumärke tillsammans', () => {
+    const foodName = 'a'.repeat(MAX_ENTRY_NAME_LENGTH + 1)
+    expect(validateImport({ ...valid, entries: [makeEntry({ foodName })] })).toEqual({ ok: false, error: 'Loggpost nummer 1 är ogiltig.' })
   })
 
   it('godkänner egna livsmedel med vikt per dl', () => {
