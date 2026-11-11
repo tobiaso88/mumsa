@@ -8,9 +8,9 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 | --- | --- | --- | --- |
 | ![Dagsvy](docs/screenshots/dag.png) | ![Sök livsmedel](docs/screenshots/sok.png) | ![Ange mängd](docs/screenshots/mangd.png) | ![Veckovy](docs/screenshots/vecka.png) |
 
-| Introduktion | Mörkt läge |
-| --- | --- |
-| ![Introduktion](docs/screenshots/introduktion.png) | ![Dagsvy i mörkt läge](docs/screenshots/dag-morkt.png) |
+| Välkommen | Introduktion | Mörkt läge |
+| --- | --- | --- |
+| ![Välkomstskärm](docs/screenshots/valkommen.png) | ![Introduktion](docs/screenshots/introduktion.png) | ![Dagsvy i mörkt läge](docs/screenshots/dag-morkt.png) |
 
 ## Funktioner
 

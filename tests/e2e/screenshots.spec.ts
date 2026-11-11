@@ -7,6 +7,12 @@ const DEMO = 'tests/e2e/fixtures/demo-backup.json'
 // Utan service worker visas ingen notis om offlineläge på bilderna
 test.use({ serviceWorkers: 'block' })
 
+// Animationer stängs av och spelas till slut, annars kan till exempel
+// mängdpanelen fotograferas mitt i när den glider upp
+async function snap(page: Page, name: string) {
+  await page.screenshot({ path: `${OUT}/${name}.png`, animations: 'disabled' })
+}
+
 async function importDemo(page: Page) {
   await page.goto('/#/installningar')
   await page.getByLabel('Importera från fil').setInputFiles(DEMO)
@@ -19,30 +25,30 @@ test('skärmdumpar till README @skärmdump', async ({ page }) => {
 
   await page.goto('/#/dag/2026-10-22')
   await expect(page.getByRole('region', { name: 'Frukost' }).getByText('Havregryn fullkorn')).toBeVisible()
-  await page.screenshot({ path: `${OUT}/dag.png` })
+  await snap(page, 'dag')
 
   await page.goto('/#/lagg-till/2026-10-22/middag')
   await page.getByRole('searchbox', { name: 'Sök livsmedel' }).fill('kyckling')
   await expect(page.getByRole('list', { name: 'Sökträffar' })).toBeVisible()
-  await page.screenshot({ path: `${OUT}/sok.png` })
+  await snap(page, 'sok')
 
   await page.getByRole('button', { name: /^Kyckling bröstfilé färsk stekt/ }).click()
   await page.getByRole('dialog').getByLabel('Mängd', { exact: true }).fill('150')
-  await page.screenshot({ path: `${OUT}/mangd.png` })
+  await snap(page, 'mangd')
 
   await page.goto('/#/vecka/2026-10-22')
   await expect(page.getByRole('heading', { name: 'Vecka 43' })).toBeVisible()
-  await page.screenshot({ path: `${OUT}/vecka.png` })
+  await snap(page, 'vecka')
 
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.goto('/#/dag/2026-10-23')
   await expect(page.getByRole('region', { name: 'Frukost' })).toBeVisible()
-  await page.screenshot({ path: `${OUT}/dag-morkt.png` })
+  await snap(page, 'dag-morkt')
 })
 
 test('skärmdump av introduktionen @skärmdump', async ({ page }) => {
   await page.goto('/')
-  await page.screenshot({ path: `${OUT}/valkommen.png` })
+  await snap(page, 'valkommen')
   await page.getByRole('button', { name: 'Kom igång' }).click()
   await page.getByLabel('Vikt').fill('68')
   await page.getByLabel('Längd').fill('170')
@@ -50,5 +56,5 @@ test('skärmdump av introduktionen @skärmdump', async ({ page }) => {
   await page.getByText('Kvinna', { exact: true }).click()
   await page.getByLabel('Aktivitetsnivå').selectOption('moderate')
   await expect(page.getByText(/Uppskattat behov/)).toBeVisible()
-  await page.screenshot({ path: `${OUT}/introduktion.png` })
+  await snap(page, 'introduktion')
 })
