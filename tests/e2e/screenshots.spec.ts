@@ -28,9 +28,11 @@ test('skärmdumpar till README @skärmdump', async ({ page }) => {
   await snap(page, 'dag')
 
   await page.goto('/#/lagg-till/2026-10-22/middag')
+  await expect(page.getByRole('list', { name: 'Senast loggade' })).toBeVisible()
+  await snap(page, 'lagg-till')
+
   await page.getByRole('searchbox', { name: 'Sök livsmedel' }).fill('kyckling')
   await expect(page.getByRole('list', { name: 'Sökträffar' })).toBeVisible()
-  await snap(page, 'sok')
 
   await page.getByRole('button', { name: /^Kyckling bröstfilé färsk stekt/ }).click()
   await page.getByRole('dialog').getByLabel('Mängd', { exact: true }).fill('150')

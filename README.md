@@ -6,7 +6,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 
 | Dag | Sök | Mängd | Vecka |
 | --- | --- | --- | --- |
-| ![Dagsvy](docs/screenshots/dag.png) | ![Sök livsmedel](docs/screenshots/sok.png) | ![Ange mängd](docs/screenshots/mangd.png) | ![Veckovy](docs/screenshots/vecka.png) |
+| ![Dagsvy](docs/screenshots/dag.png) | ![Lägg till livsmedel](docs/screenshots/lagg-till.png) | ![Ange mängd](docs/screenshots/mangd.png) | ![Veckovy](docs/screenshots/vecka.png) |
 
 | Välkommen | Introduktion | Mörkt läge |
 | --- | --- | --- |
