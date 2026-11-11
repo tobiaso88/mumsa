@@ -56,7 +56,8 @@ async function addIngredient(user: ReturnType<typeof userEvent.setup>, search: s
 it('skapar ett recept av ingredienser och loggar en portion av det', async () => {
   const user = userEvent.setup()
   render(<App db={db} />)
-  await user.click(await screen.findByRole('link', { name: 'Recept' }))
+  await user.click(await screen.findByRole('radio', { name: 'Recept' }))
+  await user.click(screen.getByRole('link', { name: 'Nytt recept' }))
 
   const save = await screen.findByRole('button', { name: 'Spara recept' })
   expect(save).toBeDisabled()
@@ -102,11 +103,14 @@ it('loggar en halv portion', async () => {
   expect(await getEntriesForDate(db, date)).toMatchObject([{ foodId: recipe.id, grams: 100 }])
 })
 
-it('visar recepten i listan och hittar dem med sökning', async () => {
+it('visar recepten under en egen flik och hittar dem med sökning', async () => {
   await createRecipe(db, recipeInput)
   const user = userEvent.setup()
   render(<App db={db} />)
 
+  await screen.findByRole('searchbox', { name: 'Sök livsmedel' })
+  expect(screen.queryByRole('list', { name: 'Mina recept' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('radio', { name: 'Recept' }))
   const list = await screen.findByRole('list', { name: 'Mina recept' })
   expect(within(list).getByRole('button', { name: /Havregrynsgröt/ })).toHaveTextContent('275 kcal/portion')
 

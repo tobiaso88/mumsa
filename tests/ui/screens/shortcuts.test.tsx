@@ -275,12 +275,13 @@ describe('favoriter', () => {
     expect(await getFavoriteIds(db)).toEqual([])
   })
 
-  it('visar favoriterna först, innan man har sökt, och loggar från dem', async () => {
+  it('visar favoriterna under en egen flik och loggar från dem', async () => {
     await saveFavoriteIds(db, ['slv:123', 'slv:702'])
     window.location.hash = `#/lagg-till/${today}/lunch`
     const user = userEvent.setup()
     render(<App db={db} />)
 
+    await user.click(await screen.findByRole('radio', { name: 'Favoriter' }))
     const favorites = await screen.findByRole('list', { name: 'Favoriter' })
     expect(within(favorites).getAllByRole('button').map((b) => b.textContent)).toEqual([
       expect.stringContaining('Mjölk fett 3% berikad'),
@@ -295,7 +296,7 @@ describe('favoriter', () => {
     expect(await getEntriesForDate(db, today)).toMatchObject([{ foodId: 'slv:702', meal: 'lunch' }])
   })
 
-  it('visar inte en favorit en gång till bland senast loggade', async () => {
+  it('visar senast loggade som förval, även de som är favoriter', async () => {
     await addEntry(db, { date: yesterday, meal: 'lunch', foodId: 'slv:702', foodName: 'Havregryn fullkorn', grams: 80, per100g: oats })
     await addEntry(db, { date: yesterday, meal: 'lunch', foodId: 'slv:123', foodName: 'Mjölk fett 3% berikad', grams: 200, per100g: milk })
     await saveFavoriteIds(db, ['slv:702'])
@@ -303,26 +304,44 @@ describe('favoriter', () => {
     render(<App db={db} />)
 
     const recent = await screen.findByRole('list', { name: 'Senast loggade' })
-    expect(within(recent).getAllByRole('button')).toHaveLength(1)
-    expect(within(recent).getByRole('button', { name: /Mjölk/ })).toBeInTheDocument()
-    expect(within(screen.getByRole('list', { name: 'Favoriter' })).getByRole('button', { name: /Havregryn/ })).toBeInTheDocument()
+    expect(within(recent).getAllByRole('button')).toHaveLength(2)
+    expect(screen.getByRole('radio', { name: 'Senaste' })).toBeChecked()
+    expect(screen.queryByRole('list', { name: 'Favoriter' })).not.toBeInTheDocument()
+  })
+
+  it('behåller vald flik när man har sökt och rensat sökfältet', async () => {
+    await saveFavoriteIds(db, ['slv:702'])
+    window.location.hash = `#/lagg-till/${today}/lunch`
+    const user = userEvent.setup()
+    render(<App db={db} />)
+
+    await user.click(await screen.findByRole('radio', { name: 'Favoriter' }))
+    const search = screen.getByRole('searchbox', { name: 'Sök livsmedel' })
+    await user.type(search, 'mjölk')
+    expect(screen.queryByRole('radio', { name: 'Favoriter' })).not.toBeInTheDocument()
+    await user.clear(search)
+    expect(await screen.findByRole('list', { name: 'Favoriter' })).toBeInTheDocument()
   })
 
   it('hoppar över en favorit som inte finns längre', async () => {
     await saveFavoriteIds(db, ['custom:borttagen', 'slv:702'])
     window.location.hash = `#/lagg-till/${today}/lunch`
+    const user = userEvent.setup()
     render(<App db={db} />)
 
+    await user.click(await screen.findByRole('radio', { name: 'Favoriter' }))
     const favorites = await screen.findByRole('list', { name: 'Favoriter' })
     expect(within(favorites).getAllByRole('button')).toHaveLength(1)
   })
 
-  it('visar ingen rubrik för favoriter när det inte finns några', async () => {
+  it('förklarar hur man får favoriter när det inte finns några', async () => {
     window.location.hash = `#/lagg-till/${today}/lunch`
+    const user = userEvent.setup()
     render(<App db={db} />)
 
-    await screen.findByRole('searchbox', { name: 'Sök livsmedel' })
-    expect(screen.queryByRole('heading', { name: 'Favoriter' })).not.toBeInTheDocument()
+    await user.click(await screen.findByRole('radio', { name: 'Favoriter' }))
+    expect(await screen.findByText(/Inga favoriter än/)).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: 'Favoriter' })).not.toBeInTheDocument()
   })
 
   it('visar inte favoriter bland sökträffarna', async () => {

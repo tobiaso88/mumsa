@@ -24,7 +24,7 @@ En enkel och gratis matlogg för mobilen. Sätt ett dagligt mål, logga vad du �
 - Logga i gram eller portioner, per frukost, lunch, middag och mellanmål. Vanliga basvaror som havregryn, vetemjöl, mjölk och filmjölk går också att ange i dl, msk eller tsk, med vikter från Livsmedelsverket. Egna livsmedel kan få en vikt per dl.
 - Kopiera en tidigare måltid till dagen du tittar på, till exempel gårdagens frukost, så slipper du logga samma mat igen.
 - Snabbregistrera bara kalorier när du inte vet vad maten innehåller. Protein, kolhydrater och fett räknas då inte med.
-- Markera livsmedel och recept som favoriter. De visas överst när du ska lägga till något.
+- Markera livsmedel och recept som favoriter. När du ska lägga till något väljer du mellan flikarna Senaste, Favoriter och Recept.
 - Dagsvy med intag mot målet och veckovy med diagram och snitt.
 - Export och import av all data som JSON.
 - Installeras som app på mobilen och fungerar offline.

@@ -2,8 +2,8 @@ import { useCallback, useRef, useState } from 'react'
 import type { Food, Meal } from '../../domain/types'
 import { AmountForm } from '../components/AmountForm'
 import { FavoriteButton } from '../components/FavoriteButton'
-import { FoodList } from '../components/FoodList'
 import { FoodSearchResults } from '../components/FoodSearchResults'
+import { FoodShortcuts, type ShortcutTab } from '../components/FoodShortcuts'
 import { Icon } from '../components/Icon'
 import { NavBar } from '../components/NavBar'
 import { QuickEntrySheet } from '../components/QuickEntrySheet'
@@ -47,6 +47,7 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
   // undefined tills användaren själv har valt eller stängt något
   const [choice, setChoice] = useState<Food | null>()
   const [quickOpen, setQuickOpen] = useState(false)
+  const [tab, setTab] = useState<ShortcutTab>('recent')
   const preselected = useFood(foodId)
   const results = useFoodSearch(query)
   const recent = useRecentFoods()
@@ -105,22 +106,24 @@ export function AddFoodScreen({ date, meal, foodId }: Props) {
             <Icon name="pencil" size={22} />
             Eget livsmedel
           </a>
-          <a className="tile-button" href={toHash({ name: 'recipe', action: 'new', context: { date, meal } })}>
-            <Icon name="book" size={22} />
-            Recept
-          </a>
           <button type="button" className="tile-button" onClick={() => setQuickOpen(true)}>
             <Icon name="flash" size={22} />
             Kalorier
           </button>
         </div>
-        {query.trim() === '' && recipes && recipes.length > 0 && (
-          <section>
-            <h2 className="section-title">Mina recept</h2>
-            <FoodList label="Mina recept" foods={recipes} onSelect={setChoice} />
-          </section>
+        {query.trim() === '' ? (
+          <FoodShortcuts
+            tab={tab}
+            onTabChange={setTab}
+            recent={recent}
+            favorites={favorites}
+            recipes={recipes}
+            newRecipeHref={toHash({ name: 'recipe', action: 'new', context: { date, meal } })}
+            onSelect={setChoice}
+          />
+        ) : (
+          <FoodSearchResults query={query} results={results} favorites={favorites} recent={recent} onSelect={setChoice} />
         )}
-        <FoodSearchResults query={query} results={results} favorites={favorites} recent={recent} onSelect={setChoice} />
       </main>
       {quickOpen && <QuickEntrySheet date={date} meal={meal} onClose={() => setQuickOpen(false)} />}
       {selected && (
